@@ -15,7 +15,7 @@ python_requires = >=3.9
 install_requires =
     pydantic~=1.8.2
     jsonrpc2-objects~=1.3.0
-    jsonrpc2-pyclient @ git+https://git@gitlab.com/mburkard/jsonrpc2-pyclient
+    jsonrpc2-pyclient~=1.0.0
 
 [options.packages.find]
 where = {pkg_dir}
