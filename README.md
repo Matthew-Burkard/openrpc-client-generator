@@ -1,4 +1,4 @@
-<div style="text-align: center">
+<div align=center>
 <!-- Title: -->
   <h1>OpenRPC Client Generator</h1>
 <!-- Labels: -->
@@ -14,6 +14,35 @@
      height="20"
      alt="Contributions Welcome">
   </a>
+  <h3>Generate clients for various languages from OpenRPC documents</h3>
 </div>
 
+This library provides a `ClientFactory` class that can be used to
+generate clients.
 
+Current supported languages:
+- Python
+- TypeScript
+- C#
+
+For each client two files will be generated, a models file with code for
+which will have a class for each schema, and a client file which have
+all the methods. Then the files will be built into a distributable
+package.
+
+## Example Usage
+
+```python
+import json
+
+from openrpc.objects import OpenRPCObject
+from openrpcclientgenerator.client_factory import ClientFactory
+
+openrpc_doc_obj = OpenRPCObject(**json.loads(openrpc_doc_json))
+client_dir = "~/GeneratedClients/"
+
+cf = ClientFactory(out_dir=client_dir, rpc=openrpc_doc_obj)
+cf.build_python_client()
+cf.build_c_sharp_client()
+cf.build_typescript_client()
+```
