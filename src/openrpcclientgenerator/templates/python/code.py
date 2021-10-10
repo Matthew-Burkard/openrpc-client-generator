@@ -18,11 +18,11 @@ field = "{name}: {type}{default}"
 client_file = """
 from typing import *
 
-from .clients import RPC{transport}Client
+from jsonrpc2pyclient.httpclient import RPCHTTPClient
 from .models import *
 
 
-class {title}{transport}Client(RPC{transport}Client):
+class {title}Client(RPC{transport}Client):
 {methods}
 """.strip()
 
