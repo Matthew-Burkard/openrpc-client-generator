@@ -3,6 +3,7 @@ import shutil
 import uuid
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from openrpc.objects import OpenRPCObject
 
@@ -17,16 +18,23 @@ from openrpcclientgenerator.templates.typescript.index import index_ts
 
 __all__ = ("ClientFactory",)
 
-CLIENT_AUTHOR = os.environ.get("CLIENT_AUTHOR")
-CLIENT_AUTHOR_EMAIL = os.environ.get("CLIENT_AUTHOR_EMAIL")
-CLIENT_VERSION = os.environ.get("CLIENT_VERSION") or "1.0.0"
-CLIENT_COPYRIGHT_HOLDER = os.environ.get("CLIENT_COPYRIGHT_HOLDER")
-
 
 class ClientFactory:
-    def __init__(self, out_dir: str, rpc: OpenRPCObject) -> None:
+    def __init__(
+        self,
+        out_dir: str,
+        rpc: OpenRPCObject,
+        client_author: Optional[str] = None,
+        client_author_email: Optional[str] = None,
+        client_version: Optional[str] = None,
+        client_copyright_holder: Optional[str] = None,
+    ) -> None:
         self.rpc = rpc
         self._out_dir = Path(out_dir)
+        self.client_author = client_author or "Generated"
+        self.client_author_email = client_author_email or ""
+        self.client_version = client_version or "1.0.0"
+        self.client_copyright_holder = client_copyright_holder or ""
 
     def build_c_sharp_client(self) -> str:
         generator = CSharpGenerator(
@@ -60,8 +68,8 @@ class ClientFactory:
             dotnet_files.csproj.format(
                 name=sln_name,
                 version=self.rpc.info.version,
-                authors=CLIENT_AUTHOR,
-                copyright_holder=CLIENT_COPYRIGHT_HOLDER,
+                authors=self.client_author,
+                copyright_holder=self.client_copyright_holder,
                 description=self.rpc.info.description,
                 year=datetime.now().year,
             )
@@ -95,9 +103,9 @@ class ClientFactory:
         setup.write_text(
             py_build_files.setup.format(
                 name=pkg_name,
-                version=CLIENT_VERSION,
-                author=CLIENT_AUTHOR,
-                author_email=CLIENT_AUTHOR_EMAIL,
+                version=self.client_version,
+                author=self.client_author,
+                author_email=self.client_author_email,
                 pkg_dir="src",
             )
         )
@@ -139,9 +147,9 @@ class ClientFactory:
         package_json.write_text(
             ts_build_files.package_json.format(
                 name=pkg_name,
-                version=CLIENT_VERSION,
+                version=self.client_version,
                 description=f"{self.rpc.info.title} RPC Client.",
-                author=CLIENT_AUTHOR,
+                author=self.client_author,
                 license="custom",
             )
         )
@@ -149,6 +157,6 @@ class ClientFactory:
         os.system(f"npm i --prefix {client_path}")
         os.system(f"npm run build --prefix {client_path}")
         os.system(f"npm pack {client_path}")
-        tarball = f"{pkg_name}-{CLIENT_VERSION}.tgz"
+        tarball = f"{pkg_name}-{self.client_version}.tgz"
         shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
         return pkg_name
