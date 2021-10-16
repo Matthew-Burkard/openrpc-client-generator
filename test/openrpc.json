@@ -1,0 +1,386 @@
+{
+  "openrpc": "1.2.6",
+  "info": {
+    "title": "Math server",
+    "version": "1.0.0"
+  },
+  "methods": [
+    {
+      "name": "add",
+      "params": [
+        {
+          "name": "a",
+          "schema": {
+            "type": "number"
+          },
+          "required": true
+        },
+        {
+          "name": "b",
+          "schema": {
+            "type": "number"
+          },
+          "required": true
+        },
+        {
+          "name": "c",
+          "schema": {
+            "type": "number"
+          },
+          "required": false
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "type": "number"
+        },
+        "required": true
+      }
+    },
+    {
+      "name": "test",
+      "params": [
+        {
+          "name": "string_arg",
+          "schema": {
+            "type": "number"
+          },
+          "required": true
+        },
+        {
+          "name": "object_arg",
+          "schema": {
+            "$ref": "#/components/schemas/TestObject"
+          },
+          "required": true
+        },
+        {
+          "name": "object_array",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestObject"
+            }
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "type": "number"
+        },
+        "required": true
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "TestObject": {
+        "title": "TestObject",
+        "type": "object",
+        "properties": {
+          "a": {
+            "title": "A",
+            "type": "integer"
+          },
+          "b": {
+            "title": "B",
+            "type": "number"
+          },
+          "c": {
+            "title": "C",
+            "type": "string"
+          },
+          "d": {
+            "title": "D",
+            "type": "boolean"
+          },
+          "e": {
+            "title": "E",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "f": {
+            "title": "F",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "g": {
+            "title": "G",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "h": {
+            "title": "H",
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "i": {
+            "title": "I",
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "j": {
+            "title": "J",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "k": {
+            "title": "K",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "l": {
+            "title": "L",
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          },
+          "m": {
+            "title": "M",
+            "type": "integer"
+          },
+          "n": {
+            "title": "N",
+            "type": "number"
+          },
+          "o": {
+            "title": "O",
+            "type": "string"
+          },
+          "p": {
+            "title": "P",
+            "type": "boolean"
+          },
+          "q": {
+            "title": "Q",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "r": {
+            "title": "R",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "s": {
+            "title": "S",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "t": {
+            "title": "T",
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "u": {
+            "title": "U",
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "v": {
+            "title": "V",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "w": {
+            "title": "W",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "x": {
+            "title": "X",
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          },
+          "y": {
+            "title": "Y",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "z": {
+            "title": "Z",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                }
+              }
+            ]
+          },
+          "aa": {
+            "title": "Aa",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              }
+            ]
+          },
+          "ab": {
+            "title": "Ab",
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                }
+              }
+            ]
+          },
+          "ac": {
+            "title": "Ac",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "ad": {
+            "title": "Ad",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "boolean"
+                }
+              }
+            ]
+          },
+          "ae": {
+            "title": "Ae",
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "boolean"
+                }
+              }
+            ]
+          },
+          "af": {
+            "title": "Af",
+            "aneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "boolean"
+                }
+              }
+            ]
+          },
+          "ag": {
+            "title": "Ag",
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "required": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "y",
+          "z",
+          "aa",
+          "ab",
+          "ac",
+          "ad",
+          "ae",
+          "af",
+          "ag"
+        ]
+      }
+    }
+  }
+}
