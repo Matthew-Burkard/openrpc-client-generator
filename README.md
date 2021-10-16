@@ -46,3 +46,21 @@ cf.build_python_client()
 cf.build_c_sharp_client()
 cf.build_typescript_client()
 ```
+
+## Developing
+
+OpenRPC Client Generator uses
+[poetry](https://github.com/python-poetry/poetry) for packaging and
+dependency management.
+
+Install Dependencies:
+
+```sh
+poetry install
+```
+
+Build:
+
+```sh
+poetry build
+```
