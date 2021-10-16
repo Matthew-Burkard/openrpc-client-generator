@@ -39,7 +39,7 @@ from openrpc.objects import OpenRPCObject
 from openrpcclientgenerator.client_factory import ClientFactory
 
 openrpc_doc_obj = OpenRPCObject(**json.loads(openrpc_doc_json))
-client_dir = "~/GeneratedClients/"
+client_dir = "./dist/generated/"
 
 cf = ClientFactory(out_dir=client_dir, rpc=openrpc_doc_obj)
 cf.build_python_client()

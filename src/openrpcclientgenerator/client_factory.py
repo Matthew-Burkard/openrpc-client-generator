@@ -3,7 +3,6 @@ import shutil
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from openrpc.objects import OpenRPCObject
 
@@ -24,17 +23,9 @@ class ClientFactory:
         self,
         out_dir: str,
         rpc: OpenRPCObject,
-        client_author: Optional[str] = None,
-        client_author_email: Optional[str] = None,
-        client_version: Optional[str] = None,
-        client_copyright_holder: Optional[str] = None,
     ) -> None:
         self.rpc = rpc
         self._out_dir = Path(out_dir)
-        self.client_author = client_author or "Generated"
-        self.client_author_email = client_author_email or ""
-        self.client_version = client_version or "1.0.0"
-        self.client_copyright_holder = client_copyright_holder or ""
 
     def build_c_sharp_client(self) -> str:
         generator = CSharpGenerator(
@@ -68,8 +59,8 @@ class ClientFactory:
             dotnet_files.csproj.format(
                 name=sln_name,
                 version=self.rpc.info.version,
-                authors=self.client_author,
-                copyright_holder=self.client_copyright_holder,
+                authors=self.rpc.info.contact.name,
+                copyright_holder=self.rpc.info.contact.name,
                 description=self.rpc.info.description,
                 year=datetime.now().year,
             )
@@ -82,7 +73,8 @@ class ClientFactory:
         generator = PythonGenerator(
             self.rpc.info.title, self.rpc.methods, self.rpc.components.schemas
         )
-        pkg_name = f"{util.to_snake_case(self.rpc.info.title)}client".replace("_", "")
+        title = self.rpc.info.title.lower().replace(" ", "").replace("_", "")
+        pkg_name = f"{util.to_snake_case(title)}client"
         client_path = self._out_dir / "python" / pkg_name
         package_path = client_path / "src" / pkg_name
         os.makedirs(package_path, exist_ok=True)
@@ -92,20 +84,22 @@ class ClientFactory:
         models_file = package_path / "models.py"
         models_file.touch()
         models_file.write_text(models_str)
+        os.system(f"black {models_file.as_posix()}")
         # Methods
         methods_str = generator.get_methods()
         methods_file = package_path / "client.py"
         methods_file.touch()
         methods_file.write_text(methods_str)
+        os.system(f"black {methods_file.as_posix()}")
         # Build Files
         setup = client_path / "setup.cfg"
         setup.touch()
         setup.write_text(
             py_build_files.setup.format(
                 name=pkg_name,
-                version=self.client_version,
-                author=self.client_author,
-                author_email=self.client_author_email,
+                version=self.rpc.info.version,
+                author=self.rpc.info.contact.name,
+                author_email=self.rpc.info.contact.email,
                 pkg_dir="src",
             )
         )
@@ -147,9 +141,9 @@ class ClientFactory:
         package_json.write_text(
             ts_build_files.package_json.format(
                 name=pkg_name,
-                version=self.client_version,
+                version=self.rpc.info.version,
                 description=f"{self.rpc.info.title} RPC Client.",
-                author=self.client_author,
+                author=self.rpc.info.contact.name,
                 license="custom",
             )
         )
@@ -157,6 +151,6 @@ class ClientFactory:
         os.system(f"npm i --prefix {client_path}")
         os.system(f"npm run build --prefix {client_path}")
         os.system(f"npm pack {client_path}")
-        tarball = f"{pkg_name}-{self.client_version}.tgz"
+        tarball = f"{pkg_name}-{self.rpc.info.version}.tgz"
         shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
         return pkg_name
