@@ -10,3 +10,8 @@ the community!
 - Commit messages should follow the
   [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
   specification.
+
+### Commit Custom Scopes
+- cs - Commit changes C# generation.
+- py - Commit changes Python generation.
+- ts - Commit changes TypeScript generation.
