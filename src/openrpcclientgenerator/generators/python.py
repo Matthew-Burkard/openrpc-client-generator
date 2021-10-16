@@ -32,41 +32,18 @@ class PythonGenerator:
         self._indent = " " * 4
 
     def get_methods(self, transport: str = "HTTP") -> str:
-        def get_type(schema: SchemaObject) -> str:
-            # Get Python type from JSON Schema type.
-            if schema.type:
-                if schema.type == "array":
-                    return_type = f"list[{get_type(schema.items)}]"
-                elif schema.type == "object":
-                    v_type = get_type(schema.items) if schema.items else "Any"
-                    return_type = f"dict[str, {v_type}]"
-                else:
-                    return_type = self._type_map[schema.type]
-            elif schema.any_of:
-                return_type = ", ".join(get_type(it) for it in schema.any_of)
-                return_type = f"Union[{return_type}]"
-                if re.search(r", None", return_type):
-                    if len(schema.any_of) == 2:
-                        return_type = re.sub(
-                            r"Union\[([^,]+), None]", r"Optional[\1]", return_type
-                        )
-                    else:
-                        return_type = f"Optional[{return_type}]"
-            # TODO all_of, one_of
-            else:
-                return_type = schema.ref.removeprefix("#/components/schemas/")
-            return return_type
-
         def get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
                 params = ", ".join(util.to_snake_case(it.name) for it in method.params)
             else:
                 # Length is 1 or 0.
                 params = "".join(util.to_snake_case(it.name) for it in method.params)
-            args = [f", {p.name}: {get_type(p.json_schema)}" for p in method.params]
+            args = [
+                f", {p.name}: {self._get_py_type(p.json_schema)}" for p in method.params
+            ]
             args = [re.sub(r"(Optional.*)", r"\1 = None", arg) for arg in args]
             args.sort(key=lambda x: str(x).find("Optional") != -1)
-            return_type = get_type(method.result.json_schema)
+            return_type = self._get_py_type(method.result.json_schema)
             if return_type.startswith("list["):
                 # FIXME Won't work with union types.
                 deserialize = code.deserialize_list.format(
@@ -110,16 +87,10 @@ class PythonGenerator:
         fields = []
         for n, prop in schema.properties.items():
             default = " = None" if n in (schema.required or []) else ""
-            if prop.type:
-                field_type = self._type_map[prop.type]
-            else:
-                field_type = prop.ref.removeprefix("#/components/schemas/")
-                # FIXME Remove quotes on py3.10
-                field_type = f"'{field_type}'"
             fields.append(
                 code.field.format(
                     name=n,
-                    type=field_type,
+                    type=self._get_py_type(prop),
                     default=default,
                 )
             )
@@ -133,8 +104,39 @@ class PythonGenerator:
             doc = f"{schema.title} object."
         if len(doc.split("\n")) > 1:
             doc += self._indent
+
+        fields.sort(key=lambda x: x.endswith(" = None"))
+        fields = [
+            re.sub(r": (.*?) =", r": Optional[\1] =", f) if f.endswith(" = None") else f
+            for f in fields
+        ]
         return _Model(
             name=name,
             doc=f'"""{doc}"""',
             fields=fields,
         )
+
+    def _get_py_type(self, schema: SchemaObject) -> str:
+        # Get Python type from JSON Schema type.
+        if schema.type:
+            if schema.type == "array":
+                return f"list[{self._get_py_type(schema.items)}]"
+            elif schema.type == "object":
+                v_type = self._get_py_type(schema.items) if schema.items else "Any"
+                return f"dict[str, {v_type}]"
+            else:
+                if isinstance(schema.type, list):
+                    return f"Union[{', '.join(self._type_map[t] for t in schema.type)}]"
+                return self._type_map[schema.type]
+        elif schema_list := schema.any_of or schema.all_of or schema.any_of:
+            union = ", ".join(
+                self._get_py_type(it)
+                if isinstance(it, SchemaObject)
+                else self._type_map[it]
+                for it in schema_list
+            )
+            return f"Union[{union}]"
+        elif schema.ref:
+            return schema.ref.removeprefix("#/components/schemas/")
+        else:
+            return "Any"

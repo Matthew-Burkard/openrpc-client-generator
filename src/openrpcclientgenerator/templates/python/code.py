@@ -1,6 +1,6 @@
 # Models
 model_file = """
-from typing import Optional
+from typing import *
 
 from pydantic import BaseModel
 
