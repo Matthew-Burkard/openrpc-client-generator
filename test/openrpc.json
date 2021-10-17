@@ -1,7 +1,7 @@
 {
   "openrpc": "1.2.6",
   "info": {
-    "title": "Math server",
+    "title": "Math",
     "version": "1.0.0"
   },
   "methods": [
@@ -25,7 +25,8 @@
         {
           "name": "c",
           "schema": {
-            "type": "number"
+            "type": "number",
+            "enum": [2.99792458e8]
           },
           "required": false
         }
