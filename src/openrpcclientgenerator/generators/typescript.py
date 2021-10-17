@@ -23,33 +23,18 @@ class TypeScriptGenerator:
         self.methods = methods
         self.schemas = schemas
         self._type_map = {
+            "boolean": "boolean",
             "integer": "number",
             "number": "number",
-            "boolean": "boolean",
             "string": "string",
-            "null": None,
+            "null": "null",
+            "object": "object",
         }
 
     def get_methods(self) -> str:
         def get_type(schema: SchemaObject) -> str:
-            # Get TypeScript type from JSON Schema type.
-            if schema.type:
-                if schema.type == "array":
-                    return_type = f"{get_type(schema.items)}[]"
-                elif schema.type == "object":
-                    v_type = get_type(schema.items) if schema.items else "any"
-                    return_type = f"HashMap<string, {v_type}>"
-                else:
-                    return_type = self._type_map[schema.type]
-            elif schema.any_of:
-                return_type = "|".join(
-                    t for s in schema.any_of if (t := get_type(s)) is not None
-                )
-            # TODO all_of, one_of
-            else:
-                return_type = schema.ref.removeprefix("#/components/schemas/")
-                return_type = f"m.{return_type}"
-            return return_type
+            ts_type = self._get_ts_type(schema)
+            return ts_type if ts_type in self._type_map.values() else f"m.{ts_type}"
 
         def get_method(method: MethodObject) -> str:
             return_type = get_type(method.result.json_schema)
@@ -84,10 +69,21 @@ class TypeScriptGenerator:
         ).lstrip()
 
     def get_models(self) -> str:
+        def get_model(name: str, schema: SchemaObject) -> _Model:
+            model = _Model(name)
+            for prop_name, prop in schema.properties.items():
+                required = "?" if prop_name in (schema.required or []) else ""
+                field_type = self._get_ts_type(prop)
+                ts_name = util.to_camel_case(prop_name)
+                model.property_names[ts_name] = prop_name
+                model.fields.append(f"{ts_name}{required}: {field_type};")
+                model.args.append(f"{ts_name}?: {field_type}")
+
+            model.fields.sort(key=lambda x: bool(re.search(r"[^:]+\?:", x)))
+            return model
+
         indent = " " * 2
-        models = [
-            self._get_model(name, schema) for name, schema in self.schemas.items()
-        ]
+        models = [get_model(name, schema) for name, schema in self.schemas.items()]
         return "\n".join(
             code.data_class.format(
                 name=model.name,
@@ -109,23 +105,19 @@ class TypeScriptGenerator:
             for model in models
         )
 
-    def _get_model(self, name: str, schema: SchemaObject) -> _Model:
-        def _get_type(s: SchemaObject) -> str:
-            if s.type == "array":
-                return f"{_get_type(s.items)}[]"
-            if s.type:
-                return self._type_map[s.type]
-            else:
-                return s.ref.removeprefix("#/components/schemas/")
-
-        model = _Model(name)
-        for prop_name, prop in schema.properties.items():
-            required = "?" if prop_name in (schema.required or []) else ""
-            field_type = _get_type(prop)
-            ts_name = util.to_camel_case(prop_name)
-            model.property_names[ts_name] = prop_name
-            model.fields.append(f"{ts_name}{required}: {field_type};")
-            model.args.append(f"{ts_name}?: {field_type}")
-
-        model.fields.sort(key=lambda x: bool(re.search(r"[^:]+\?:", x)))
-        return model
+    def _get_ts_type(self, schema: SchemaObject) -> str:
+        # Get TypeScript type from JSON Schema type.
+        if schema.type:
+            if schema.type == "array":
+                return f"{self._get_ts_type(schema.items)}[]"
+            elif schema.type == "object":
+                v_type = self._get_ts_type(schema.items) if schema.items else "any"
+                return f"Map<string, {v_type}>"
+            elif isinstance(schema.type, list):
+                return " | ".join(self._type_map[it] for it in schema.type)
+            return self._type_map[schema.type]
+        elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+            return " | ".join(self._get_ts_type(it) for it in schema_list)
+        elif schema.ref:
+            return schema.ref.removeprefix("#/components/schemas/")
+        return "any"
