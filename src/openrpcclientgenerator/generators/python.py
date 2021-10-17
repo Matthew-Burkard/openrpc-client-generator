@@ -23,9 +23,9 @@ class PythonGenerator:
         self.schemas = schemas
         self._models: list[str] = []
         self._type_map = {
+            "boolean": "bool",
             "integer": "int",
             "number": "float",
-            "boolean": "bool",
             "string": "str",
             "null": "None",
             "object": "dict[str, Any]",
