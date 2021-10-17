@@ -133,16 +133,30 @@ class PythonGenerator:
     def _get_py_type(self, schema: SchemaObject) -> str:
         # Get Python type from JSON Schema type.
 
-        def union_to_optional(type_str: str) -> str:
-            # If a union type contains "None", make it optional.
-            if ", None" in type_str:
-                type_str = f'Optional[{re.sub(r", None", "", type_str)}]'
-            elif "None, " in type_str:
-                type_str = f'Optional[{re.sub(r"None, ", "", type_str)}]'
-            # If removing "None" left this a union of one, remove "Union".
-            if "," not in type_str:
-                type_str = re.sub(r"Union\[(.*)]", r"\1", type_str)
-            return type_str
+        def get_union_type_from_strings(types: list[str]) -> str:
+            if len(types) == 2 and "null" in types:
+                types.remove("null")
+                return f"Optional[{self._type_map[types[0]]}]"
+            if "null" in types:
+                types.remove("null")
+                type_str = ", ".join(self._type_map[it] for it in types)
+                return f"Optional[Union[{type_str}]]"
+            return f"Union[{', '.join(self._type_map[it] for it in types)}]"
+
+        def get_union_type_from_schemas(types: list[SchemaObject]) -> str:
+            str_types = [
+                self._get_py_type(it)
+                if isinstance(it, SchemaObject)
+                else self._type_map[it]
+                for it in types
+            ]
+            if len(str_types) == 2 and "None" in str_types:
+                str_types.remove("None")
+                return f"Optional[{str_types[0]}]"
+            if "None" in str_types:
+                str_types.remove("None")
+                return f"Optional[Union[{', '.join(str_types)}]]"
+            return f"Union[{', '.join(str_types)}]"
 
         if schema.type:
             if schema.type == "array":
@@ -151,19 +165,10 @@ class PythonGenerator:
                 v_type = self._get_py_type(schema.items) if schema.items else "Any"
                 return f"dict[str, {v_type}]"
             elif isinstance(schema.type, list):
-                get_union_type(schema.type)
-                return union_to_optional(
-                    f"Union[{', '.join(self._type_map[t] for t in schema.type)}]"
-                )
+                return get_union_type_from_strings(schema.type)
             return self._type_map[schema.type]
         elif schema_list := schema.all_of or schema.any_of or schema.one_of:
-            union = ", ".join(
-                self._get_py_type(it)
-                if isinstance(it, SchemaObject)
-                else self._type_map[it]
-                for it in schema_list
-            )
-            return union_to_optional(f"Union[{union}]")
+            return get_union_type_from_schemas(schema_list)
         elif schema.ref:
             return f'"{schema.ref.removeprefix("#/components/schemas/")}"'
 
