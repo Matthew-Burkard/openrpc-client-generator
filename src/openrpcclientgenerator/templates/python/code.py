@@ -4,6 +4,8 @@ from typing import *
 
 from pydantic import BaseModel
 
+__all__ = ({all},)
+
 {classes}
 """.strip()
 
@@ -20,6 +22,8 @@ from typing import *
 
 from jsonrpc2pyclient.httpclient import RPCHTTPClient
 from .models import *
+
+__all__ = ("{title}Client",)
 
 
 class {title}Client(RPC{transport}Client):

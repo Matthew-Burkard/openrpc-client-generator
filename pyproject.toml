@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openrpc-client-generator"
-version = "0.5.3"
+version = "0.5.4"
 description = "Generate clients from an Open RPC document."
 authors = ["Matthew Burkard <matthewjburkard@gmail.com>"]
 license = "AGPL-3.0-or-later"

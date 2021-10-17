@@ -32,6 +32,8 @@ class PythonGenerator:
         self._indent = " " * 4
 
     def get_methods(self, transport: str = "HTTP") -> str:
+        _all = []
+
         def get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
                 params = ", ".join(util.to_snake_case(it.name) for it in method.params)
@@ -68,11 +70,47 @@ class PythonGenerator:
         )
 
     def get_models(self) -> str:
-        models = [
-            self._get_model(name, schema) for name, schema in self.schemas.items()
-        ]
-        # for name, schema in self.schemas.items():
+        _all = []
+
+        def get_model(name: str, schema: SchemaObject) -> _Model:
+            fields = []
+            for n, prop in schema.properties.items():
+                default = " = None" if n in (schema.required or []) else ""
+                fields.append(
+                    code.field.format(
+                        name=n,
+                        type=self._get_py_type(prop),
+                        default=default,
+                    )
+                )
+            if schema.description:
+                doc = f"\n{self._indent}".join(
+                    line.strip() for line in schema.description.split("\n")
+                )
+                # Remove trailing spaces from blank lines.
+                doc = "\n".join(line.rstrip() for line in doc.split("\n"))
+            else:
+                doc = f"{schema.title} object."
+            if len(doc.split("\n")) > 1:
+                doc += self._indent
+
+            fields.sort(key=lambda x: x.endswith(" = None"))
+            fields = [
+                re.sub(r": (.*?) =", r": Optional[\1] =", field)
+                if field.endswith(" = None")
+                else field
+                for field in fields
+            ]
+            _all.append(name)
+            return _Model(
+                name=name,
+                doc=f'"""{doc}"""',
+                fields=fields,
+            )
+
+        models = [get_model(name, schema) for name, schema in self.schemas.items()]
         return code.model_file.format(
+            all=", ".join(f'"{it}"' for it in _all),
             classes="\n".join(
                 code.data_class.format(
                     name=model.name,
@@ -81,39 +119,6 @@ class PythonGenerator:
                 )
                 for model in models
             )
-        )
-
-    def _get_model(self, name: str, schema: SchemaObject) -> _Model:
-        fields = []
-        for n, prop in schema.properties.items():
-            default = " = None" if n in (schema.required or []) else ""
-            fields.append(
-                code.field.format(
-                    name=n,
-                    type=self._get_py_type(prop),
-                    default=default,
-                )
-            )
-        if schema.description:
-            doc = f"\n{self._indent}".join(
-                line.strip() for line in schema.description.split("\n")
-            )
-            # Remove trailing spaces from blank lines.
-            doc = "\n".join(line.rstrip() for line in doc.split("\n"))
-        else:
-            doc = f"{schema.title} object."
-        if len(doc.split("\n")) > 1:
-            doc += self._indent
-
-        fields.sort(key=lambda x: x.endswith(" = None"))
-        fields = [
-            re.sub(r": (.*?) =", r": Optional[\1] =", f) if f.endswith(" = None") else f
-            for f in fields
-        ]
-        return _Model(
-            name=name,
-            doc=f'"""{doc}"""',
-            fields=fields,
         )
 
     def _get_py_type(self, schema: SchemaObject) -> str:
