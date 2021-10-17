@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
+from build.__main__ import main as build
 from openrpc.objects import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import util
@@ -105,7 +106,7 @@ class ClientFactory:
         py_proj_toml = client_path / "pyproject.toml"
         py_proj_toml.write_text(py_build_files.py_project)
         # Build client.
-        os.system(f"python -m build {client_path}")
+        build([client_path.as_posix()])
         return client_path.as_posix()
 
     def build_typescript_client(self) -> str:
