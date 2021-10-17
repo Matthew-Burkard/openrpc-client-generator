@@ -52,7 +52,7 @@
         {
           "name": "object_arg",
           "schema": {
-            "$ref": "#/components/schemas/TestObject"
+            "$ref": "#/components/schemas/Crepe"
           },
           "required": true
         },
@@ -61,7 +61,7 @@
           "schema": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TestObject"
+              "$ref": "#/components/schemas/Crepe"
             }
           },
           "required": true
@@ -78,8 +78,8 @@
   ],
   "components": {
     "schemas": {
-      "TestObject": {
-        "title": "TestObject",
+      "Crepe": {
+        "title": "Crepe",
         "type": "object",
         "properties": {
           "a": {
@@ -356,6 +356,10 @@
               "string",
               "number"
             ]
+          },
+          "ah": {
+            "title": "Ah",
+            "$ref": "#/components/schemas/Arepa"
           }
         },
         "required": [
@@ -379,8 +383,38 @@
           "ad",
           "ae",
           "af",
-          "ag"
+          "ag",
+          "ah"
         ]
+      },
+      "Arepa": {
+        "title": "Arepa",
+        "type": "object",
+        "properties": {
+          "bagel": {
+            "type": "boolean",
+            "default": true
+          },
+          "crepe": {
+            "$ref": "#/components/schemas/Crepe"
+          },
+          "donut": {
+            "type": "string",
+            "default": "🍩"
+          },
+          "english_muffin": {
+            "type": ["string", "integer", "null"]
+          },
+          "griddle_scone": {
+            "type": ["null", "string"]
+          },
+          "hash_brown": {
+            "type": "array",
+            "items": {
+              "type": ["null", "object"]
+            }
+          }
+        }
       }
     }
   }

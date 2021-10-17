@@ -28,6 +28,7 @@ class PythonGenerator:
             "boolean": "bool",
             "string": "str",
             "null": "None",
+            "object": "dict[str, Any]",
         }
         self._indent = " " * 4
 
@@ -40,11 +41,19 @@ class PythonGenerator:
             else:
                 # Length is 1 or 0.
                 params = "".join(util.to_snake_case(it.name) for it in method.params)
-            args = [
-                f", {p.name}: {self._get_py_type(p.json_schema)}" for p in method.params
-            ]
-            args = [re.sub(r"(Optional.*)", r"\1 = None", arg) for arg in args]
+
+            # Get method arguments.
+            args = []
+            for param in method.params:
+                p_type = self._get_py_type(param.json_schema)
+                if not param.required and not p_type.startswith("Optional"):
+                    p_type = f"Optional[{p_type}]"
+                if p_type.startswith("Optional"):
+                    p_type += " = None"
+                args.append(f", {param.name}: {p_type}")
             args.sort(key=lambda x: str(x).find("Optional") != -1)
+
+            # Get return type and add code to deserialize results.
             return_type = self._get_py_type(method.result.json_schema)
             if return_type.startswith("list["):
                 # FIXME Won't work with union types.
@@ -118,30 +127,44 @@ class PythonGenerator:
                     fields=f"\n{self._indent}".join(model.fields),
                 )
                 for model in models
-            )
+            ),
         )
 
     def _get_py_type(self, schema: SchemaObject) -> str:
         # Get Python type from JSON Schema type.
+
+        def union_to_optional(type_str: str) -> str:
+            # If a union type contains "None", make it optional.
+            if ", None" in type_str:
+                type_str = f'Optional[{re.sub(r", None", "", type_str)}]'
+            elif "None, " in type_str:
+                type_str = f'Optional[{re.sub(r"None, ", "", type_str)}]'
+            # If removing "None" left this a union of one, remove "Union".
+            if "," not in type_str:
+                type_str = re.sub(r"Union\[(.*)]", r"\1", type_str)
+            return type_str
+
         if schema.type:
             if schema.type == "array":
                 return f"list[{self._get_py_type(schema.items)}]"
             elif schema.type == "object":
                 v_type = self._get_py_type(schema.items) if schema.items else "Any"
                 return f"dict[str, {v_type}]"
-            else:
-                if isinstance(schema.type, list):
-                    return f"Union[{', '.join(self._type_map[t] for t in schema.type)}]"
-                return self._type_map[schema.type]
-        elif schema_list := schema.any_of or schema.all_of or schema.any_of:
+            elif isinstance(schema.type, list):
+                get_union_type(schema.type)
+                return union_to_optional(
+                    f"Union[{', '.join(self._type_map[t] for t in schema.type)}]"
+                )
+            return self._type_map[schema.type]
+        elif schema_list := schema.all_of or schema.any_of or schema.one_of:
             union = ", ".join(
                 self._get_py_type(it)
                 if isinstance(it, SchemaObject)
                 else self._type_map[it]
                 for it in schema_list
             )
-            return f"Union[{union}]"
+            return union_to_optional(f"Union[{union}]")
         elif schema.ref:
-            return schema.ref.removeprefix("#/components/schemas/")
-        else:
-            return "Any"
+            return f'"{schema.ref.removeprefix("#/components/schemas/")}"'
+
+        return "Any"
