@@ -144,12 +144,7 @@ class PythonGenerator:
             return f"Union[{', '.join(self._type_map[it] for it in types)}]"
 
         def get_union_type_from_schemas(types: list[SchemaObject]) -> str:
-            str_types = [
-                self._get_py_type(it)
-                if isinstance(it, SchemaObject)
-                else self._type_map[it]
-                for it in types
-            ]
+            str_types = [self._get_py_type(it) for it in types]
             if len(str_types) == 2 and "None" in str_types:
                 str_types.remove("None")
                 return f"Optional[{str_types[0]}]"
