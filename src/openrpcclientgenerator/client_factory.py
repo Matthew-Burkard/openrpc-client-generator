@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from openrpc.objects import OpenRPCObject
+from openrpc.objects import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import util
 from openrpcclientgenerator.generators.csharp import CSharpGenerator
@@ -19,12 +19,11 @@ __all__ = ("ClientFactory",)
 
 
 class ClientFactory:
-    def __init__(
-        self,
-        out_dir: str,
-        rpc: OpenRPCObject,
-    ) -> None:
+    def __init__(self, out_dir: str, rpc: OpenRPCObject) -> None:
         self.rpc = rpc
+        self.rpc.info.contact = self.rpc.info.contact or ContactObject()
+        self.rpc.info.contact.name = self.rpc.info.contact.name or "Not Provided"
+        self.rpc.info.contact.email = self.rpc.info.contact.email or "Not Provided"
         self._out_dir = Path(out_dir)
 
     def build_c_sharp_client(self) -> str:
