@@ -23,35 +23,16 @@ class CSharpGenerator:
         self.schemas = schemas
         self._models: list[str] = []
         self._type_map = {
+            "boolean": "bool",
             "integer": "int",
             "number": "double",
-            "boolean": "bool",
             "string": "string",
+            "null": "null",
+            "object": "object",
         }
         self._indent = " " * 4
 
     def get_methods(self) -> str:
-        def get_type(schema: SchemaObject) -> str:
-            # Get C# type from JSON Schema type.
-            if schema.type:
-                if schema.type == "array":
-                    if st := schema.items.type:
-                        return f"List<{st}>"
-                    key = re.search(r"([^/]+)$", schema.items.ref).group(1)
-                    return f"List<{self.schemas[key].title}>"
-                elif schema.type == "object":
-                    return "Dictionary<string, object>"
-                # Type must be a primitive type.
-                return self._type_map.get(schema.type) or schema.title
-            elif schema.any_of:
-                ret_val = " | ".join(get_type(it) or "null" for it in schema.any_of)
-            # TODO all_of, one_of
-            else:
-                key = re.search(r"([^/]+)$", schema.ref).group(1)
-                ret_val = self.schemas[key].title
-            if ret_val:
-                return util.to_pascal_case(ret_val)
-
         def get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
                 params = ", ".join(util.to_camel_case(it.name) for it in method.params)
@@ -70,10 +51,10 @@ class CSharpGenerator:
                 doc = " * No description provided."
             return code.method.format(
                 doc=doc,
-                return_type=get_type(method.result.json_schema),
+                return_type=self._get_cs_type(method.result.json_schema),
                 name=util.to_pascal_case(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(
-                    f"{get_type(it.json_schema)}" f" {util.to_camel_case(it.name)}"
+                    f"{self._get_cs_type(it.json_schema)} {util.to_camel_case(it.name)}"
                     for it in method.params
                 ),
                 method=method.name,
@@ -106,22 +87,7 @@ class CSharpGenerator:
     def _get_model(self, name: str, schema: SchemaObject) -> _Model:
         fields = []
         for prop_name, prop in schema.properties.items():
-            c_sharp_type = ""
-            # This should be recursive.
-            if prop.ref:
-                c_sharp_type = util.to_pascal_case(
-                    re.search(r"([^/]+)$", prop.ref).group(1)
-                )
-            elif prop.type == "object":
-                if not c_sharp_type:
-                    c_sharp_type = "Dictionary<string, object>"
-            elif prop.type == "array":
-                c_sharp_type = f"List<{self._type_map[prop.items.type]}>"
-            elif isinstance(prop.type, list):
-                # TODO Proper C# union type.
-                c_sharp_type = "object"
-            else:
-                c_sharp_type = self._type_map[prop.type]
+            c_sharp_type = self._get_cs_type(prop)
 
             if prop_name in (prop.required or []):
                 required = ", Required = Required.Always"
@@ -151,3 +117,24 @@ class CSharpGenerator:
             doc += f"\n{self._indent} *"
         doc = f"/**\n{self._indent} * {doc.rstrip()}/"
         return _Model(name, doc, fields)
+
+    def _get_cs_type(self, schema: SchemaObject) -> str:
+        if schema is None:
+            return "object"
+
+        if schema.type:
+            if schema.type == "array":
+                return f"List<{self._get_cs_type(schema.items)}>"
+            elif schema.type == "object":
+                return "Dictionary<string, object>"
+            elif isinstance(schema.type, list):
+                # FIXME C# unions?.
+                return "object"
+            return self._type_map[schema.type]
+        elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+            # FIXME C# unions?.
+            return "object"
+        elif schema.ref:
+            return schema.ref.removeprefix("#/components/schemas/")
+
+        return "object"
