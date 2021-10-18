@@ -153,6 +153,9 @@ class PythonGenerator:
                 return f"Optional[Union[{', '.join(str_types)}]]"
             return f"Union[{', '.join(str_types)}]"
 
+        if schema is None:
+            return "Any"
+
         if schema.type:
             if schema.type == "array":
                 return f"list[{self._get_py_type(schema.items)}]"
