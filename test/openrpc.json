@@ -360,6 +360,10 @@
           "ah": {
             "title": "Ah",
             "$ref": "#/components/schemas/Arepa"
+          },
+          "ai": {
+            "title": "Ai",
+            "type": "array"
           }
         },
         "required": [
@@ -392,8 +396,17 @@
         "type": "object",
         "properties": {
           "bagel": {
-            "type": "boolean",
-            "default": true
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "$ref": "#/components/schemas/Crepe"
+                }
+              ]
+            }
           },
           "crepe": {
             "$ref": "#/components/schemas/Crepe"
