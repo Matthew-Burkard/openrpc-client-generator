@@ -107,6 +107,9 @@ class TypeScriptGenerator:
 
     def _get_ts_type(self, schema: SchemaObject) -> str:
         # Get TypeScript type from JSON Schema type.
+        if schema is None:
+            return "any"
+
         if schema.type:
             if schema.type == "array":
                 return f"{self._get_ts_type(schema.items)}[]"
