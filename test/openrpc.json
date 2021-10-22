@@ -26,7 +26,9 @@
           "name": "c",
           "schema": {
             "type": "number",
-            "enum": [2.99792458e8]
+            "enum": [
+              2.99792458e8
+            ]
           },
           "required": false
         }
@@ -416,15 +418,37 @@
             "default": "🍩"
           },
           "english_muffin": {
-            "type": ["string", "integer", "null"]
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
           },
           "griddle_scone": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "hash_brown": {
             "type": "array",
             "items": {
-              "type": ["null", "object"]
+              "type": [
+                "null",
+                "object"
+              ]
+            }
+          },
+          "icing": {
+            "$ref": "#/components/schemas/Crepe/definitions/Icing"
+          },
+          "definitions": {
+            "Icing": {
+              "properties": {
+                "flavor": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
