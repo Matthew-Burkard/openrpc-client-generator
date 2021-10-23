@@ -117,7 +117,7 @@ class PythonGenerator:
                 fields=fields,
             )
 
-        models = [get_model(name, schema) for name, schema in self.schemas.items()]
+        models = [get_model(n, s) for n, s in util.get_schemas(self.schemas).items()]
         return code.model_file.format(
             all=", ".join(f'"{it}"' for it in _all),
             classes="\n".join(
@@ -168,6 +168,6 @@ class PythonGenerator:
         elif schema_list := schema.all_of or schema.any_of or schema.one_of:
             return get_union_type_from_schemas(schema_list)
         elif schema.ref:
-            return f'"{schema.ref.removeprefix("#/components/schemas/")}"'
+            return re.sub(r"#/.*/(.*)", r'"\1"', schema.ref)
 
         return "Any"

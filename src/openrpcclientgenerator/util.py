@@ -1,5 +1,7 @@
 import re
 
+from openrpc.objects import SchemaObject
+
 
 def to_snake_case(string: str) -> str:
     return re.sub(r"(?<!^) ?([A-Z])", r"_\1", string).lower().replace("-", "_")
@@ -24,3 +26,8 @@ def plural(word: str) -> str:
     if re.search(r"[^aeiou]y$", word, re.I):
         return re.sub(r"y$", "ies", word)
     return f"{word}s"
+
+
+def get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
+    # TODO Recursively get all schemas from schemas and definitions.
+    return schemas

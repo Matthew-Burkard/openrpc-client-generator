@@ -69,9 +69,41 @@ class CSharpGenerator:
         ).lstrip()
 
     def get_models(self) -> str:
-        models = [
-            self._get_model(name, schema) for name, schema in self.schemas.items()
-        ]
+        def get_model(name: str, schema: SchemaObject) -> _Model:
+            fields = []
+            for prop_name, prop in schema.properties.items():
+                c_sharp_type = self._get_cs_type(prop)
+
+                if prop_name in (prop.required or []):
+                    required = ", Required = Required.Always"
+                else:
+                    required = ""
+                    if c_sharp_type in ["int", "double", "bool"]:
+                        c_sharp_type = f"{c_sharp_type}?"
+
+                fields.append(
+                    code.field.format(
+                        name=prop_name,
+                        type=c_sharp_type,
+                        prop_name=util.to_pascal_case(prop_name),
+                        req=required,
+                    )
+                )
+            if schema.description:
+                doc = f"\n{self._indent} * ".join(
+                    line.strip() for line in schema.description.split("\n")
+                )
+                # Remove trailing spaces from blank lines.
+                doc = "\n".join(line.rstrip() for line in doc.split("\n"))
+            else:
+                doc = f"{name} object."
+            # This fixes single line doc strings.
+            if "\n" not in doc:
+                doc += f"\n{self._indent} *"
+            doc = f"/**\n{self._indent} * {doc.rstrip()}/"
+            return _Model(name, doc, fields)
+
+        models = [get_model(n, s) for n, s in util.get_schemas(self.schemas).items()]
         return code.class_file.format(
             namespace=f"{util.to_pascal_case(self.title)}Client",
             classes="\n".join(
@@ -83,40 +115,6 @@ class CSharpGenerator:
                 for m in models
             ),
         ).lstrip()
-
-    def _get_model(self, name: str, schema: SchemaObject) -> _Model:
-        fields = []
-        for prop_name, prop in schema.properties.items():
-            c_sharp_type = self._get_cs_type(prop)
-
-            if prop_name in (prop.required or []):
-                required = ", Required = Required.Always"
-            else:
-                required = ""
-                if c_sharp_type in ["int", "double", "bool"]:
-                    c_sharp_type = f"{c_sharp_type}?"
-
-            fields.append(
-                code.field.format(
-                    name=prop_name,
-                    type=c_sharp_type,
-                    prop_name=util.to_pascal_case(prop_name),
-                    req=required,
-                )
-            )
-        if schema.description:
-            doc = f"\n{self._indent} * ".join(
-                line.strip() for line in schema.description.split("\n")
-            )
-            # Remove trailing spaces from blank lines.
-            doc = "\n".join(line.rstrip() for line in doc.split("\n"))
-        else:
-            doc = f"{name} object."
-        # This fixes single line doc strings.
-        if "\n" not in doc:
-            doc += f"\n{self._indent} *"
-        doc = f"/**\n{self._indent} * {doc.rstrip()}/"
-        return _Model(name, doc, fields)
 
     def _get_cs_type(self, schema: SchemaObject) -> str:
         if schema is None:
