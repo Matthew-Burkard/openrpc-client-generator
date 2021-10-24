@@ -23,6 +23,8 @@ client_file = """
 from typing import *
 
 from jsonrpc2pyclient.httpclient import RPCHTTPClient
+from pydantic import BaseModel
+
 from .models import *
 
 __all__ = ("{title}Client",)
