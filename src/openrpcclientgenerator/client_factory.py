@@ -107,7 +107,7 @@ class ClientFactory:
         py_proj_toml = client_path / "pyproject.toml"
         py_proj_toml.write_text(py_build_files.py_project)
         # Build client.
-        # build([client_path.as_posix()])
+        build([client_path.as_posix()])
         return client_path.as_posix()
 
     def build_typescript_client(self) -> str:
