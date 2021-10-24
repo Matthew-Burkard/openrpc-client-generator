@@ -1,5 +1,7 @@
 # Models
 model_file = """
+from __future__ import annotations
+
 from typing import *
 
 from pydantic import BaseModel

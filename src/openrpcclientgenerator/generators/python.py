@@ -168,6 +168,6 @@ class PythonGenerator:
         elif schema_list := schema.all_of or schema.any_of or schema.one_of:
             return get_union_type_from_schemas(schema_list)
         elif schema.ref:
-            return re.sub(r"#/.*/(.*)", r'"\1"', schema.ref)
+            return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
 
         return "Any"
