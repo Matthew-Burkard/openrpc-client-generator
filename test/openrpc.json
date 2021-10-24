@@ -452,6 +452,15 @@
               "icing": {
                 "$ref": "#/components/schemas/Arepa/definitions/Icing"
               }
+            },
+            "definitions": {
+              "Jam": {
+                "properties": {
+                  "kale": {
+                    "type": "object"
+                  }
+                }
+              }
             }
           }
         }
