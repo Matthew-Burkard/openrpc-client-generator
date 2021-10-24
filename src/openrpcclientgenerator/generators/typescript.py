@@ -83,7 +83,7 @@ class TypeScriptGenerator:
             return model
 
         indent = " " * 2
-        models = [get_model(n, s) for n, s in util.get_schemas(self.schemas).items()]
+        models = [get_model(n, s) for n, s in self.schemas.items()]
         return "\n".join(
             code.data_class.format(
                 name=model.name,

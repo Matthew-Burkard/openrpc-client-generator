@@ -103,7 +103,7 @@ class CSharpGenerator:
             doc = f"/**\n{self._indent} * {doc.rstrip()}/"
             return _Model(name, doc, fields)
 
-        models = [get_model(n, s) for n, s in util.get_schemas(self.schemas).items()]
+        models = [get_model(n, s) for n, s in self.schemas.items()]
         return code.class_file.format(
             namespace=f"{util.to_pascal_case(self.title)}Client",
             classes="\n".join(

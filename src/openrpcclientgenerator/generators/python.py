@@ -117,7 +117,7 @@ class PythonGenerator:
                 fields=fields,
             )
 
-        models = [get_model(n, s) for n, s in util.get_schemas(self.schemas).items()]
+        models = [get_model(n, s) for n, s in self.schemas.items()]
         return code.model_file.format(
             all=", ".join(f'"{it}"' for it in _all),
             classes="\n".join(

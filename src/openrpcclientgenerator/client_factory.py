@@ -25,11 +25,12 @@ class ClientFactory:
         self.rpc.info.contact = self.rpc.info.contact or ContactObject()
         self.rpc.info.contact.name = self.rpc.info.contact.name or "Not Provided"
         self.rpc.info.contact.email = self.rpc.info.contact.email or "Not Provided"
+        self._schemas = util.get_schemas(rpc)
         self._out_dir = Path(out_dir)
 
     def build_c_sharp_client(self) -> str:
         generator = CSharpGenerator(
-            self.rpc.info.title, self.rpc.methods, self.rpc.components.schemas
+            self.rpc.info.title, self.rpc.methods, self._schemas
         )
         sln_name = f"{util.to_pascal_case(self.rpc.info.title)}Client"
         client_path = self._out_dir / "csharp"
@@ -71,7 +72,7 @@ class ClientFactory:
 
     def build_python_client(self) -> str:
         generator = PythonGenerator(
-            self.rpc.info.title, self.rpc.methods, self.rpc.components.schemas
+            self.rpc.info.title, self.rpc.methods, self._schemas
         )
         title = self.rpc.info.title.lower().replace(" ", "").replace("_", "")
         pkg_name = f"{util.to_snake_case(title)}client"
@@ -111,7 +112,7 @@ class ClientFactory:
 
     def build_typescript_client(self) -> str:
         generator = TypeScriptGenerator(
-            self.rpc.info.title, self.rpc.methods, self.rpc.components.schemas
+            self.rpc.info.title, self.rpc.methods, self._schemas
         )
         pkg_name = f"{util.to_snake_case(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name

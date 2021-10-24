@@ -1,6 +1,6 @@
 import re
 
-from openrpc.objects import SchemaObject
+from openrpc.objects import OpenRPCObject, SchemaObject
 
 
 def to_snake_case(string: str) -> str:
@@ -28,6 +28,6 @@ def plural(word: str) -> str:
     return f"{word}s"
 
 
-def get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
+def get_schemas(openrpc: OpenRPCObject) -> dict[str, SchemaObject]:
     # TODO Recursively get all schemas from schemas and definitions.
-    return schemas
+    return {}
