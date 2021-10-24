@@ -440,14 +440,17 @@
             }
           },
           "icing": {
-            "$ref": "#/components/schemas/Crepe/definitions/Icing"
-          },
-          "definitions": {
-            "Icing": {
-              "properties": {
-                "flavor": {
-                  "type": "string"
-                }
+            "$ref": "#/components/schemas/Arepa/definitions/Icing"
+          }
+        },
+        "definitions": {
+          "Icing": {
+            "properties": {
+              "flavor": {
+                "type": "string"
+              },
+              "icing": {
+                "$ref": "#/components/schemas/Arepa/definitions/Icing"
               }
             }
           }

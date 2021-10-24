@@ -122,5 +122,5 @@ class TypeScriptGenerator:
         elif schema_list := schema.all_of or schema.any_of or schema.one_of:
             return " | ".join(self._get_ts_type(it) for it in schema_list)
         elif schema.ref:
-            return schema.ref.removeprefix("#/components/schemas/")
+            return re.sub(r"#/.*/(.*)", r'\1', schema.ref)
         return "any"

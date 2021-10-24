@@ -25,7 +25,7 @@ class ClientFactory:
         self.rpc.info.contact = self.rpc.info.contact or ContactObject()
         self.rpc.info.contact.name = self.rpc.info.contact.name or "Not Provided"
         self.rpc.info.contact.email = self.rpc.info.contact.email or "Not Provided"
-        self._schemas = util.get_schemas(rpc)
+        self._schemas = util.get_schemas(rpc.components.schemas)
         self._out_dir = Path(out_dir)
 
     def build_c_sharp_client(self) -> str:
@@ -107,7 +107,7 @@ class ClientFactory:
         py_proj_toml = client_path / "pyproject.toml"
         py_proj_toml.write_text(py_build_files.py_project)
         # Build client.
-        build([client_path.as_posix()])
+        # build([client_path.as_posix()])
         return client_path.as_posix()
 
     def build_typescript_client(self) -> str:

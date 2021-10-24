@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 from openrpc.objects import OpenRPCObject, SchemaObject
 
@@ -28,6 +29,9 @@ def plural(word: str) -> str:
     return f"{word}s"
 
 
-def get_schemas(openrpc: OpenRPCObject) -> dict[str, SchemaObject]:
-    # TODO Recursively get all schemas from schemas and definitions.
-    return {}
+def get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
+    schemas = schemas or {}
+    for name, schema in schemas.items():
+        if schema.definitions:
+            schemas = {**schemas, **get_schemas(schema.definitions)}
+    return schemas
