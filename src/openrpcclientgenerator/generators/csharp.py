@@ -133,6 +133,6 @@ class CSharpGenerator:
             # FIXME C# unions?.
             return "object"
         elif schema.ref:
-            return re.sub(r"#/.*/(.*)", r'\1', schema.ref)
+            return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
 
         return "object"
