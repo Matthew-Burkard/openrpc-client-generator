@@ -28,7 +28,7 @@ class TypeScriptGenerator:
             "number": "number",
             "string": "string",
             "null": "null",
-            "object": "object",
+            "object": "Map<string, any>",
         }
 
     def get_methods(self) -> str:
