@@ -19,6 +19,7 @@ from openrpcclientgenerator.templates.typescript.index import index_ts
 __all__ = ("ClientFactory",)
 
 
+# TODO Server constants.
 class ClientFactory:
     def __init__(self, out_dir: str, rpc: OpenRPCObject) -> None:
         self.rpc = rpc
