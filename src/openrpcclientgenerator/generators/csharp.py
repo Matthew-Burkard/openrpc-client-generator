@@ -128,8 +128,10 @@ class CSharpGenerator:
             elif isinstance(schema.type, list):
                 # FIXME C# unions?.
                 return "object"
+            if schema.type == "string" and schema.format:
+                return {"binary": "byte[]"}.get(schema.format) or "string"
             return self._type_map[schema.type]
-        elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+        elif schema.all_of or schema.any_of or schema.one_of:
             # FIXME C# unions?.
             return "object"
         elif schema.ref:

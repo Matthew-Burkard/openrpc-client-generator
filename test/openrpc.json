@@ -458,12 +458,14 @@
                 "properties": {
                   "kale": {
                     "type": "object"
-                  },
-                  "lemon": {
-                    "muffin": {
-                      "type": "string",
-                      "format": "binary"
-                    }
+                  }
+                }
+              },
+              "Lemon": {
+                "properties": {
+                  "muffin": {
+                    "type": "string",
+                    "format": "binary"
                   }
                 }
               }

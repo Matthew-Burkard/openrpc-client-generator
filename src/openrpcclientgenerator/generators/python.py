@@ -164,6 +164,8 @@ class PythonGenerator:
                 return f"dict[str, {v_type}]"
             elif isinstance(schema.type, list):
                 return get_union_type_from_strings(schema.type)
+            if schema.type == "string" and schema.format:
+                return {"binary": "bytes"}.get(schema.format) or "str"
             return self._type_map[schema.type]
         elif schema_list := schema.all_of or schema.any_of or schema.one_of:
             return get_union_type_from_schemas(schema_list)

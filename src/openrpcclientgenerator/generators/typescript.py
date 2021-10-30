@@ -118,6 +118,8 @@ class TypeScriptGenerator:
                 return f"Map<string, {v_type}>"
             elif isinstance(schema.type, list):
                 return " | ".join(self._type_map[it] for it in schema.type)
+            if schema.type == "string" and schema.format:
+                return {"binary": "byte[]"}.get(schema.format) or "string"
             return self._type_map[schema.type]
         elif schema_list := schema.all_of or schema.any_of or schema.one_of:
             return " | ".join(self._get_ts_type(it) for it in schema_list)
