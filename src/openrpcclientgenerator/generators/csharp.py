@@ -1,9 +1,9 @@
 import re
 from dataclasses import dataclass
 
+import caseswitcher as cs
 from openrpc.objects import MethodObject, SchemaObject
 
-from openrpcclientgenerator import util
 from openrpcclientgenerator.templates.csharp import code
 
 
@@ -35,11 +35,11 @@ class CSharpGenerator:
     def get_methods(self) -> str:
         def get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
-                params = ", ".join(util.to_camel_case(it.name) for it in method.params)
+                params = ", ".join(cs.to_camel(it.name) for it in method.params)
                 params = f"new List<object> {{{params}}}"
             else:
                 # Length is 1 or 0.
-                params = "".join(util.to_camel_case(it.name) for it in method.params)
+                params = "".join(cs.to_camel(it.name) for it in method.params)
 
             if method.description:
                 # TODO Use recommended xml (oof).
@@ -52,9 +52,9 @@ class CSharpGenerator:
             return code.method.format(
                 doc=doc,
                 return_type=self._get_cs_type(method.result.json_schema),
-                name=util.to_pascal_case(re.sub(r".*?\.", "", method.name)),
+                name=cs.to_pascal(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(
-                    f"{self._get_cs_type(it.json_schema)} {util.to_camel_case(it.name)}"
+                    f"{self._get_cs_type(it.json_schema)} {cs.to_camel(it.name)}"
                     for it in method.params
                 ),
                 method=method.name,
@@ -62,8 +62,8 @@ class CSharpGenerator:
             )
 
         return code.client_file.format(
-            namespace=f"{util.to_pascal_case(self.title)}Client",
-            title=util.to_pascal_case(self.title),
+            namespace=f"{cs.to_pascal(self.title)}Client",
+            title=cs.to_pascal(self.title),
             transport="Http",
             methods="\n".join(get_method(m) for m in self.methods),
         ).lstrip()
@@ -85,7 +85,7 @@ class CSharpGenerator:
                     code.field.format(
                         name=prop_name,
                         type=c_sharp_type,
-                        prop_name=util.to_pascal_case(prop_name),
+                        prop_name=cs.to_pascal(prop_name),
                         req=required,
                     )
                 )
@@ -105,7 +105,7 @@ class CSharpGenerator:
 
         models = [get_model(n, s) for n, s in self.schemas.items()]
         return code.class_file.format(
-            namespace=f"{util.to_pascal_case(self.title)}Client",
+            namespace=f"{cs.to_pascal(self.title)}Client",
             classes="\n".join(
                 code.data_class.format(
                     name=m.name,

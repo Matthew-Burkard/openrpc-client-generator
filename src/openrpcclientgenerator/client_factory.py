@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
+import caseswitcher as cs
 from build.__main__ import main as build
 from openrpc.objects import ContactObject, OpenRPCObject
 
@@ -33,7 +34,7 @@ class ClientFactory:
         generator = CSharpGenerator(
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
-        sln_name = f"{util.to_pascal_case(self.rpc.info.title)}Client"
+        sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "csharp"
         package_path = client_path / sln_name / sln_name
         os.makedirs(package_path, exist_ok=True)
@@ -76,7 +77,7 @@ class ClientFactory:
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
         title = self.rpc.info.title.lower().replace(" ", "").replace("_", "")
-        pkg_name = f"{util.to_snake_case(title)}client"
+        pkg_name = f"{cs.to_snake(title)}client"
         client_path = self._out_dir / "python" / pkg_name
         package_path = client_path / "src" / pkg_name
         os.makedirs(package_path, exist_ok=True)
@@ -115,7 +116,7 @@ class ClientFactory:
         generator = TypeScriptGenerator(
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
-        pkg_name = f"{util.to_snake_case(self.rpc.info.title)}_client"
+        pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
         shutil.rmtree(client_path, ignore_errors=True)
         src_path = client_path / "src"
@@ -133,7 +134,7 @@ class ClientFactory:
         # Index TS
         index = src_path / "index.ts"
         index.touch()
-        index.write_text(index_ts.format(name=util.to_pascal_case(self.rpc.info.title)))
+        index.write_text(index_ts.format(name=cs.to_pascal(self.rpc.info.title)))
         # Build Files
         tsconfig = client_path / "tsconfig.json"
         tsconfig.touch()

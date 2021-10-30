@@ -1,9 +1,9 @@
 import re
 from dataclasses import dataclass, field
 
+import caseswitcher as cs
 from openrpc.objects import MethodObject, SchemaObject
 
-from openrpcclientgenerator import util
 from openrpcclientgenerator.templates.typescript import code
 
 
@@ -52,19 +52,19 @@ class TypeScriptGenerator:
             args = []
             for p in method.params:
                 required = "" if p.required else "?"
-                p_name = util.to_camel_case(p.name)
+                p_name = cs.to_camel(p.name)
                 args.append(f"{p_name}{required}: {get_type(p.json_schema)}")
             return code.method.format(
-                name=util.to_camel_case(re.sub(r".*?\.", "", method.name)),
+                name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(args),
                 return_type=return_type,
-                params=", ".join(util.to_camel_case(p.name) for p in method.params),
+                params=", ".join(cs.to_camel(p.name) for p in method.params),
                 method=method.name,
                 result_casting=result_cast,
             )
 
         return code.client.format(
-            name=util.to_pascal_case(self.title),
+            name=cs.to_pascal(self.title),
             methods="".join(get_method(method) for method in self.methods),
         ).lstrip()
 
@@ -74,7 +74,7 @@ class TypeScriptGenerator:
             for prop_name, prop in schema.properties.items():
                 required = "?" if prop_name in (schema.required or []) else ""
                 field_type = self._get_ts_type(prop)
-                ts_name = util.to_camel_case(prop_name)
+                ts_name = cs.to_camel(prop_name)
                 model.property_names[ts_name] = prop_name
                 model.fields.append(f"{ts_name}{required}: {field_type};")
                 model.args.append(f"{ts_name}?: {field_type}")

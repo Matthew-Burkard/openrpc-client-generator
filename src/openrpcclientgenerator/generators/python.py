@@ -1,9 +1,9 @@
 import re
 from dataclasses import dataclass
 
+import caseswitcher as cs
 from openrpc.objects import MethodObject, SchemaObject
 
-from openrpcclientgenerator import util
 from openrpcclientgenerator.templates.python import code
 
 
@@ -37,10 +37,10 @@ class PythonGenerator:
 
         def get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
-                params = ", ".join(util.to_snake_case(it.name) for it in method.params)
+                params = ", ".join(cs.to_snake(it.name) for it in method.params)
             else:
                 # Length is 1 or 0.
-                params = "".join(util.to_snake_case(it.name) for it in method.params)
+                params = "".join(cs.to_snake(it.name) for it in method.params)
 
             # Get method arguments.
             args = []
@@ -63,7 +63,7 @@ class PythonGenerator:
             else:
                 deserialize = code.deserialize_class.format(return_type=return_type)
             return code.method.format(
-                name=util.to_snake_case(re.sub(r".*?\.", "", method.name)),
+                name=cs.to_snake(re.sub(r".*?\.", "", method.name)),
                 method=method.name,
                 args="self" + "".join(args),
                 return_type=return_type,
@@ -73,7 +73,7 @@ class PythonGenerator:
             )
 
         return code.client_file.format(
-            title=util.to_pascal_case(self.title),
+            title=cs.to_pascal(self.title),
             transport=transport,
             methods="".join(get_method(m) for m in self.methods),
         )
