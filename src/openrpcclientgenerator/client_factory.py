@@ -30,7 +30,7 @@ class ClientFactory:
         self._schemas = util.get_schemas(rpc.components.schemas)
         self._out_dir = Path(out_dir)
 
-    def build_c_sharp_client(self) -> str:
+    def build_c_sharp_client(self, build_client: bool = False) -> str:
         generator = CSharpGenerator(
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
@@ -69,10 +69,11 @@ class ClientFactory:
             )
         )
         # Pack client.
-        os.system(f"dotnet pack {solution_file}")
+        if build_client:
+            os.system(f"dotnet pack {solution_file}")
         return client_path.as_posix()
 
-    def build_python_client(self) -> str:
+    def build_python_client(self, build_client: bool = False) -> str:
         generator = PythonGenerator(
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
@@ -109,10 +110,11 @@ class ClientFactory:
         py_proj_toml = client_path / "pyproject.toml"
         py_proj_toml.write_text(py_build_files.py_project)
         # Build client.
-        build([client_path.as_posix()])
+        if build_client:
+            build([client_path.as_posix()])
         return client_path.as_posix()
 
-    def build_typescript_client(self) -> str:
+    def build_typescript_client(self, build_client: bool = False) -> str:
         generator = TypeScriptGenerator(
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
@@ -151,9 +153,10 @@ class ClientFactory:
             )
         )
         # Build Client
-        os.system(f"npm i --prefix {client_path}")
-        os.system(f"npm run build --prefix {client_path}")
-        os.system(f"npm pack {client_path}")
-        tarball = f"{pkg_name}-{self.rpc.info.version}.tgz"
-        shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
+        if build_client:
+            os.system(f"npm i --prefix {client_path}")
+            os.system(f"npm run build --prefix {client_path}")
+            os.system(f"npm pack {client_path}")
+            tarball = f"{pkg_name}-{self.rpc.info.version}.tgz"
+            shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
         return pkg_name
