@@ -27,9 +27,9 @@ import * as m from "./models.js";
 import {{RPCHTTPClient}} from "jsonrpc2-tsclient";
 
 export class {name}HTTPClient extends RPCHTTPClient {{
-  constructor(url: string, headers?: object) {
+  constructor(url: string, headers?: object) {{
     super(url, headers);
-  };
+  }}
 {methods}
 }}
 
