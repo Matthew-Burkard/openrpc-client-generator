@@ -136,7 +136,12 @@ class ClientFactory:
         # Index TS
         index = src_path / "index.ts"
         index.touch()
-        index.write_text(index_ts.format(name=cs.to_pascal(self.rpc.info.title)))
+        index.write_text(
+            index_ts.format(
+                name=cs.to_pascal(self.rpc.info.title),
+                models=", ".join(self._schemas.keys()),
+            )
+        )
         # Build Files
         tsconfig = client_path / "tsconfig.json"
         tsconfig.touch()

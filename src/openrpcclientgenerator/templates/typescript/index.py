@@ -1,6 +1,6 @@
 index_ts = """
 import {{{name}HTTPClient}} from "./client.js";
-import * as models from "./models.js";
+import {{{models}}} from "./models.js";
 
-export {{{name}HTTPClient, models}};
+export {{{name}HTTPClient, {models}}};
 """.lstrip()

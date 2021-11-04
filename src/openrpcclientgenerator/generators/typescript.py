@@ -53,7 +53,7 @@ class TypeScriptGenerator:
             for p in method.params:
                 required = "" if p.required else "?"
                 p_name = cs.to_camel(p.name)
-                args.append(f"{p_name}{required}: {get_type(p.json_schema)}")
+                args.append(f"{p_name}{required}: {self._get_ts_type(p.json_schema)}")
             return code.method.format(
                 name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(args),
