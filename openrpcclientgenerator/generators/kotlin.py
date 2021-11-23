@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 
 from openrpc.objects import MethodObject, SchemaObject
@@ -44,4 +45,25 @@ class KotlinGenerator:
 
     def _get_kotlin_type(self, schema: SchemaObject) -> str:
         # Get Kotlin type from JSON Schema type.
+        if schema is None:
+            return "Any"
+
+        if schema.type:
+            if schema.type == "array":
+                return f"List<{self._get_kotlin_type(schema.items)}>"
+            elif schema.type == "object":
+                v_type = self._get_kotlin_type(schema.items) if schema.items else "Any"
+                return f"Map<String, {v_type}>"
+            elif isinstance(schema.type, list):
+                types = " | ".join(self._type_map[it] for it in schema.type)
+                return f"dynamic /* {types} */"
+            # TODO Class with ByteArray should override equals and hashCode.
+            if schema.type == "string" and schema.format:
+                return {"binary": "ByteArray"}.get(schema.format) or "String"
+            return self._type_map[schema.type]
+        elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+            types = " | ".join(self._get_kotlin_type(it) for it in schema_list)
+            return f"dynamic /* {types} */"
+        elif schema.ref:
+            return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
         return "Any"
