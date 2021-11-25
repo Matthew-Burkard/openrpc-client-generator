@@ -1,3 +1,5 @@
+"""Python code templates."""
+
 # Models
 model_file = """
 from __future__ import annotations
