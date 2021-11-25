@@ -1,3 +1,7 @@
+"""
+This module provides a class to generate a Python JSON RPC Client from
+an OpenRPC object.
+"""
 import re
 from dataclasses import dataclass
 
@@ -15,6 +19,8 @@ class _Model:
 
 
 class PythonGenerator:
+    """Class to generate the code for a Python RPC Client."""
+
     def __init__(
         self, title: str, methods: list[MethodObject], schemas: dict[str, SchemaObject]
     ) -> None:
@@ -32,10 +38,22 @@ class PythonGenerator:
         }
         self._indent = " " * 4
 
-    def get_methods(self, transport: str = "HTTP") -> str:
+    def get_client(self, transport="HTTP") -> str:
+        """Get a Python RPC client.
+
+        :param transport: Transport method of the client.
+        :return: Python class with all RPC methods.
+        """
+        return code.client_file.format(
+            title=cs.to_pascal(self.title),
+            transport=transport,
+            methods=self._get_methods(),
+        )
+
+    def _get_methods(self) -> str:
         _all = []
 
-        def get_method(method: MethodObject) -> str:
+        def _get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
                 params = ", ".join(cs.to_snake(it.name) for it in method.params)
             else:
@@ -45,7 +63,7 @@ class PythonGenerator:
             # Get method arguments.
             args = []
             for param in method.params:
-                p_type = self._get_py_type(param.json_schema)
+                p_type = self._get_py_type_from_schema(param.json_schema)
                 if not param.required and not p_type.startswith("Optional"):
                     p_type = f"Optional[{p_type}]"
                 if p_type.startswith("Optional"):
@@ -54,7 +72,7 @@ class PythonGenerator:
             args.sort(key=lambda x: str(x).find("Optional") != -1)
 
             # Get return type and add code to deserialize results.
-            return_type = self._get_py_type(method.result.json_schema)
+            return_type = self._get_py_type_from_schema(method.result.json_schema)
             if return_type.startswith("list["):
                 # FIXME Won't work with union types.
                 deserialize = code.deserialize_list.format(
@@ -62,6 +80,7 @@ class PythonGenerator:
                 )
             else:
                 deserialize = code.deserialize_class.format(return_type=return_type)
+
             return code.method.format(
                 name=cs.to_snake(re.sub(r".*?\.", "", method.name)),
                 method=method.name,
@@ -72,23 +91,20 @@ class PythonGenerator:
                 deserialize=deserialize,
             )
 
-        return code.client_file.format(
-            title=cs.to_pascal(self.title),
-            transport=transport,
-            methods="".join(get_method(m) for m in self.methods),
-        )
+        return "".join(_get_method(m) for m in self.methods)
 
     def get_models(self) -> str:
+        """Get Python code of all Model declarations."""
         _all = []
 
-        def get_model(name: str, schema: SchemaObject) -> _Model:
+        def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
             for n, prop in schema.properties.items():
                 default = " = None" if n in (schema.required or []) else ""
                 fields.append(
                     code.field.format(
                         name=n,
-                        type=self._get_py_type(prop),
+                        type=self._get_py_type_from_schema(prop),
                         default=default,
                     )
                 )
@@ -117,7 +133,7 @@ class PythonGenerator:
                 fields=fields,
             )
 
-        models = [get_model(n, s) for n, s in self.schemas.items()]
+        models = [_get_model(n, s) for n, s in self.schemas.items()]
         return code.model_file.format(
             all=", ".join(f'"{it}"' for it in _all),
             classes="\n".join(
@@ -130,10 +146,10 @@ class PythonGenerator:
             ),
         )
 
-    def _get_py_type(self, schema: SchemaObject) -> str:
+    def _get_py_type_from_schema(self, schema: SchemaObject) -> str:
         # Get Python type from JSON Schema type.
 
-        def get_union_type_from_strings(types: list[str]) -> str:
+        def _get_union_type_from_strings(types: list[str]) -> str:
             if len(types) == 2 and "null" in types:
                 types.remove("null")
                 return f"Optional[{self._type_map[types[0]]}]"
@@ -143,8 +159,8 @@ class PythonGenerator:
                 return f"Optional[Union[{type_str}]]"
             return f"Union[{', '.join(self._type_map[it] for it in types)}]"
 
-        def get_union_type_from_schemas(types: list[SchemaObject]) -> str:
-            str_types = [self._get_py_type(it) for it in types]
+        def _get_union_type_from_schemas(types: list[SchemaObject]) -> str:
+            str_types = [self._get_py_type_from_schema(it) for it in types]
             if len(str_types) == 2 and "None" in str_types:
                 str_types.remove("None")
                 return f"Optional[{str_types[0]}]"
@@ -158,17 +174,21 @@ class PythonGenerator:
 
         if schema.type:
             if schema.type == "array":
-                return f"list[{self._get_py_type(schema.items)}]"
+                return f"list[{self._get_py_type_from_schema(schema.items)}]"
             elif schema.type == "object":
-                v_type = self._get_py_type(schema.items) if schema.items else "Any"
+                v_type = (
+                    self._get_py_type_from_schema(schema.items)
+                    if schema.items
+                    else "Any"
+                )
                 return f"dict[str, {v_type}]"
             elif isinstance(schema.type, list):
-                return get_union_type_from_strings(schema.type)
+                return _get_union_type_from_strings(schema.type)
             if schema.type == "string" and schema.format:
                 return {"binary": "bytes"}.get(schema.format) or "str"
             return self._type_map[schema.type]
         elif schema_list := schema.all_of or schema.any_of or schema.one_of:
-            return get_union_type_from_schemas(schema_list)
+            return _get_union_type_from_schemas(schema_list)
         elif schema.ref:
             return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
 

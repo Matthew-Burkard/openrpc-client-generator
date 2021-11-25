@@ -30,7 +30,7 @@ from .models import *
 __all__ = ("{title}Client",)
 
 
-class {title}Client(RPC{transport}Client):
+class {title}{transport}Client(RPC{transport}Client):
 {methods}
 """.strip()
 

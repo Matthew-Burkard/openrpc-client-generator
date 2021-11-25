@@ -74,6 +74,11 @@ class ClientFactory:
         return client_path.as_posix()
 
     def build_python_client(self, build_client: bool = False) -> str:
+        """Generate Python code for an RPC client.
+
+        :param build_client: If True, build the Python package.
+        :return: Path to the Python client.
+        """
         generator = PythonGenerator(
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
@@ -90,11 +95,11 @@ class ClientFactory:
         models_file.write_text(models_str)
         os.system(f"black {models_file.as_posix()}")
         # Methods
-        methods_str = generator.get_methods()
-        methods_file = package_path / "client.py"
-        methods_file.touch()
-        methods_file.write_text(methods_str)
-        os.system(f"black {methods_file.as_posix()}")
+        client_str = generator.get_client()
+        client_file = package_path / "client.py"
+        client_file.touch()
+        client_file.write_text(client_str)
+        os.system(f"black {client_file.as_posix()}")
         # Build Files
         setup = client_path / "setup.cfg"
         setup.touch()
