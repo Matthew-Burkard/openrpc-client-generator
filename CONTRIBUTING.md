@@ -13,5 +13,6 @@ the community!
 
 ### Commit Custom Scopes
 - cs - Commit changes C# generation.
+- kt - Commit changes Kotlin generation.
 - py - Commit changes Python generation.
 - ts - Commit changes TypeScript generation.
