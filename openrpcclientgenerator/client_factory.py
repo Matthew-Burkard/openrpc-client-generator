@@ -124,9 +124,12 @@ class ClientFactory:
         return client_path.as_posix()
 
     def build_typescript_client(self, build_client: bool = False) -> str:
-        generator = TypeScriptGenerator(
-            self.rpc.info.title, self.rpc.methods, self._schemas
-        )
+        """Generate TypeScript code for an RPC client.
+
+        :param build_client: If True, build the TypeScript package.
+        :return: Path to the TypeScript client.
+        """
+        generator = TypeScriptGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
         shutil.rmtree(client_path, ignore_errors=True)
@@ -138,10 +141,10 @@ class ClientFactory:
         models_file.touch()
         models_file.write_text(models_str)
         # Methods
-        methods_str = generator.get_methods()
-        methods_file = src_path / "client.ts"
-        methods_file.touch()
-        methods_file.write_text(methods_str)
+        client_str = generator.get_client()
+        client_file = src_path / "client.ts"
+        client_file.touch()
+        client_file.write_text(client_str)
         # Index TS
         index = src_path / "index.ts"
         index.touch()

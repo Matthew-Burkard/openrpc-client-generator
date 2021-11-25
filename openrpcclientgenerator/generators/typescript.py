@@ -1,9 +1,12 @@
+"""Provides a TypeScript RPC client generator."""
 import re
 from dataclasses import dataclass, field
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, SchemaObject
+from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
+from openrpcclientgenerator.generators._generator import CodeGenerator
+from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.templates.typescript import code
 
 
@@ -15,13 +18,12 @@ class _Model:
     property_names: dict[str, str] = field(default_factory=lambda: {})
 
 
-class TypeScriptGenerator:
+class TypeScriptGenerator(CodeGenerator):
+    """Class to generate the code for a TypeScript RPC Client."""
+
     def __init__(
-        self, title: str, methods: list[MethodObject], schemas: dict[str, SchemaObject]
+        self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
-        self.title = title
-        self.methods = methods
-        self.schemas = schemas
         self._type_map = {
             "boolean": "boolean",
             "integer": "number",
@@ -30,14 +32,27 @@ class TypeScriptGenerator:
             "null": "null",
             "object": "Map<string, any>",
         }
+        super(TypeScriptGenerator, self).__init__(openrpc, schemas)
 
-    def get_methods(self) -> str:
-        def get_type(schema: SchemaObject) -> str:
+    def get_client(self, transport: Transport = Transport.HTTP) -> str:
+        """Get a TypeScript RPC client.
+
+        :param transport: Transport method of the client.
+        :return: TypeScript class with all RPC methods.
+        """
+        return code.client.format(
+            name=cs.to_pascal(self.openrpc.info.title),
+            methods=self._get_methods(),
+            transport=transport.value,
+        ).lstrip()
+
+    def _get_methods(self) -> str:
+        def _get_type(schema: SchemaObject) -> str:
             ts_type = self._get_ts_type(schema)
             return ts_type if ts_type in self._type_map.values() else f"m.{ts_type}"
 
-        def get_method(method: MethodObject) -> str:
-            return_type = get_type(method.result.json_schema)
+        def _get_method(method: MethodObject) -> str:
+            return_type = _get_type(method.result.json_schema)
             if return_type in self._type_map.values():
                 result_cast = f"result = result as {return_type}"
             else:
@@ -53,7 +68,7 @@ class TypeScriptGenerator:
             for p in method.params:
                 required = "" if p.required else "?"
                 p_name = cs.to_camel(p.name)
-                args.append(f"{p_name}{required}: {self._get_ts_type(p.json_schema)}")
+                args.append(f"{p_name}{required}: {_get_type(p.json_schema)}")
             return code.method.format(
                 name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(args),
@@ -63,13 +78,12 @@ class TypeScriptGenerator:
                 result_casting=result_cast,
             )
 
-        return code.client.format(
-            name=cs.to_pascal(self.title),
-            methods="".join(get_method(method) for method in self.methods),
-        ).lstrip()
+        return "".join(_get_method(method) for method in self.openrpc.methods)
 
     def get_models(self) -> str:
-        def get_model(name: str, schema: SchemaObject) -> _Model:
+        """Get TypeScript code of all Model declarations."""
+
+        def _get_model(name: str, schema: SchemaObject) -> _Model:
             model = _Model(name)
             for prop_name, prop in schema.properties.items():
                 required = "?" if prop_name in (schema.required or []) else ""
@@ -83,7 +97,7 @@ class TypeScriptGenerator:
             return model
 
         indent = " " * 2
-        models = [get_model(n, s) for n, s in self.schemas.items()]
+        models = [_get_model(n, s) for n, s in self.schemas.items()]
         return "\n".join(
             code.data_class.format(
                 name=model.name,

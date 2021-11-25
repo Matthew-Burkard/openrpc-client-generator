@@ -24,9 +24,9 @@ export class {name} {{
 # Methods
 client = """
 import * as m from "./models.js";
-import {{RPCHTTPClient}} from "jsonrpc2-tsclient";
+import {{RPC{transport}Client}} from "jsonrpc2-tsclient";
 
-export class {name}HTTPClient extends RPCHTTPClient {{
+export class {name}{transport}Client extends RPC{transport}Client {{
   constructor(url: string, headers?: object) {{
     super(url, headers);
   }}
