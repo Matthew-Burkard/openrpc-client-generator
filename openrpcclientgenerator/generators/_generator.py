@@ -10,7 +10,7 @@ class Generator(abc.ABC):
     """Defines methods for RPC client generators."""
 
     def __init__(
-            self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
+        self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
         self.openrpc = openrpc
         self.schemas = schemas
