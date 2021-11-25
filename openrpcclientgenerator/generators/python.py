@@ -6,6 +6,7 @@ import caseswitcher as cs
 from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator.generators._generator import Generator
+from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.templates.python import code
 
 
@@ -33,7 +34,7 @@ class PythonGenerator(Generator):
         self._indent = " " * 4
         super(PythonGenerator, self).__init__(openrpc, schemas)
 
-    def get_client(self, transport="HTTP") -> str:
+    def get_client(self, transport=Transport.HTTP) -> str:
         """Get a Python RPC client.
 
         :param transport: Transport method of the client.
@@ -41,7 +42,7 @@ class PythonGenerator(Generator):
         """
         return code.client_file.format(
             title=cs.to_pascal(self.openrpc.info.title),
-            transport=transport,
+            transport=transport.value,
             methods=self._get_methods(),
         )
 
