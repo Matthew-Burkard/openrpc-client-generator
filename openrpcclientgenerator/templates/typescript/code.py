@@ -1,3 +1,5 @@
+"""TypeScript code templates."""
+
 # Models
 data_class = """
 export class {name} {{

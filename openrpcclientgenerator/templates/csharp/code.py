@@ -1,3 +1,5 @@
+"""C# code templates."""
+
 # Models
 class_file = """
 using System.Collections.Generic;

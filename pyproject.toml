@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openrpcclientgenerator"
-version = "0.8.14"
+version = "0.8.15"
 description = "Generate clients from an Open RPC document."
 readme = "README.md"
 repository = "https://gitlab.com/mburkard/openrpc-client-generator"

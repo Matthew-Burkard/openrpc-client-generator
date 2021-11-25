@@ -1,4 +1,6 @@
-﻿solution = """
+﻿""".NET project file templates."""
+
+solution = """
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{{{id}}}") = "{name}", "{name}\\{name}.csproj", "{{{uuid}}}"
 EndProject

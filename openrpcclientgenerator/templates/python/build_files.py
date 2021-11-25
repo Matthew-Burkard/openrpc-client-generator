@@ -1,3 +1,5 @@
+"""Python project file templates."""
+
 setup = """
 [metadata]
 name = {name}

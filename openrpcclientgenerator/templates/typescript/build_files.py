@@ -1,3 +1,5 @@
+"""TypeScript project file templates."""
+
 tsconfig = """
 {
   "compilerOptions": {
