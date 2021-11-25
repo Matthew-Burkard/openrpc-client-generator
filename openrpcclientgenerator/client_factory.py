@@ -1,3 +1,4 @@
+"""Provides the ClientFactory class."""
 import os
 import shutil
 import uuid
@@ -22,6 +23,8 @@ __all__ = ("ClientFactory",)
 
 # TODO Server constants.
 class ClientFactory:
+    """Factory to generate OpenRPC clients for various languages."""
+
     def __init__(self, out_dir: str, rpc: OpenRPCObject) -> None:
         self.rpc = rpc
         self.rpc.info.contact = self.rpc.info.contact or ContactObject()
@@ -79,9 +82,7 @@ class ClientFactory:
         :param build_client: If True, build the Python package.
         :return: Path to the Python client.
         """
-        generator = PythonGenerator(
-            self.rpc.info.title, self.rpc.methods, self._schemas
-        )
+        generator = PythonGenerator(self.rpc, self._schemas)
         title = self.rpc.info.title.lower().replace(" ", "").replace("_", "")
         pkg_name = f"{cs.to_snake(title)}client"
         client_path = self._out_dir / "python" / pkg_name

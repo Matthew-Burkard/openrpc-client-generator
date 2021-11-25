@@ -1,13 +1,11 @@
-"""
-This module provides a class to generate a Python JSON RPC Client from
-an OpenRPC object.
-"""
+"""Provides a Python RPC client generator."""
 import re
 from dataclasses import dataclass
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, SchemaObject
+from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
+from openrpcclientgenerator.generators._generator import Generator
 from openrpcclientgenerator.templates.python import code
 
 
@@ -18,16 +16,12 @@ class _Model:
     fields: list[str]
 
 
-class PythonGenerator:
+class PythonGenerator(Generator):
     """Class to generate the code for a Python RPC Client."""
 
     def __init__(
-        self, title: str, methods: list[MethodObject], schemas: dict[str, SchemaObject]
+        self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
-        self.title = title
-        self.methods = methods
-        self.schemas = schemas
-        self._models: list[str] = []
         self._type_map = {
             "boolean": "bool",
             "integer": "int",
@@ -37,6 +31,7 @@ class PythonGenerator:
             "object": "dict[str, Any]",
         }
         self._indent = " " * 4
+        super(PythonGenerator, self).__init__(openrpc, schemas)
 
     def get_client(self, transport="HTTP") -> str:
         """Get a Python RPC client.
@@ -45,7 +40,7 @@ class PythonGenerator:
         :return: Python class with all RPC methods.
         """
         return code.client_file.format(
-            title=cs.to_pascal(self.title),
+            title=cs.to_pascal(self.openrpc.info.title),
             transport=transport,
             methods=self._get_methods(),
         )
@@ -91,7 +86,7 @@ class PythonGenerator:
                 deserialize=deserialize,
             )
 
-        return "".join(_get_method(m) for m in self.methods)
+        return "".join(_get_method(m) for m in self.openrpc.methods)
 
     def get_models(self) -> str:
         """Get Python code of all Model declarations."""
