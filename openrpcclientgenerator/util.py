@@ -13,4 +13,3 @@ def get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
         if schema.definitions:
             schemas = {**schemas, **get_schemas(schema.definitions)}
     return schemas
-
