@@ -1,3 +1,4 @@
+"""Client generator unit tests."""
 import json
 import os
 import unittest
@@ -8,6 +9,7 @@ from openrpc.objects import OpenRPCObject
 from openrpcclientgenerator.client_factory import ClientFactory
 
 
+# TODO Add more and better unit tests.
 class RPCTest(unittest.TestCase):
     def __init__(self, *args) -> None:
         pwd = os.getcwd()
