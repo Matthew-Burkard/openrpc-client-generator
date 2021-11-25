@@ -1,9 +1,15 @@
+"""
+This module provides a class to generate a Kotlin JSON RPC Client from
+an OpenRPC object.
+"""
 import re
 from dataclasses import dataclass, field
 
-from openrpc.objects import MethodObject, SchemaObject
+from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
-from openrpcclientgenerator.templates.python import code
+from openrpcclientgenerator.generators._generator import Generator
+from openrpcclientgenerator.generators.transports import Transport
+from openrpcclientgenerator.templates.kotlin import code
 
 
 @dataclass
@@ -13,14 +19,12 @@ class _Model:
     fields: list[str] = field(default_factory=lambda: [])
 
 
-class KotlinGenerator:
+class KotlinGenerator(Generator):
+    """Class to generate the code for a Kotlin RPC Client."""
+
     def __init__(
-        self, title: str, methods: list[MethodObject], schemas: dict[str, SchemaObject]
+        self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
-        self.title = title
-        self.methods = methods
-        self.schemas = schemas
-        self._models: list[str] = []
         self._type_map = {
             "boolean": "Boolean",
             "integer": "Int",
@@ -30,18 +34,31 @@ class KotlinGenerator:
             "object": "Map<String, Any>",
         }
         self._indent = " " * 2
+        super(KotlinGenerator, self).__init__(openrpc, schemas)
 
-    def get_methods(self, transport: str = "HTTP") -> str:
-        def get_method(method: MethodObject) -> str:
+    def get_client(self, transport: Transport = Transport.HTTP) -> str:
+        """Get a Kotlin RPC client.
+
+        :param transport: Transport method of the client.
+        :return: Python class with all RPC methods.
+        """
+        return code.client_file.format(methods=self._get_methods())
+
+    def _get_methods(self, transport: str = "HTTP") -> str:
+        def _get_method(method: MethodObject) -> str:
             return code.method.format()
 
-        return code.client_file.format()
+        return "".join(_get_method(m) for m in self.openrpc.methods)
 
     def get_models(self) -> str:
-        def get_model(name: str, schema: SchemaObject) -> _Model:
-            return _Model()
+        """Get Kotlin code of all model declarations."""
+        _all = []
 
-        return code.model_file.format()
+        def _get_model(name: str, schema: SchemaObject) -> _Model:
+            return _Model(name)
+
+        models = [_get_model(n, s) for n, s in self.schemas.items()]
+        return code.model_file.format(classes=models)
 
     def _get_kotlin_type(self, schema: SchemaObject) -> str:
         # Get Kotlin type from JSON Schema type.

@@ -1,9 +1,11 @@
+"""Kotlin code templates."""
+
 # Models
-class_file = """
+model_file = """
 {classes}
 """.strip()
 
-data_class = """
+model = """
 {doc}
 data class {name}(
     {fields}
@@ -18,7 +20,7 @@ class {title}{transport}Client {{
 }}
 """
 
-method_template = """
+method = """
     /**
      * {doc}
      */
