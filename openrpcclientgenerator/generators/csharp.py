@@ -1,9 +1,12 @@
+"""Provides a C# RPC client generator."""
 import re
 from dataclasses import dataclass
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, SchemaObject
+from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
+from openrpcclientgenerator.generators._generator import CodeGenerator
+from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.templates.csharp import code
 
 
@@ -14,14 +17,12 @@ class _Model:
     fields: list[str]
 
 
-class CSharpGenerator:
+class CSharpCodeGenerator(CodeGenerator):
+    """Class to generate the code for a C# RPC Client."""
+
     def __init__(
-        self, title: str, methods: list[MethodObject], schemas: dict[str, SchemaObject]
+        self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
-        self.title = title
-        self.methods = methods
-        self.schemas = schemas
-        self._models: list[str] = []
         self._type_map = {
             "boolean": "bool",
             "integer": "int",
@@ -31,9 +32,23 @@ class CSharpGenerator:
             "object": "object",
         }
         self._indent = " " * 4
+        super(CSharpCodeGenerator, self).__init__(openrpc, schemas)
 
-    def get_methods(self) -> str:
-        def get_method(method: MethodObject) -> str:
+    def get_client(self, transport: Transport = Transport.HTTP) -> str:
+        """Get a C# RPC client.
+
+        :param transport: Transport method of the client.
+        :return: C# class with all RPC methods.
+        """
+        return code.client_file.format(
+            namespace=f"{cs.to_pascal(self.openrpc.info.title)}Client",
+            title=cs.to_pascal(self.openrpc.info.title),
+            transport="Http",
+            methods=self._get_methods(),
+        ).lstrip()
+
+    def _get_methods(self) -> str:
+        def _get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
                 params = ", ".join(cs.to_camel(it.name) for it in method.params)
                 params = f"new List<object> {{{params}}}"
@@ -61,15 +76,12 @@ class CSharpGenerator:
                 params=params,
             )
 
-        return code.client_file.format(
-            namespace=f"{cs.to_pascal(self.title)}Client",
-            title=cs.to_pascal(self.title),
-            transport="Http",
-            methods="\n".join(get_method(m) for m in self.methods),
-        ).lstrip()
+        return "\n".join(_get_method(m) for m in self.openrpc.methods)
 
     def get_models(self) -> str:
-        def get_model(name: str, schema: SchemaObject) -> _Model:
+        """Get C# code of all Model declarations."""
+
+        def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
             for prop_name, prop in schema.properties.items():
                 c_sharp_type = self._get_cs_type(prop)
@@ -103,9 +115,9 @@ class CSharpGenerator:
             doc = f"/**\n{self._indent} * {doc.rstrip()}/"
             return _Model(name, doc, fields)
 
-        models = [get_model(n, s) for n, s in self.schemas.items()]
+        models = [_get_model(n, s) for n, s in self.schemas.items()]
         return code.class_file.format(
-            namespace=f"{cs.to_pascal(self.title)}Client",
+            namespace=f"{cs.to_pascal(self.openrpc.info.title)}Client",
             classes="\n".join(
                 code.data_class.format(
                     name=m.name,
