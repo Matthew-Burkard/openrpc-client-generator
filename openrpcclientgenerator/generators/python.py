@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import caseswitcher as cs
 from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
-from openrpcclientgenerator.generators._generator import Generator
+from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.templates.python import code
 
@@ -17,7 +17,7 @@ class _Model:
     fields: list[str]
 
 
-class PythonGenerator(Generator):
+class PythonCodeGenerator(CodeGenerator):
     """Class to generate the code for a Python RPC Client."""
 
     def __init__(
@@ -32,7 +32,7 @@ class PythonGenerator(Generator):
             "object": "dict[str, Any]",
         }
         self._indent = " " * 4
-        super(PythonGenerator, self).__init__(openrpc, schemas)
+        super(PythonCodeGenerator, self).__init__(openrpc, schemas)
 
     def get_client(self, transport=Transport.HTTP) -> str:
         """Get a Python RPC client.

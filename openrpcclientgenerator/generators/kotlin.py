@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 
 from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
-from openrpcclientgenerator.generators._generator import Generator
+from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.templates.kotlin import code
 
@@ -19,7 +19,7 @@ class _Model:
     fields: list[str] = field(default_factory=lambda: [])
 
 
-class KotlinGenerator(Generator):
+class KotlinCodeGenerator(CodeGenerator):
     """Class to generate the code for a Kotlin RPC Client."""
 
     def __init__(
@@ -34,7 +34,7 @@ class KotlinGenerator(Generator):
             "object": "Map<String, Any>",
         }
         self._indent = " " * 2
-        super(KotlinGenerator, self).__init__(openrpc, schemas)
+        super(KotlinCodeGenerator, self).__init__(openrpc, schemas)
 
     def get_client(self, transport: Transport = Transport.HTTP) -> str:
         """Get a Kotlin RPC client.

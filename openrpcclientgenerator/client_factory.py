@@ -11,7 +11,7 @@ from openrpc.objects import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import util
 from openrpcclientgenerator.generators.csharp import CSharpGenerator
-from openrpcclientgenerator.generators.python import PythonGenerator
+from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.typescript import TypeScriptGenerator
 from openrpcclientgenerator.templates.csharp import dotnet_files
 from openrpcclientgenerator.templates.python import build_files as py_build_files
@@ -34,7 +34,7 @@ class ClientFactory:
         self._out_dir = Path(out_dir)
 
     def build_c_sharp_client(self, build_client: bool = False) -> str:
-        generator = CSharpGenerator(
+        generator = CSharpCodeGenerator(
             self.rpc.info.title, self.rpc.methods, self._schemas
         )
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
@@ -82,7 +82,7 @@ class ClientFactory:
         :param build_client: If True, build the Python package.
         :return: Path to the Python client.
         """
-        generator = PythonGenerator(self.rpc, self._schemas)
+        generator = PythonCodeGenerator(self.rpc, self._schemas)
         title = self.rpc.info.title.lower().replace(" ", "").replace("_", "")
         pkg_name = f"{cs.to_snake(title)}client"
         client_path = self._out_dir / "python" / pkg_name

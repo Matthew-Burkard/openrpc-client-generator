@@ -6,7 +6,7 @@ from openrpc.objects import OpenRPCObject, SchemaObject
 from openrpcclientgenerator.generators.transports import Transport
 
 
-class Generator(abc.ABC):
+class CodeGenerator(abc.ABC):
     """Defines methods for RPC client generators."""
 
     def __init__(
