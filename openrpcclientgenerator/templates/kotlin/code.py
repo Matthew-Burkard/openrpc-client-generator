@@ -11,7 +11,7 @@ data class {name}(
     {fields}
 )
 """
-field = "{annotation}val {name}: {type}{default}"
+field = "val {name}: {type}{default}"
 
 # Methods
 client_file = """

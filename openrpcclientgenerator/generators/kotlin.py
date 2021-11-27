@@ -5,6 +5,7 @@ an OpenRPC object.
 import re
 from dataclasses import dataclass, field
 
+import caseswitcher as cs
 from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
@@ -15,7 +16,6 @@ from openrpcclientgenerator.templates.kotlin import code
 @dataclass
 class _Model:
     name: str
-    args: list[str] = field(default_factory=lambda: [])
     fields: list[str] = field(default_factory=lambda: [])
 
 
@@ -55,7 +55,17 @@ class KotlinCodeGenerator(CodeGenerator):
         _all = []
 
         def _get_model(name: str, schema: SchemaObject) -> _Model:
-            return _Model(name)
+            fields = []
+            for n, prop in schema.properties.items():
+                required = n in (schema.required or [])
+                fields.append(
+                    code.field.format(
+                        name=cs.to_camel(n),
+                        type=self._get_kotlin_type(prop) + "?" if required else "",
+                        default=" = null" if required else "",
+                    )
+                )
+            return _Model(name, fields)
 
         models = [_get_model(n, s) for n, s in self.schemas.items()]
         return code.model_file.format(classes=models)
