@@ -16,6 +16,7 @@ from openrpcclientgenerator.templates.kotlin import code
 @dataclass
 class _Model:
     name: str
+    doc: str
     fields: list[str] = field(default_factory=lambda: [])
 
 
@@ -65,10 +66,27 @@ class KotlinCodeGenerator(CodeGenerator):
                         default=" = null" if required else "",
                     )
                 )
-            return _Model(name, fields)
+            if schema.description:
+                doc = f"\n{self._indent} * ".join(
+                    line.strip() for line in schema.description.split("\n")
+                )
+                # Remove trailing spaces from blank lines.
+                doc = "\n".join(line.rstrip() for line in doc.split("\n"))
+            else:
+                doc = f"{name} object."
+            return _Model(name, doc, fields)
 
         models = [_get_model(n, s) for n, s in self.schemas.items()]
-        return code.model_file.format(classes=models)
+        return code.model_file.format(
+            classes="\n".join(
+                code.model.format(
+                    name=model.name,
+                    doc=model.doc,
+                    fields=f"\n{self._indent}".join(model.fields),
+                )
+                for model in models
+            )
+        )
 
     def _get_kotlin_type(self, schema: SchemaObject) -> str:
         # Get Kotlin type from JSON Schema type.
