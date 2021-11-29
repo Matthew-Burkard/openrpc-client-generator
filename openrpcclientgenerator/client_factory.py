@@ -86,8 +86,7 @@ class ClientFactory:
         :return: Path to the Python client.
         """
         generator = PythonCodeGenerator(self.rpc, self._schemas)
-        title = self.rpc.info.title.lower().replace(" ", "").replace("_", "")
-        pkg_name = f"{cs.to_snake(title)}client"
+        pkg_name = f"{cs.to_snake(self.rpc.info.title)}client"
         client_path = self._out_dir / "python" / pkg_name
         package_path = client_path / "src" / pkg_name
         os.makedirs(package_path, exist_ok=True)
