@@ -11,6 +11,7 @@ from openrpc.objects import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import util
 from openrpcclientgenerator.generators.csharp import CSharpCodeGenerator
+from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
 from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.typescript import TypeScriptGenerator
 from openrpcclientgenerator.templates.csharp import dotnet_files
@@ -77,6 +78,29 @@ class ClientFactory:
         # Pack client.
         if build_client:
             os.system(f"dotnet pack {solution_file}")
+        return client_path.as_posix()
+
+    def build_kotlin_client(self, build_client: bool = False) -> str:
+        """Generate Kotlin code for an RPC client.
+
+        :param build_client: If True, build the Kotlin package.
+        :return: Path to the Kotlin client.
+        """
+        generator = KotlinCodeGenerator(self.rpc, self._schemas)
+        pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
+        client_path = self._out_dir / "kotlin" / pkg_name
+        package_path = client_path / "src" / pkg_name
+        os.makedirs(package_path, exist_ok=True)
+        # Models
+        models_str = generator.get_models()
+        models_file = package_path / "Models.kt"
+        models_file.touch()
+        models_file.write_text(models_str)
+        # Methods
+        client_str = generator.get_client()
+        client_file = package_path / "Client.kt"
+        client_file.touch()
+        client_file.write_text(client_str)
         return client_path.as_posix()
 
     def build_python_client(self, build_client: bool = False) -> str:
