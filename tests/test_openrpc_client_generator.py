@@ -22,6 +22,9 @@ class RPCTest(unittest.TestCase):
     def test_csharp(self) -> None:
         self.assertEqual(str, type(self.cf.build_c_sharp_client()))
 
+    def test_kotlin(self) -> None:
+        self.assertEqual(str, type(self.cf.build_kotlin_client()))
+
     def test_python(self) -> None:
         self.assertEqual(str, type(self.cf.build_python_client()))
 
