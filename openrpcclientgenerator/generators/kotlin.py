@@ -46,10 +46,10 @@ class KotlinCodeGenerator(CodeGenerator):
         return code.client_file.format(
             title=cs.to_pascal(self.openrpc.info.title),
             transport=transport.value,
-            methods=self._get_methods()
+            methods=self._get_methods(),
         )
 
-    def _get_methods(self, transport: str = "HTTP") -> str:
+    def _get_methods(self) -> str:
         def _get_method(method: MethodObject) -> str:
             return code.method.format()
 
