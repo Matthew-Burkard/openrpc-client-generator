@@ -51,7 +51,16 @@ class KotlinCodeGenerator(CodeGenerator):
 
     def _get_methods(self) -> str:
         def _get_method(method: MethodObject) -> str:
-            return code.method.format()
+            args = ""
+            return_type = ""
+            params = ""
+            return code.method.format(
+                doc=f'"""{method.description}"""',
+                name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
+                args=args,
+                return_type=return_type,
+                params=params,
+            )
 
         return "".join(_get_method(m) for m in self.openrpc.methods)
 
