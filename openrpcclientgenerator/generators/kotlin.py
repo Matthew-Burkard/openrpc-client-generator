@@ -43,7 +43,11 @@ class KotlinCodeGenerator(CodeGenerator):
         :param transport: Transport method of the client.
         :return: Python class with all RPC methods.
         """
-        return code.client_file.format(methods=self._get_methods())
+        return code.client_file.format(
+            title=cs.to_pascal(self.openrpc.info.title),
+            transport=transport.value,
+            methods=self._get_methods()
+        )
 
     def _get_methods(self, transport: str = "HTTP") -> str:
         def _get_method(method: MethodObject) -> str:
