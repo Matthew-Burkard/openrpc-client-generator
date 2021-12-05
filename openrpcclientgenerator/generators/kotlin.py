@@ -51,13 +51,18 @@ class KotlinCodeGenerator(CodeGenerator):
 
     def _get_methods(self) -> str:
         def _get_method(method: MethodObject) -> str:
-            args = ""
+            args = []
+            for param in method.params:
+                k_type = self._get_kotlin_type(param.json_schema)
+                if not param.required:
+                    k_type = f"{k_type}?"
+                args.append(f"{param.name}: {k_type}")
             return_type = ""
             params = ""
             return code.method.format(
                 doc=f'"""{method.description}"""',
                 name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
-                args=args,
+                args=", ".join(args),
                 return_type=return_type,
                 params=params,
             )
