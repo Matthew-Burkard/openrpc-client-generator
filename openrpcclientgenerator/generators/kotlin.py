@@ -60,14 +60,14 @@ class KotlinCodeGenerator(CodeGenerator):
             return_type = ""
             params = ""
             return code.method.format(
-                doc=f'"""{method.description}"""',
+                doc=method.description,
                 name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(args),
                 return_type=return_type,
                 params=params,
             )
 
-        return "".join(_get_method(m) for m in self.openrpc.methods)
+        return "".join(_get_method(m) for m in self.openrpc.methods).lstrip()
 
     def get_models(self) -> str:
         """Get Kotlin code of all model declarations."""
