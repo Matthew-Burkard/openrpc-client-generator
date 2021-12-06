@@ -56,14 +56,19 @@ class KotlinCodeGenerator(CodeGenerator):
                 k_type = self._get_kotlin_type(param.json_schema)
                 if not param.required:
                     k_type = f"{k_type}?"
-                args.append(f"{param.name}: {k_type}")
-            return_type = ""
-            params = ""
+                args.append(f"{cs.to_camel(param.name)}: {k_type}")
+
+            if len(method.params) > 1:
+                params = ", ".join(cs.to_camel(it.name) for it in method.params)
+            else:
+                # Length is 1 or 0.
+                params = "".join(cs.to_camel(it.name) for it in method.params)
+
             return code.method.format(
                 doc=method.description,
                 name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(args),
-                return_type=return_type,
+                return_type=self._get_kotlin_type(method.result.json_schema),
                 params=params,
             )
 
