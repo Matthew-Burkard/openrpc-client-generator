@@ -104,7 +104,7 @@ class PythonCodeGenerator(CodeGenerator):
         def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
             for n, prop in schema.properties.items():
-                default = " = None" if n in (schema.required or []) else ""
+                default = "" if n in (schema.required or []) else " = None"
                 fields.append(
                     code.field.format(
                         name=n,
