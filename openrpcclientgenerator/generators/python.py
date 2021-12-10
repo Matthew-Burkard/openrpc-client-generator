@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
+from openrpc.objects import MethodObject, OpenRPCObject, ParamStructure, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
@@ -47,14 +47,18 @@ class PythonCodeGenerator(CodeGenerator):
         )
 
     def _get_methods(self) -> str:
-        _all = []
-
         def _get_method(method: MethodObject) -> str:
-            if len(method.params) > 1:
-                params = ", ".join(cs.to_snake(it.name) for it in method.params)
-            else:
+            def _get_list_params() -> str:
+                if len(method.params) > 1:
+                    return f"[{', '.join(cs.to_snake(p.name) for p in method.params)}]"
                 # Length is 1 or 0.
-                params = "".join(cs.to_snake(it.name) for it in method.params)
+                return f"[{''.join(cs.to_snake(it.name) for it in method.params)}]"
+
+            def _get_dict_params() -> str:
+                key_value_pairs = ",".join(
+                    f'"{it.name}": {cs.to_snake(it.name)}' for it in method.params
+                )
+                return f"{{{key_value_pairs}}}"
 
             # Get method arguments.
             args = []
@@ -64,27 +68,31 @@ class PythonCodeGenerator(CodeGenerator):
                     p_type = f"Optional[{p_type}]"
                 if p_type.startswith("Optional"):
                     p_type += " = None"
-                args.append(f", {param.name}: {p_type}")
+                args.append(f", {cs.to_snake(param.name)}: {p_type}")
             args.sort(key=lambda x: str(x).find("Optional") != -1)
+
+            # Get method call params.
+            if method.paramStructure == ParamStructure.BY_NAME:
+                params = _get_dict_params()
+            else:
+                params = _get_list_params()
 
             # Get return type and add code to deserialize results.
             return_type = self._get_py_type_from_schema(method.result.json_schema)
-            if return_type.startswith("list["):
-                # FIXME Won't work with union types.
-                deserialize = code.deserialize_list.format(
-                    type=return_type.removeprefix("list[").removesuffix("]")
-                )
+
+            # Get doc string.
+            if method.description:
+                doc = f'\n{self._indent * 2}"""{method.description}"""'
             else:
-                deserialize = code.deserialize_class.format(return_type=return_type)
+                doc = ""
 
             return code.method.format(
-                name=cs.to_snake(re.sub(r".*?\.", "", method.name)),
+                name=cs.to_snake(method.name),
                 method=method.name,
                 args="self" + "".join(args),
                 return_type=return_type,
-                doc=f'"""{method.description}"""',
+                doc=doc,
                 params=params,
-                deserialize=deserialize,
             )
 
         return "".join(_get_method(m) for m in self.openrpc.methods)
@@ -140,6 +148,7 @@ class PythonCodeGenerator(CodeGenerator):
                 )
                 for model in models
             ),
+            update_refs="\n".join(f"{m.name}.update_forward_refs()" for m in models),
         )
 
     def _get_py_type_from_schema(self, schema: SchemaObject) -> str:
