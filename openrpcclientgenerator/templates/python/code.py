@@ -29,7 +29,7 @@ from pydantic import BaseModel
 
 from .models import *
 
-__all__ = ("{title}Client",)
+__all__ = ("{title}{transport}Client",)
 
 
 class {title}{transport}Client(RPC{transport}Client):
