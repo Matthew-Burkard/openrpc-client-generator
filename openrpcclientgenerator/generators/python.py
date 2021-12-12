@@ -41,12 +41,13 @@ class PythonCodeGenerator(CodeGenerator):
         :return: Python class with all RPC methods.
         """
         return code.client_file.format(
-            title=cs.to_pascal(self.openrpc.info.title),
             transport=transport.value,
-            methods=self._get_methods(),
+            title=cs.to_pascal(self.openrpc.info.title),
+            async_methods=self._get_methods(),
+            methods=self._get_methods(is_async=False),
         )
 
-    def _get_methods(self) -> str:
+    def _get_methods(self, is_async: bool = True) -> str:
         def _get_method(method: MethodObject) -> str:
             def _get_list_params() -> str:
                 if len(method.params) > 1:
@@ -86,7 +87,8 @@ class PythonCodeGenerator(CodeGenerator):
             else:
                 doc = ""
 
-            return code.method.format(
+            template = code.async_method if is_async else code.method
+            return template.format(
                 name=cs.to_snake(method.name),
                 method=method.name,
                 args="self" + "".join(args),
