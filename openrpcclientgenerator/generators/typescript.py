@@ -70,7 +70,7 @@ class TypeScriptGenerator(CodeGenerator):
                 p_name = cs.to_camel(p.name)
                 args.append(f"{p_name}{required}: {_get_type(p.json_schema)}")
             return code.method.format(
-                name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
+                name=cs.to_camel(method.name),
                 args=", ".join(args),
                 return_type=return_type,
                 params=", ".join(cs.to_camel(p.name) for p in method.params),
