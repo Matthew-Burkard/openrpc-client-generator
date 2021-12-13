@@ -50,10 +50,7 @@ class PythonCodeGenerator(CodeGenerator):
     def _get_methods(self, is_async: bool = True) -> str:
         def _get_method(method: MethodObject) -> str:
             def _get_list_params() -> str:
-                if len(method.params) > 1:
-                    return f"[{', '.join(cs.to_snake(p.name) for p in method.params)}]"
-                # Length is 1 or 0.
-                return f"[{''.join(cs.to_snake(it.name) for it in method.params)}]"
+                return f"[{', '.join(cs.to_snake(it.name) for it in method.params)}]"
 
             def _get_dict_params() -> str:
                 key_value_pairs = ",".join(
