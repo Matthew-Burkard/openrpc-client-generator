@@ -36,12 +36,12 @@ from .models import *
 __all__ = ("Async{title}{transport}Client", "{title}{transport}Client")
 
 
-class Async{title}Client(AsyncRPC{transport}Client):
+class Async{title}{transport}Client(AsyncRPC{transport}Client):
     \"""Generated async client for {title} server.\"""
 {async_methods}
 
 
-class {title}Client(RPC{transport}Client):
+class {title}{transport}Client(RPC{transport}Client):
     \"""Generated client for {title} server.\"""
 {methods}
 
