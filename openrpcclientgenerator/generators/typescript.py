@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass, field
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
+from openrpc.objects import MethodObject, OpenRPCObject, ParamStructure, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
@@ -52,6 +52,15 @@ class TypeScriptGenerator(CodeGenerator):
             return ts_type if ts_type in self._type_map.values() else f"m.{ts_type}"
 
         def _get_method(method: MethodObject) -> str:
+            def _get_array_params() -> str:
+                return ", ".join(cs.to_camel(it.name) for it in method.params)
+
+            def _get_object_params() -> str:
+                key_value_pairs = ",".join(
+                    f'"{it.name}": {cs.to_camel(it.name)}' for it in method.params
+                )
+                return f"{{{key_value_pairs}}}"
+
             return_type = _get_type(method.result.json_schema)
             if return_type in self._type_map.values():
                 result_cast = f"result = result as {return_type}"
@@ -64,16 +73,25 @@ class TypeScriptGenerator(CodeGenerator):
                 result_cast = template.format(
                     return_type=return_type.removesuffix("[]")
                 ).strip()
+
+            # Get method arguments.
             args = []
             for p in method.params:
                 required = "" if p.required else "?"
                 p_name = cs.to_camel(p.name)
                 args.append(f"{p_name}{required}: {_get_type(p.json_schema)}")
+
+            # Get method call params.
+            if method.paramStructure == ParamStructure.BY_NAME:
+                params = _get_object_params()
+            else:
+                params = _get_array_params()
+
             return code.method.format(
                 name=cs.to_camel(method.name),
                 args=", ".join(args),
                 return_type=return_type,
-                params=", ".join(cs.to_camel(p.name) for p in method.params),
+                params=params,
                 method=method.name,
                 result_casting=result_cast,
             )
