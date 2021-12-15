@@ -50,7 +50,7 @@ class TypeScriptGenerator(CodeGenerator):
         def _get_method(method: MethodObject) -> str:
             def _get_type(schema: SchemaObject) -> str:
                 ts_type = self._get_ts_type(schema)
-                return ts_type if self._is_model(ts_type) else f"m.{ts_type}"
+                return f"m.{ts_type}" if self._is_model(ts_type) else ts_type
 
             def _get_array_params() -> str:
                 array_params = ", ".join(cs.to_camel(it.name) for it in method.params)
@@ -65,7 +65,7 @@ class TypeScriptGenerator(CodeGenerator):
             return_type = _get_type(method.result.json_schema)
             return_value = f"result as {return_type}"
             # If not a primitive return type.
-            if not self._is_model(return_type):
+            if self._is_model(return_type):
                 if return_type.endswith("[]"):
                     result_origin = return_type.removesuffix("[]")
                     return_value = f"result.map(it => {result_origin}.fromJSON(it))"
@@ -159,4 +159,4 @@ class TypeScriptGenerator(CodeGenerator):
         return "any"
 
     def _is_model(self, string: str) -> bool:
-        return (string in self._type_map.values()) or string == "any"
+        return not ((string in self._type_map.values()) or string == "any")
