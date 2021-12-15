@@ -1,6 +1,25 @@
 """TypeScript code templates."""
 
 # Models
+models_file = """
+{models}
+
+function fromJSON(obj: any) {{
+  if (obj !== null && obj !== undefined && obj.hasOwnProperty('fromJSON')) {{
+    return obj.fromJSON();
+  }}
+  return obj;
+}}
+
+
+function toJSON(obj: any) {{
+  if (obj !== null && obj !== undefined && obj.hasOwnProperty('toJSON')) {{
+    return obj.toJSON();
+  }}
+  return obj;
+}}
+""".lstrip()
+
 data_class = """
 export class {name} {{
 {fields}
@@ -35,27 +54,32 @@ export class {name}{transport}Client extends RPC{transport}Client {{
 {methods}
 }}
 
-function _toJSON(objects: any[]) {{
-  return objects.map(it => it?.hasOwnProperty('toJSON') ? it.toJSON() : it);
+
+function serializeArrayParams(array: any[]): any[] {{
+  return array.map(it => serializeObject(it));
+}}
+
+
+function serializeObjectParams(obj: any): any {{
+  for (const key of Object.keys(obj)) {{
+    obj[key] = serializeObject(obj[key]);
+  }}
+  return obj;
+}}
+
+
+function serializeObject(obj: any): any {{
+  if (obj !== null && obj !== undefined && obj.hasOwnProperty('toJSON')) {{
+    return obj.toJSON();
+  }}
+  return obj;
 }}
 """
+
 method = """
   async {name}({args}): Promise<{return_type}> {{
-    let params = _toJSON([{params}]);
+    let params = {params};
     let result = await this.call('{method}', params);
-    {result_casting}
-    return result;
+    return {return_value};
   }}
-"""
-
-from_json = """
-if ({return_type}.hasOwnProperty('fromJSON')) {{
-      result = {return_type}.fromJSON(result);
-    }}
-"""
-
-array_from_json = """
-if ({return_type}.hasOwnProperty('fromJSON')) {{
-      result = result.map(it => {return_type}.fromJSON(it));
-    }}
 """

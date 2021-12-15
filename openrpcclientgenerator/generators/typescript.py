@@ -47,32 +47,30 @@ class TypeScriptGenerator(CodeGenerator):
         ).lstrip()
 
     def _get_methods(self) -> str:
-        def _get_type(schema: SchemaObject) -> str:
-            ts_type = self._get_ts_type(schema)
-            return ts_type if ts_type in self._type_map.values() else f"m.{ts_type}"
-
         def _get_method(method: MethodObject) -> str:
+            def _get_type(schema: SchemaObject) -> str:
+                ts_type = self._get_ts_type(schema)
+                return ts_type if self._is_model(ts_type) else f"m.{ts_type}"
+
             def _get_array_params() -> str:
-                return ", ".join(cs.to_camel(it.name) for it in method.params)
+                array_params = ", ".join(cs.to_camel(it.name) for it in method.params)
+                return f"serializeArrayParams([{array_params}])"
 
             def _get_object_params() -> str:
                 key_value_pairs = ",".join(
                     f'"{it.name}": {cs.to_camel(it.name)}' for it in method.params
                 )
-                return f"{{{key_value_pairs}}}"
+                return f"serializeObjectParams({{{key_value_pairs}}})"
 
             return_type = _get_type(method.result.json_schema)
-            if return_type in self._type_map.values():
-                result_cast = f"result = result as {return_type}"
-            else:
-                template = (
-                    code.array_from_json
-                    if return_type.endswith("[]")
-                    else code.from_json
-                )
-                result_cast = template.format(
-                    return_type=return_type.removesuffix("[]")
-                ).strip()
+            return_value = f"result as {return_type}"
+            # If not a primitive return type.
+            if not self._is_model(return_type):
+                if return_type.endswith("[]"):
+                    result_origin = return_type.removesuffix("[]")
+                    return_value = f"result.map(it => {result_origin}.fromJSON(it))"
+                else:
+                    return_value = f"{return_type}.fromJSON(result)"
 
             # Get method arguments.
             args = []
@@ -93,7 +91,7 @@ class TypeScriptGenerator(CodeGenerator):
                 return_type=return_type,
                 params=params,
                 method=method.name,
-                result_casting=result_cast,
+                return_value=return_value,
             )
 
         return "".join(_get_method(method) for method in self.openrpc.methods)
@@ -116,7 +114,7 @@ class TypeScriptGenerator(CodeGenerator):
 
         indent = " " * 2
         models = [_get_model(n, s) for n, s in self.schemas.items()]
-        return "\n".join(
+        models = "\n".join(
             code.data_class.format(
                 name=model.name,
                 fields=indent + f"\n{indent}".join(model.fields),
@@ -126,16 +124,17 @@ class TypeScriptGenerator(CodeGenerator):
                     for name in model.property_names.keys()
                 ),
                 to_json="\n".join(
-                    f"{indent * 3}{prop_name}: this.{name},"
+                    f"{indent * 3}{prop_name}: toJSON(this.{name}),"
                     for name, prop_name in model.property_names.items()
                 ),
                 from_json="\n".join(
-                    f"{indent * 3}instance.{name} = data.{prop_name};"
+                    f"{indent * 2}instance.{name} = fromJSON(data.{prop_name});"
                     for name, prop_name in model.property_names.items()
                 ),
             )
             for model in models
         )
+        return code.models_file.format(models=models)
 
     def _get_ts_type(self, schema: SchemaObject) -> str:
         # Get TypeScript type from JSON Schema type.
@@ -158,3 +157,6 @@ class TypeScriptGenerator(CodeGenerator):
         elif schema.ref:
             return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
         return "any"
+
+    def _is_model(self, string: str) -> bool:
+        return (string in self._type_map.values()) or string == "any"
