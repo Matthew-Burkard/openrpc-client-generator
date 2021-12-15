@@ -82,14 +82,14 @@
       "params": [
         {
           "name": "instance",
-          "json_schema": {
+          "schema": {
             "ref": "#/components/schemas/Vector3"
           },
           "required": true
         },
         {
           "name": "target",
-          "json_schema": {
+          "schema": {
             "ref": "#/components/schemas/Vector3"
           },
           "required": true
@@ -97,7 +97,7 @@
       ],
       "result": {
         "name": "result",
-        "json_schema": {
+        "schema": {
           "ref": "#/components/schemas/Vector3"
         },
         "required": true
