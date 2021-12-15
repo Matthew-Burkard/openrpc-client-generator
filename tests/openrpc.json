@@ -83,14 +83,14 @@
         {
           "name": "instance",
           "schema": {
-            "ref": "#/components/schemas/Vector3"
+            "$ref": "#/components/schemas/Vector3"
           },
           "required": true
         },
         {
           "name": "target",
           "schema": {
-            "ref": "#/components/schemas/Vector3"
+            "$ref": "#/components/schemas/Vector3"
           },
           "required": true
         }
@@ -98,7 +98,7 @@
       "result": {
         "name": "result",
         "schema": {
-          "ref": "#/components/schemas/Vector3"
+          "$ref": "#/components/schemas/Vector3"
         },
         "required": true
       }
