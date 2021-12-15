@@ -76,6 +76,32 @@
         },
         "required": true
       }
+    },
+    {
+      "name": "get_distance",
+      "params": [
+        {
+          "name": "instance",
+          "json_schema": {
+            "ref": "#/components/schemas/Vector3"
+          },
+          "required": true
+        },
+        {
+          "name": "target",
+          "json_schema": {
+            "ref": "#/components/schemas/Vector3"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "result",
+        "json_schema": {
+          "ref": "#/components/schemas/Vector3"
+        },
+        "required": true
+      }
     }
   ],
   "components": {
@@ -472,6 +498,29 @@
             }
           }
         }
+      },
+      "Vector3": {
+        "title": "Vector3",
+        "type": "object",
+        "properties": {
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          },
+          "z": {
+            "title": "Z",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ]
       }
     }
   }
