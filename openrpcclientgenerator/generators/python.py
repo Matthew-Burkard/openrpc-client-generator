@@ -70,7 +70,7 @@ class PythonCodeGenerator(CodeGenerator):
             args.sort(key=lambda x: str(x).find("Optional") != -1)
 
             # Get method call params.
-            if method.paramStructure == ParamStructure.BY_NAME:
+            if method.param_structure == ParamStructure.BY_NAME:
                 params = _get_dict_params()
             else:
                 params = _get_list_params()

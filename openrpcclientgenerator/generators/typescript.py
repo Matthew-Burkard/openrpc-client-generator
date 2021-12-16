@@ -80,7 +80,7 @@ class TypeScriptGenerator(CodeGenerator):
                 args.append(f"{p_name}{required}: {_get_type(p.json_schema)}")
 
             # Get method call params.
-            if method.paramStructure == ParamStructure.BY_NAME:
+            if method.param_structure == ParamStructure.BY_NAME:
                 params = _get_object_params()
             else:
                 params = _get_array_params()
