@@ -103,10 +103,18 @@ class PythonCodeGenerator(CodeGenerator):
         def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
             for n, prop in schema.properties.items():
-                default = "" if n in (schema.required or []) else " = None"
+                field_name = cs.to_snake(n)
+                needs_alias = field_name != n
+                required = n in (schema.required or [])
+                if needs_alias and required:
+                    default = f' = Field(alias="{n}")'
+                elif needs_alias:
+                    default = f' = Field(None, alias="{n}")'
+                else:
+                    default = " = None"
                 fields.append(
                     code.field.format(
-                        name=n,
+                        name=field_name,
                         type=self._get_py_type_from_schema(prop),
                         default=default,
                     )
@@ -122,7 +130,7 @@ class PythonCodeGenerator(CodeGenerator):
             if len(doc.split("\n")) > 1:
                 doc += self._indent
 
-            fields.sort(key=lambda x: x.endswith(" = None"))
+            fields.sort(key=lambda x: x.endswith(" = None") or "Field(None" in x)
             fields = [
                 re.sub(r": (.*?) =", r": Optional[\1] =", field)
                 if field.endswith(" = None")

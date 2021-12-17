@@ -465,10 +465,31 @@
               ]
             }
           },
+          "camelCase": {
+            "type": "array",
+            "items": {
+              "type": [
+                "null",
+                "object"
+              ]
+            }
+          },
+          "camelCaseRequired": {
+            "type": "array",
+            "items": {
+              "type": [
+                "null",
+                "object"
+              ]
+            }
+          },
           "icing": {
             "$ref": "#/components/schemas/Arepa/definitions/Icing"
           }
         },
+        "required": [
+          "camelCaseRequired"
+        ],
         "definitions": {
           "Icing": {
             "properties": {
