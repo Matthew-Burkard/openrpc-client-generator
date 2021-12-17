@@ -43,6 +43,6 @@ client_dir = "./dist/generated/"
 
 cf = ClientFactory(out_dir=client_dir, rpc=openrpc_doc_obj)
 cf.build_python_client()
-cf.build_c_sharp_client()
+cf.build_dotnet_client()
 cf.build_typescript_client()
 ```

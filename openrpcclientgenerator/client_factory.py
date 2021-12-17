@@ -10,7 +10,7 @@ from build.__main__ import main as build
 from openrpc.objects import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import util
-from openrpcclientgenerator.generators.csharp import CSharpCodeGenerator
+from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
 from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
 from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.typescript import TypeScriptGenerator
@@ -34,7 +34,7 @@ class ClientFactory:
         self._schemas = util.get_schemas(rpc.components.schemas)
         self._out_dir = Path(out_dir)
 
-    def build_c_sharp_client(self, build_client: bool = False) -> str:
+    def build_dotnet_client(self, build_client: bool = False) -> str:
         """Generate C# code for an RPC client.
 
         :param build_client: If True, build the .NET package.
