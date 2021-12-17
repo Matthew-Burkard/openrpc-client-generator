@@ -14,7 +14,7 @@ from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
 from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
 from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.typescript import TypeScriptGenerator
-from openrpcclientgenerator.templates.csharp import dotnet_files
+from openrpcclientgenerator.templates.dotnet import dotnet_files
 from openrpcclientgenerator.templates.python import build_files as py_build_files
 from openrpcclientgenerator.templates.typescript import build_files as ts_build_files
 from openrpcclientgenerator.templates.typescript.index import index_ts
@@ -42,7 +42,7 @@ class ClientFactory:
         """
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
-        client_path = self._out_dir / "csharp"
+        client_path = self._out_dir / "dotnet"
         package_path = client_path / sln_name / sln_name
         os.makedirs(package_path, exist_ok=True)
         # Models

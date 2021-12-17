@@ -7,7 +7,7 @@ from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
-from openrpcclientgenerator.templates.csharp import code
+from openrpcclientgenerator.templates.dotnet import code
 
 
 @dataclass
