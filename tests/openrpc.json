@@ -4,6 +4,20 @@
     "title": "Math",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "name":  "Local",
+      "url": "http://localhost:5000/api/v1/"
+    },
+    {
+      "name": "Develop",
+      "url": "https://dev.some_organization_url.io/api/v1/"
+    },
+    {
+      "name": "Production",
+      "url": "https://some_organization_url.io/api/v1/"
+    }
+  ],
   "methods": [
     {
       "name": "add",
