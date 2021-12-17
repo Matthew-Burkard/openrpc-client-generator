@@ -57,7 +57,7 @@ class TypeScriptGenerator(CodeGenerator):
                 return f"serializeArrayParams([{array_params}])"
 
             def _get_object_params() -> str:
-                key_value_pairs = ",".join(
+                key_value_pairs = ", ".join(
                     f"'{it.name}': {cs.to_camel(it.name)}" for it in method.params
                 )
                 return f"serializeObjectParams({{{key_value_pairs}}})"
