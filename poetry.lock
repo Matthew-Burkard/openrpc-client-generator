@@ -131,7 +131,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "openrpc"
-version = "2.0.0"
+version = "2.0.2"
 description = "OpenRPC provides classes to rapidly develop an OpenRPC server."
 category = "main"
 optional = false
@@ -368,7 +368,7 @@ more-itertools = [
     {file = "more_itertools-8.12.0-py3-none-any.whl", hash = "sha256:43e6dd9942dffd72661a2c4ef383ad7da1e6a3e968a927ad7a6083ab410a688b"},
 ]
 openrpc = [
-    {file = "openrpc-2.0.0.tar.gz", hash = "sha256:cb568682d422fe750b6c112c3635739668687cfeae4ae333003106cf79776812"},
+    {file = "openrpc-2.0.2.tar.gz", hash = "sha256:907ab84ff994718bbba4b9e3d750be7711896bece04a80f5e9875b552207b183"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},

@@ -33,8 +33,11 @@ from pydantic import BaseModel
 
 from .models import *
 
-__all__ = ("Async{title}{transport}Client", "{title}{transport}Client")
-
+__all__ = (
+    "Async{title}{transport}Client",
+    "{title}{transport}Client",{servers_export}
+)
+{servers}
 
 class Async{title}{transport}Client(AsyncRPC{transport}Client):
     \"""Generated async client for {title} server.\"""
@@ -65,4 +68,11 @@ async_method = """
 method = """
     def {name}({args}) -> {return_type}:{doc}
         return _deserialize(self.call('{method}', {params}), {return_type})
+"""
+
+server_enum = """
+
+class Servers:
+    \"""Available server URLs.\"""
+    {servers}
 """
