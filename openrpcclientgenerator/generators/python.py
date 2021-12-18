@@ -40,23 +40,14 @@ class PythonCodeGenerator(CodeGenerator):
         :param transport: Transport method of the client.
         :return: Python class with all RPC methods.
         """
-
-        def _get_server_name(s_name: str) -> str:
-            return cs.to_upper_snake(s_name) if s_name else "DEFAULT"
-
-        servers = self.openrpc.servers
-        if isinstance(servers, list):
-            servers_str = f"\n{self._indent}".join(
-                f'{_get_server_name(s.name)} = "{s.url}"' for s in servers
-            )
-        else:
-            servers_str = f'{_get_server_name(servers.name)} = "{servers.url}"'
         return code.client_file.format(
             transport=transport.value,
             title=cs.to_pascal(self.openrpc.info.title),
             async_methods=self._get_methods(),
             methods=self._get_methods(is_async=False),
-            servers=servers_str,
+            servers=f"\n{self._indent}".join(
+                [f'{k} = "{v}"' for k, v in self._get_servers().items()]
+            ),
         )
 
     def _get_methods(self, is_async: bool = True) -> str:

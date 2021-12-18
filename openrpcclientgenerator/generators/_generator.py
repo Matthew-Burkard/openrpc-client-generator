@@ -1,6 +1,7 @@
 """Provides an abstract class for code generators to extend."""
 import abc
 
+import caseswitcher as cs
 from openrpc.objects import OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator.generators.transports import Transport
@@ -24,3 +25,11 @@ class CodeGenerator(abc.ABC):
     def get_models(self) -> str:
         """Get models."""
         ...
+
+    def _get_servers(self) -> dict[str, str]:
+        servers = self.openrpc.servers
+        if isinstance(servers, list):
+            return {f"{cs.to_upper_snake(s.name)}": f"{s.url}" for s in servers}
+        return {
+            f"{cs.to_upper_snake(servers.name)}": f"{servers.url}"
+        }

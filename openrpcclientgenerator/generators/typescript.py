@@ -32,6 +32,7 @@ class TypeScriptGenerator(CodeGenerator):
             "null": "null",
             "object": "Map<string, any>",
         }
+        self._indent = " " * 2
         super(TypeScriptGenerator, self).__init__(openrpc, schemas)
 
     def get_client(self, transport: Transport = Transport.HTTP) -> str:
@@ -44,6 +45,9 @@ class TypeScriptGenerator(CodeGenerator):
             name=cs.to_pascal(self.openrpc.info.title),
             methods=self._get_methods(),
             transport=transport.value,
+            servers=f"\n{self._indent}".join(
+                [f"{k} = '{v}'," for k, v in self._get_servers().items()]
+            ),
         ).lstrip()
 
     def _get_methods(self) -> str:
@@ -112,23 +116,22 @@ class TypeScriptGenerator(CodeGenerator):
             model.fields.sort(key=lambda x: bool(re.search(r"[^:]+\?:", x)))
             return model
 
-        indent = " " * 2
         models = [_get_model(n, s) for n, s in self.schemas.items()]
         models = "\n".join(
             code.data_class.format(
                 name=model.name,
-                fields=indent + f"\n{indent}".join(model.fields),
+                fields=self._indent + f"\n{self._indent}".join(model.fields),
                 args=", ".join(model.args),
                 initiations="\n".join(
-                    f"{indent * 2}this.{name} = {name};"
+                    f"{self._indent * 2}this.{name} = {name};"
                     for name in model.property_names.keys()
                 ),
                 to_json="\n".join(
-                    f"{indent * 3}{prop_name}: toJSON(this.{name}),"
+                    f"{self._indent * 3}{prop_name}: toJSON(this.{name}),"
                     for name, prop_name in model.property_names.items()
                 ),
                 from_json="\n".join(
-                    f"{indent * 2}instance.{name} = fromJSON(data.{prop_name});"
+                    f"{self._indent * 2}instance.{name} = fromJSON(data.{prop_name});"
                     for name, prop_name in model.property_names.items()
                 ),
             )

@@ -47,6 +47,12 @@ client = """
 import * as m from "./models.js";
 import {{RPC{transport}Client}} from "jsonrpc2-tsclient";
 
+
+export enum Servers {{
+  {servers}
+}}
+
+
 export class {name}{transport}Client extends RPC{transport}Client {{
   constructor(url: string, headers?: object) {{
     super(url, headers);
