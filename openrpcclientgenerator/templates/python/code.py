@@ -35,9 +35,15 @@ from .models import *
 
 __all__ = (
     "Async{title}{transport}Client",
-    "{title}{transport}Client",{servers_export}
+    "{title}{transport}Client",
+    "Servers"
 )
-{servers}
+
+
+class Servers:
+    \"""Available server URLs.\"""
+    {servers}
+
 
 class Async{title}{transport}Client(AsyncRPC{transport}Client):
     \"""Generated async client for {title} server.\"""
@@ -68,11 +74,4 @@ async_method = """
 method = """
     def {name}({args}) -> {return_type}:{doc}
         return _deserialize(self.call('{method}', {params}), {return_type})
-"""
-
-server_enum = """
-
-class Servers:
-    \"""Available server URLs.\"""
-    {servers}
 """

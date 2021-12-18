@@ -44,23 +44,18 @@ class PythonCodeGenerator(CodeGenerator):
         def _get_server_name(s_name: str) -> str:
             return cs.to_upper_snake(s_name) if s_name else "DEFAULT"
 
-        servers_export = ""
-        servers_str = ""
-        if servers := self.openrpc.servers:
-            servers_export = f'\n{self._indent}"Servers",'
-            if isinstance(servers, list):
-                server_str = f"\n{self._indent}".join(
-                    f'{_get_server_name(s.name)} = "{s.url}"' for s in servers
-                )
-            else:
-                server_str = f'{_get_server_name(servers.name)} = "{servers.url}"'
-            servers_str = code.server_enum.format(servers=server_str)
+        servers = self.openrpc.servers
+        if isinstance(servers, list):
+            servers_str = f"\n{self._indent}".join(
+                f'{_get_server_name(s.name)} = "{s.url}"' for s in servers
+            )
+        else:
+            servers_str = f'{_get_server_name(servers.name)} = "{servers.url}"'
         return code.client_file.format(
             transport=transport.value,
             title=cs.to_pascal(self.openrpc.info.title),
             async_methods=self._get_methods(),
             methods=self._get_methods(is_async=False),
-            servers_export=servers_export,
             servers=servers_str,
         )
 
