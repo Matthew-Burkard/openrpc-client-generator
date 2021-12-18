@@ -30,6 +30,4 @@ class CodeGenerator(abc.ABC):
         servers = self.openrpc.servers
         if isinstance(servers, list):
             return {f"{cs.to_upper_snake(s.name)}": f"{s.url}" for s in servers}
-        return {
-            f"{cs.to_upper_snake(servers.name)}": f"{servers.url}"
-        }
+        return {f"{cs.to_upper_snake(servers.name)}": f"{servers.url}"}
