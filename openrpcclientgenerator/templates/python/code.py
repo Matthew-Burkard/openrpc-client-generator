@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import *
 
-from pydantic import BaseModel
+from pydantic import BaseModel{field_import}
 
 __all__ = ({all},)
 

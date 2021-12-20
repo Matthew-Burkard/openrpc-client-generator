@@ -32,6 +32,7 @@ class PythonCodeGenerator(CodeGenerator):
             "object": "dict[str, Any]",
         }
         self._indent = " " * 4
+        self._import_field = False
         super(PythonCodeGenerator, self).__init__(openrpc, schemas)
 
     def get_client(self, transport=Transport.HTTP) -> str:
@@ -111,8 +112,10 @@ class PythonCodeGenerator(CodeGenerator):
                 required = n in (schema.required or [])
                 if needs_alias and required:
                     default = f' = Field(alias="{n}")'
+                    self._import_field = True
                 elif needs_alias:
                     default = f' = Field(None, alias="{n}")'
+                    self._import_field = True
                 else:
                     default = " = None"
                 fields.append(
@@ -149,6 +152,7 @@ class PythonCodeGenerator(CodeGenerator):
 
         models = [_get_model(n, s) for n, s in self.schemas.items()]
         return code.model_file.format(
+            field_import=", Field" if self._import_field else "",
             all=", ".join(f'"{it}"' for it in _all),
             classes="\n".join(
                 code.data_class.format(
