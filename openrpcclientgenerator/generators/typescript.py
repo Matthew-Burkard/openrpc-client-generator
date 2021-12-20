@@ -30,7 +30,7 @@ class TypeScriptGenerator(CodeGenerator):
             "number": "number",
             "string": "string",
             "null": "null",
-            "object": "Map<string, any>",
+            "object": "object",
         }
         self._indent = " " * 2
         super(TypeScriptGenerator, self).__init__(openrpc, schemas)
@@ -148,8 +148,7 @@ class TypeScriptGenerator(CodeGenerator):
             if schema.type == "array":
                 return f"{self._get_ts_type(schema.items)}[]"
             elif schema.type == "object":
-                v_type = self._get_ts_type(schema.items) if schema.items else "any"
-                return f"Map<string, {v_type}>"
+                return "object"
             elif isinstance(schema.type, list):
                 return " | ".join(self._type_map[it] for it in schema.type)
             if schema.type == "string" and schema.format:
