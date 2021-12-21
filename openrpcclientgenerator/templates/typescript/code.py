@@ -44,7 +44,7 @@ export class {name} {{
 
 # Methods
 client = """
-import * as m from "./models.js";
+import {{{models_import}}} from "./models.js";
 import {{RPC{transport}Client}} from "jsonrpc2-tsclient";
 
 

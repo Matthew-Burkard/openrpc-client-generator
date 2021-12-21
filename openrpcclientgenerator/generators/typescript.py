@@ -42,6 +42,7 @@ class TypeScriptGenerator(CodeGenerator):
         :return: TypeScript class with all RPC methods.
         """
         return code.client.format(
+            models_import=", ".join(self.schemas.keys()),
             name=cs.to_pascal(self.openrpc.info.title),
             methods=self._get_methods(),
             transport=transport.value,
@@ -61,7 +62,7 @@ class TypeScriptGenerator(CodeGenerator):
                 required = "" if p.required else "?"
                 p_name = cs.to_camel(p.name)
                 interface_args.append(
-                    f"{p_name}{required}: {self._get_type(p.json_schema)}"
+                    f"{p_name}{required}: {self._get_ts_type(p.json_schema)}"
                 )
             args_str = f",\n{self._indent}".join(interface_args)
             interface_name = f"interface {cs.to_pascal(method.name)}Parameters"
@@ -78,7 +79,9 @@ class TypeScriptGenerator(CodeGenerator):
                 for p in method.params:
                     required = "" if p.required else "?"
                     p_name = cs.to_camel(p.name)
-                    array.append(f"{p_name}{required}: {self._get_type(p.json_schema)}")
+                    array.append(
+                        f"{p_name}{required}: {self._get_ts_type(p.json_schema)}"
+                    )
                 return ", ".join(array)
 
             def _get_object_args() -> str:
@@ -96,7 +99,7 @@ class TypeScriptGenerator(CodeGenerator):
                 return f"serializeObjectParams({{{key_value_pairs}}})"
 
             # Get return type.
-            return_type = self._get_type(method.result.json_schema)
+            return_type = self._get_ts_type(method.result.json_schema)
             return_value = f"result as {return_type}"
             # If not a primitive return type.
             if self._is_model(return_type):
@@ -187,7 +190,3 @@ class TypeScriptGenerator(CodeGenerator):
 
     def _is_model(self, string: str) -> bool:
         return not ((string in self._type_map.values()) or string == "any")
-
-    def _get_type(self, schema: SchemaObject) -> str:
-        ts_type = self._get_ts_type(schema)
-        return f"m.{ts_type}" if self._is_model(ts_type) else ts_type
