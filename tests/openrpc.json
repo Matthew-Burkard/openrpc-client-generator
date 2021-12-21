@@ -93,6 +93,7 @@
     },
     {
       "name": "get_distance",
+      "paramStructure": "by-name",
       "params": [
         {
           "name": "instance",

@@ -80,7 +80,8 @@ function serializeObject(obj: any): any {{
   }}
   return obj;
 }}
-"""
+{parameter_interfaces}
+""".rstrip()
 
 method = """
   async {name}({args}): Promise<{return_type}> {{
