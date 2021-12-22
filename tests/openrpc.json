@@ -117,6 +117,33 @@
         },
         "required": true
       }
+    },
+    {
+      "name": "list_foods",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "group",
+          "schema": {
+            "type": "string"
+          },
+          "required": false
+        },
+        {
+          "name": "OrderBy",
+          "schema": {
+            "type": "string"
+          },
+          "required": false
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "$ref": "#/components/schemas/Vector3"
+        },
+        "required": true
+      }
     }
   ],
   "components": {
