@@ -82,8 +82,9 @@ class TypeScriptGenerator(CodeGenerator):
             return ", ".join(array)
 
         def _get_object_args() -> str:
+            default = " = {}" if all(not p.required for p in method.params) else ""
             args_str = ", ".join(cs.to_camel(p.name) for p in method.params)
-            return f"{{{args_str}}}: {cs.to_pascal(method.name)}Parameters"
+            return f"{{{args_str}}}: {cs.to_pascal(method.name)}Parameters{default}"
 
         def _get_array_params() -> str:
             array_params = ", ".join(cs.to_camel(it.name) for it in method.params)
