@@ -44,7 +44,7 @@ class TypeScriptGenerator(CodeGenerator):
         return code.client.format(
             models_import=", ".join(self.schemas.keys()),
             name=cs.to_pascal(self.openrpc.info.title),
-            methods=self._get_methods(),
+            methods="".join(self._get_method(m) for m in self.openrpc.methods),
             transport=transport.value,
             servers=f"\n{self._indent}".join(
                 [f"{k} = '{v}'," for k, v in self._get_servers().items()]
@@ -72,61 +72,57 @@ class TypeScriptGenerator(CodeGenerator):
             return "\n\n" + "\n\n\n".join(interfaces)
         return ""
 
-    def _get_methods(self) -> str:
-        def _get_method(method: MethodObject) -> str:
-            def _get_array_args() -> str:
-                array = []
-                for p in method.params:
-                    required = "" if p.required else "?"
-                    p_name = cs.to_camel(p.name)
-                    array.append(
-                        f"{p_name}{required}: {self._get_ts_type(p.json_schema)}"
-                    )
-                return ", ".join(array)
+    def _get_method(self, method: MethodObject) -> str:
+        def _get_array_args() -> str:
+            array = []
+            for p in method.params:
+                required = "" if p.required else "?"
+                p_name = cs.to_camel(p.name)
+                array.append(f"{p_name}{required}: {self._get_ts_type(p.json_schema)}")
+            return ", ".join(array)
 
-            def _get_object_args() -> str:
-                args_str = ", ".join(cs.to_camel(p.name) for p in method.params)
-                return f"{{{args_str}}}: {cs.to_pascal(method.name)}Parameters"
+        def _get_object_args() -> str:
+            args_str = ", ".join(cs.to_camel(p.name) for p in method.params)
+            return f"{{{args_str}}}: {cs.to_pascal(method.name)}Parameters"
 
-            def _get_array_params() -> str:
-                array_params = ", ".join(cs.to_camel(it.name) for it in method.params)
-                return f"serializeArrayParams([{array_params}])"
+        def _get_array_params() -> str:
+            array_params = ", ".join(cs.to_camel(it.name) for it in method.params)
+            return f"serializeArrayParams([{array_params}])"
 
-            def _get_object_params() -> str:
-                key_value_pairs = ", ".join(
-                    f"'{it.name}': {cs.to_camel(it.name)}" for it in method.params
-                )
-                return f"serializeObjectParams({{{key_value_pairs}}})"
-
-            # Get return type.
-            return_type = self._get_ts_type(method.result.json_schema)
-            return_value = f"result as {return_type}"
-            # If not a primitive return type.
-            if self._is_model(return_type):
-                if return_type.endswith("[]"):
-                    result_origin = return_type.removesuffix("[]")
-                    return_value = f"result.map(it => {result_origin}.fromJSON(it))"
-                else:
-                    return_value = f"{return_type}.fromJSON(result)"
-
-            # Get function args and method call params.
-            if method.param_structure == ParamStructure.BY_NAME:
-                args = _get_object_args()
-                params = _get_object_params()
-            else:
-                args = _get_array_args()
-                params = _get_array_params()
-
-            return code.method.format(
-                name=cs.to_camel(method.name),
-                args=args,
-                return_type=return_type,
-                params=params,
-                method=method.name,
-                return_value=return_value,
+        def _get_object_params() -> str:
+            key_value_pairs = ", ".join(
+                f"'{it.name}': {cs.to_camel(it.name)}" for it in method.params
             )
+            return f"serializeObjectParams({{{key_value_pairs}}})"
 
-        return "".join(_get_method(method) for method in self.openrpc.methods)
+        # Get return type.
+        return_type = self._get_ts_type(method.result.json_schema)
+        return_value = f"result as {return_type}"
+        is_model = not (return_type in self._type_map.values() or return_type == "any")
+        # If not a primitive return type.
+        if is_model:
+            if return_type.endswith("[]"):
+                result_origin = return_type.removesuffix("[]")
+                return_value = f"result.map(it => {result_origin}.fromJSON(it))"
+            else:
+                return_value = f"{return_type}.fromJSON(result)"
+
+        # Get function args and method call params.
+        if method.param_structure == ParamStructure.BY_NAME:
+            args = _get_object_args()
+            params = _get_object_params()
+        else:
+            args = _get_array_args()
+            params = _get_array_params()
+
+        return code.method.format(
+            name=cs.to_camel(method.name),
+            args=args,
+            return_type=return_type,
+            params=params,
+            method=method.name,
+            return_value=return_value,
+        )
 
     def get_models(self) -> str:
         """Get TypeScript code of all Model declarations."""
@@ -187,6 +183,3 @@ class TypeScriptGenerator(CodeGenerator):
         elif schema.ref:
             return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
         return "any"
-
-    def _is_model(self, string: str) -> bool:
-        return not ((string in self._type_map.values()) or string == "any")
