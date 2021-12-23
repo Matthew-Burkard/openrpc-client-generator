@@ -41,8 +41,13 @@ class TypeScriptGenerator(CodeGenerator):
         :param transport: Transport method of the client.
         :return: TypeScript class with all RPC methods.
         """
+        used_models = [
+            self._get_ts_type(p.json_schema)
+            for m in self.openrpc.methods
+            for p in m.params
+        ]
         return code.client.format(
-            models_import=", ".join(self.schemas.keys()),
+            models_import=", ".join(k for k in self.schemas.keys() if k in used_models),
             name=cs.to_pascal(self.openrpc.info.title),
             methods="".join(self._get_method(m) for m in self.openrpc.methods),
             transport=transport.value,
