@@ -3,10 +3,11 @@ import os
 import shutil
 import uuid
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 
 import caseswitcher as cs
-from build.__main__ import main as build
+from build.__main__ import main as build_py
 from openrpc.objects import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import util
@@ -22,7 +23,15 @@ from openrpcclientgenerator.templates.typescript.index import index_ts
 __all__ = ("ClientFactory",)
 
 
-# TODO Server constants.
+class Language(Enum):
+    """Languages available to generate clients for."""
+
+    DOTNET = "dotnet"
+    KOTLIN = "kotlin"
+    PYTHON = "python"
+    TYPE_SCRIPT = "typescript"
+
+
 class ClientFactory:
     """Factory to generate OpenRPC clients for various languages."""
 
@@ -34,12 +43,24 @@ class ClientFactory:
         self._schemas = util.get_schemas(rpc.components.schemas)
         self._out_dir = Path(out_dir)
 
-    def build_dotnet_client(self, build_client: bool = False) -> str:
-        """Generate C# code for an RPC client.
+    def generate_client(
+        self, language: Language, build: bool = False, exists_okay: bool = True
+    ) -> str:
+        """Generate code for an RPC client.
 
-        :param build_client: If True, build the .NET package.
-        :return: Path to the .NET client.
+        :param language: Language to generate code of.
+        :param build: If True, build/pack the client.
+        :param exists_okay: If True, remove existing code if it exists.
+        :return: Path to the client root dir.
         """
+        return {
+            Language.DOTNET: self._generate_dotnet_client,
+            Language.KOTLIN: self._generate_kotlin_client,
+            Language.PYTHON: self._generate_python_client,
+            Language.TYPE_SCRIPT: self._generate_typescript_client,
+        }[language].__call__(build)
+
+    def _generate_dotnet_client(self, build: bool = False) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "dotnet"
@@ -76,16 +97,11 @@ class ClientFactory:
             )
         )
         # Pack client.
-        if build_client:
+        if build:
             os.system(f"dotnet pack {solution_file}")
         return client_path.as_posix()
 
-    def build_kotlin_client(self, build_client: bool = False) -> str:
-        """Generate Kotlin code for an RPC client.
-
-        :param build_client: If True, build the Kotlin package.
-        :return: Path to the Kotlin client.
-        """
+    def _generate_kotlin_client(self, build: bool = False) -> str:
         generator = KotlinCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "kotlin" / pkg_name
@@ -101,14 +117,11 @@ class ClientFactory:
         client_file = package_path / "Client.kt"
         client_file.touch()
         client_file.write_text(client_str)
+        if build:
+            pass  # TODO
         return client_path.as_posix()
 
-    def build_python_client(self, build_client: bool = False) -> str:
-        """Generate Python code for an RPC client.
-
-        :param build_client: If True, build the Python package.
-        :return: Path to the Python client.
-        """
+    def _generate_python_client(self, build: bool = False) -> str:
         generator = PythonCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
@@ -142,16 +155,11 @@ class ClientFactory:
         py_proj_toml = client_path / "pyproject.toml"
         py_proj_toml.write_text(py_build_files.py_project)
         # Build client.
-        if build_client:
-            build([client_path.as_posix()])
+        if build:
+            build_py([client_path.as_posix()])
         return client_path.as_posix()
 
-    def build_typescript_client(self, build_client: bool = False) -> str:
-        """Generate TypeScript code for an RPC client.
-
-        :param build_client: If True, build the TypeScript package.
-        :return: Path to the TypeScript client.
-        """
+    def _generate_typescript_client(self, build: bool = False) -> str:
         generator = TypeScriptGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
@@ -193,7 +201,7 @@ class ClientFactory:
             )
         )
         # Build Client
-        if build_client:
+        if build:
             os.system(f"npm i --prefix {client_path}")
             os.system(f"npm run build --prefix {client_path}")
             os.system(f"npm pack {client_path}")
