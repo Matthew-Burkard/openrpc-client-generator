@@ -99,6 +99,8 @@ class ClientFactory:
         # Pack client.
         if build:
             os.system(f"dotnet pack {solution_file}")
+            bin_dir = f"{client_path}/{sln_name}/bin"
+            return f"{bin_dir}/Debug/{sln_name}.{self.rpc.info.version}.nupkg"
         return client_path.as_posix()
 
     def _generate_kotlin_client(self, build: bool, exists_okay: bool) -> str:
@@ -157,6 +159,7 @@ class ClientFactory:
         # Build client.
         if build:
             build_py([client_path.as_posix()])
+            return f"{client_path}/dist/{pkg_name}-{self.rpc.info.version}.tar.gz"
         return client_path.as_posix()
 
     def _generate_typescript_client(self, build: bool, exists_okay: bool) -> str:
@@ -207,4 +210,5 @@ class ClientFactory:
             os.system(f"npm pack {client_path}")
             tarball = f"{pkg_name}-{self.rpc.info.version}.tgz"
             shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
+            return f"{client_path}/{tarball}"
         return client_path.as_posix()
