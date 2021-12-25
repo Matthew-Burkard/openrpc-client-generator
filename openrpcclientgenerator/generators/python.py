@@ -41,7 +41,9 @@ class PythonCodeGenerator(CodeGenerator):
         :param transport: Transport method of the client.
         :return: Python class with all RPC methods.
         """
+        models_import = "from .models import *" if self.schemas else ""
         return code.client_file.format(
+            models_import=models_import,
             transport=transport.value,
             title=cs.to_pascal(self.openrpc.info.title),
             async_methods=self._get_methods(),

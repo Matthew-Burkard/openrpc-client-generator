@@ -31,7 +31,7 @@ from typing import *
 from jsonrpc2pyclient.httpclient import AsyncRPC{transport}Client, RPC{transport}Client
 from pydantic import BaseModel
 
-from .models import *
+{models_import}
 
 __all__ = (
     "Async{title}{transport}Client",
