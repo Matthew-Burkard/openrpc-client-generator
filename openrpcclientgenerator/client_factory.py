@@ -63,8 +63,8 @@ class ClientFactory:
     def _generate_dotnet_client(self, build: bool, exists_okay: bool) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
-        client_path = self._out_dir / "dotnet"
-        package_path = client_path / sln_name / sln_name
+        client_path = self._out_dir / "dotnet" / sln_name
+        package_path = client_path / sln_name
         os.makedirs(package_path, exist_ok=True)
         # Models
         models_str = generator.get_models()
@@ -77,7 +77,7 @@ class ClientFactory:
         client_file.touch()
         client_file.write_text(client_str)
         # Build files.
-        solution_file = client_path / sln_name / f"{sln_name}.sln"
+        solution_file = client_path / f"{sln_name}.sln"
         solution_file.touch()
         solution_file.write_text(
             dotnet_files.solution.format(
@@ -101,7 +101,7 @@ class ClientFactory:
             os.system(f"dotnet pack {solution_file}")
         return client_path.as_posix()
 
-    def _generate_kotlin_client(self, build: bool = False) -> str:
+    def _generate_kotlin_client(self, build: bool, exists_okay: bool) -> str:
         generator = KotlinCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "kotlin" / pkg_name
