@@ -93,11 +93,14 @@ class CSharpCodeGenerator(CodeGenerator):
                     if c_sharp_type in ["int", "double", "bool"]:
                         c_sharp_type = f"{c_sharp_type}?"
 
+                field_name = cs.to_pascal(prop_name)
+                if field_name == name:
+                    field_name = f"Sub{field_name}"
                 fields.append(
                     code.field.format(
-                        name=prop_name,
+                        prop_name=prop_name,
                         type=c_sharp_type,
-                        prop_name=cs.to_pascal(prop_name),
+                        name=field_name,
                         req=required,
                     )
                 )

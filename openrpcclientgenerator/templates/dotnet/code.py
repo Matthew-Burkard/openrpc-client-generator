@@ -20,7 +20,7 @@ data_class = """
         {fields}
     }}
 """.rstrip()
-field = '[JsonProperty("{name}"{req})] public {type} {prop_name} {{ get; set; }}'
+field = '[JsonProperty("{prop_name}"{req})] public {type} {name} {{ get; set; }}'
 
 # Methods
 client_file = """
