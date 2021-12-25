@@ -10,7 +10,7 @@ import caseswitcher as cs
 from build.__main__ import main as build_py
 from openrpc.objects import ContactObject, OpenRPCObject
 
-from openrpcclientgenerator import util
+from openrpcclientgenerator import _util
 from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
 from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
 from openrpcclientgenerator.generators.python import PythonCodeGenerator
@@ -20,7 +20,7 @@ from openrpcclientgenerator.templates.python import build_files as py_build_file
 from openrpcclientgenerator.templates.typescript import build_files as ts_build_files
 from openrpcclientgenerator.templates.typescript.index import index_ts
 
-__all__ = ("ClientFactory",)
+__all__ = ("ClientFactory", "Language")
 
 
 class Language(Enum):
@@ -40,7 +40,7 @@ class ClientFactory:
         self.rpc.info.contact = self.rpc.info.contact or ContactObject()
         self.rpc.info.contact.name = self.rpc.info.contact.name or "Not Provided"
         self.rpc.info.contact.email = self.rpc.info.contact.email or "Not Provided"
-        self._schemas = util.get_schemas(rpc.components.schemas)
+        self._schemas = _util.get_schemas(rpc.components.schemas)
         self._out_dir = Path(out_dir)
 
     def generate_client(
@@ -51,16 +51,16 @@ class ClientFactory:
         :param language: Language to generate code of.
         :param build: If True, build/pack the client.
         :param exists_okay: If True, remove existing code if it exists.
-        :return: Path to the client root dir.
+        :return: Path to client package if it was build else root dir.
         """
         return {
             Language.DOTNET: self._generate_dotnet_client,
             Language.KOTLIN: self._generate_kotlin_client,
             Language.PYTHON: self._generate_python_client,
             Language.TYPE_SCRIPT: self._generate_typescript_client,
-        }[language].__call__(build)
+        }[language].__call__(build, exists_okay)
 
-    def _generate_dotnet_client(self, build: bool = False) -> str:
+    def _generate_dotnet_client(self, build: bool, exists_okay: bool) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "dotnet"
@@ -121,7 +121,7 @@ class ClientFactory:
             pass  # TODO
         return client_path.as_posix()
 
-    def _generate_python_client(self, build: bool = False) -> str:
+    def _generate_python_client(self, build: bool, exists_okay: bool) -> str:
         generator = PythonCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
@@ -159,7 +159,7 @@ class ClientFactory:
             build_py([client_path.as_posix()])
         return client_path.as_posix()
 
-    def _generate_typescript_client(self, build: bool = False) -> str:
+    def _generate_typescript_client(self, build: bool, exists_okay: bool) -> str:
         generator = TypeScriptGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
