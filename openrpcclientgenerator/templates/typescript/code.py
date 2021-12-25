@@ -44,8 +44,8 @@ export class {name} {{
 
 # Methods
 client = """
-import {{{models_import}}} from "./models.js";
-import {{RPC{transport}Client}} from "jsonrpc2-tsclient";
+{models_import}
+import {{RPC{transport}Client}} from 'jsonrpc2-tsclient';
 
 
 export enum Servers {{

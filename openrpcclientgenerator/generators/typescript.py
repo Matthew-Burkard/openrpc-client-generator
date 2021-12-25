@@ -46,8 +46,13 @@ class TypeScriptGenerator(CodeGenerator):
             for m in self.openrpc.methods
             for p in m.params
         ]
+        if self.schemas:
+            models = ", ".join(k for k in self.schemas.keys() if k in used_models)
+            models_import = f"import {{{models}}} from './models.js';"
+        else:
+            models_import = ""
         return code.client.format(
-            models_import=", ".join(k for k in self.schemas.keys() if k in used_models),
+            models_import=models_import,
             name=cs.to_pascal(self.openrpc.info.title),
             methods="".join(self._get_method(m) for m in self.openrpc.methods),
             transport=transport.value,

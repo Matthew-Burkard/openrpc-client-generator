@@ -132,7 +132,7 @@ class ClientFactory:
         os.makedirs(package_path, exist_ok=True)
         (package_path / "__init__.py").touch()
         # Models
-        if self._schemas.items():
+        if self._schemas:
             models_str = generator.get_models()
             models_file = package_path / "models.py"
             models_file.touch()
@@ -172,10 +172,11 @@ class ClientFactory:
         src_path = client_path / "src"
         os.makedirs(src_path, exist_ok=True)
         # Models
-        models_str = generator.get_models()
-        models_file = src_path / "models.ts"
-        models_file.touch()
-        models_file.write_text(models_str)
+        if self._schemas:
+            models_str = generator.get_models()
+            models_file = src_path / "models.ts"
+            models_file.touch()
+            models_file.write_text(models_str)
         # Methods
         client_str = generator.get_client()
         client_file = src_path / "client.ts"
