@@ -207,4 +207,4 @@ class ClientFactory:
             os.system(f"npm pack {client_path}")
             tarball = f"{pkg_name}-{self.rpc.info.version}.tgz"
             shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
-        return pkg_name
+        return client_path.as_posix()
