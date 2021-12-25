@@ -6,7 +6,7 @@ from pathlib import Path
 
 from openrpc.objects import OpenRPCObject
 
-from openrpcclientgenerator.client_factory import ClientFactory
+from openrpcclientgenerator.client_factory import ClientFactory, Language
 
 
 # TODO Add more and better unit tests.
@@ -20,13 +20,13 @@ class RPCTest(unittest.TestCase):
         super(RPCTest, self).__init__(*args)
 
     def test_csharp(self) -> None:
-        self.assertEqual(str, type(self.cf.build_dotnet_client()))
+        self.assertEqual(str, type(self.cf.generate_client(Language.DOTNET)))
 
     def test_kotlin(self) -> None:
-        self.assertEqual(str, type(self.cf.build_kotlin_client()))
+        self.assertEqual(str, type(self.cf.generate_client(Language.KOTLIN)))
 
     def test_python(self) -> None:
-        self.assertEqual(str, type(self.cf.build_python_client()))
+        self.assertEqual(str, type(self.cf.generate_client(Language.PYTHON)))
 
     def test_typescript(self) -> None:
-        self.assertEqual(str, type(self.cf.build_typescript_client()))
+        self.assertEqual(str, type(self.cf.generate_client(Language.TYPE_SCRIPT)))
