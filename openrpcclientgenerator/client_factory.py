@@ -128,14 +128,16 @@ class ClientFactory:
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
         package_path = client_path / "src" / pkg_name
+        shutil.rmtree(client_path, ignore_errors=True)
         os.makedirs(package_path, exist_ok=True)
         (package_path / "__init__.py").touch()
         # Models
-        models_str = generator.get_models()
-        models_file = package_path / "models.py"
-        models_file.touch()
-        models_file.write_text(models_str)
-        os.system(f"black {models_file.as_posix()}")
+        if self._schemas.items():
+            models_str = generator.get_models()
+            models_file = package_path / "models.py"
+            models_file.touch()
+            models_file.write_text(models_str)
+            os.system(f"black {models_file.as_posix()}")
         # Methods
         client_str = generator.get_client()
         client_file = package_path / "client.py"
