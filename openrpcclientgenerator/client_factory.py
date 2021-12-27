@@ -64,13 +64,15 @@ class ClientFactory:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "dotnet" / sln_name
+        shutil.rmtree(client_path, ignore_errors=True)
         package_path = client_path / sln_name
         os.makedirs(package_path, exist_ok=True)
         # Models
-        models_str = generator.get_models()
-        models_file = package_path / "Models.cs"
-        models_file.touch()
-        models_file.write_text(models_str)
+        if self._schemas:
+            models_str = generator.get_models()
+            models_file = package_path / "Models.cs"
+            models_file.touch()
+            models_file.write_text(models_str)
         # Methods
         client_str = generator.get_client()
         client_file = package_path / "Client.cs"
