@@ -54,6 +54,8 @@ class ClientFactory:
             version.
         :return: Path to client tarball if it exists, else root dir.
         """
+        if not remove_existing and self._client_exists(language):
+            return self._get_tarball_path(language)
         return {
             Language.DOTNET: self._generate_dotnet_client,
             Language.KOTLIN: self._generate_kotlin_client,
@@ -61,7 +63,7 @@ class ClientFactory:
             Language.TYPE_SCRIPT: self._generate_typescript_client,
         }[language].__call__(build, remove_existing)
 
-    def _generate_dotnet_client(self, build: bool, remove_existing: bool) -> str:
+    def _generate_dotnet_client(self, build: bool) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "dotnet" / sln_name
@@ -106,7 +108,7 @@ class ClientFactory:
             return f"{bin_dir}/Debug/{sln_name}.{self.rpc.info.version}.nupkg"
         return client_path.as_posix()
 
-    def _generate_kotlin_client(self, build: bool, remove_existing: bool) -> str:
+    def _generate_kotlin_client(self, build: bool) -> str:
         generator = KotlinCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "kotlin" / pkg_name
@@ -126,7 +128,7 @@ class ClientFactory:
             pass  # TODO
         return client_path.as_posix()
 
-    def _generate_python_client(self, build: bool, remove_existing: bool) -> str:
+    def _generate_python_client(self, build: bool) -> str:
         generator = PythonCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
@@ -167,7 +169,7 @@ class ClientFactory:
             return f"{client_path}/dist/{pkg_name}-{self.rpc.info.version}.tar.gz"
         return client_path.as_posix()
 
-    def _generate_typescript_client(self, build: bool, remove_existing: bool) -> str:
+    def _generate_typescript_client(self, build: bool) -> str:
         generator = TypeScriptGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
@@ -220,19 +222,29 @@ class ClientFactory:
         return client_path.as_posix()
 
     def _client_exists(self, language: Language) -> bool:
+        if language == Language.DOTNET:
+            return Path(self._get_tarball_path(language)).exists()
+        if language == Language.KOTLIN:
+            return False
+        if language == Language.PYTHON:
+            return Path(self._get_tarball_path(language)).exists()
+        if language == Language.TYPE_SCRIPT:
+            return Path(self._get_tarball_path(language)).exists()
+
+    def _get_tarball_path(self, language: Language) -> str:
         version = self.rpc.info.version
         if language == Language.DOTNET:
             sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
             debug_path = self._out_dir / "dotnet" / sln_name / "bin" / "Debug"
             nupkg = debug_path / "net472" / f"{sln_name}.{version}.nupkg"
-            return Path(nupkg).exists()
+            return Path(nupkg).as_posix()
         if language == Language.KOTLIN:
-            return False
+            return Path().as_posix()
         if language == Language.PYTHON:
             pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
             tarball = self._out_dir / pkg_name / "dist" / f"{pkg_name}-{version}.tar.gz"
-            return Path(tarball).exists()
+            return Path(tarball).as_posix()
         if language == Language.TYPE_SCRIPT:
             pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
             tarball = self._out_dir / pkg_name / f"{pkg_name}-{version}.tar.gz"
-            return Path(tarball).exists()
+            return Path(tarball).as_posix()
