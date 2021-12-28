@@ -44,23 +44,24 @@ class ClientFactory:
         self._out_dir = Path(out_dir)
 
     def generate_client(
-        self, language: Language, build: bool = False, exists_okay: bool = True
+        self, language: Language, build: bool = True, remove_existing: bool = False
     ) -> str:
-        """Generate code for an RPC client.
+        """Generate an RPC client for the given language.
 
         :param language: Language to generate code of.
-        :param build: If True, build/pack the client.
-        :param exists_okay: If True, remove existing code if it exists.
-        :return: Path to client package if it was build else root dir.
+        :param build: Build or pack the client into a tarball.
+        :param remove_existing: Remove existing clients of the same
+            version.
+        :return: Path to client tarball if it exists, else root dir.
         """
         return {
             Language.DOTNET: self._generate_dotnet_client,
             Language.KOTLIN: self._generate_kotlin_client,
             Language.PYTHON: self._generate_python_client,
             Language.TYPE_SCRIPT: self._generate_typescript_client,
-        }[language].__call__(build, exists_okay)
+        }[language].__call__(build, remove_existing)
 
-    def _generate_dotnet_client(self, build: bool, exists_okay: bool) -> str:
+    def _generate_dotnet_client(self, build: bool, remove_existing: bool) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "dotnet" / sln_name
@@ -105,7 +106,7 @@ class ClientFactory:
             return f"{bin_dir}/Debug/{sln_name}.{self.rpc.info.version}.nupkg"
         return client_path.as_posix()
 
-    def _generate_kotlin_client(self, build: bool, exists_okay: bool) -> str:
+    def _generate_kotlin_client(self, build: bool, remove_existing: bool) -> str:
         generator = KotlinCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "kotlin" / pkg_name
@@ -125,7 +126,7 @@ class ClientFactory:
             pass  # TODO
         return client_path.as_posix()
 
-    def _generate_python_client(self, build: bool, exists_okay: bool) -> str:
+    def _generate_python_client(self, build: bool, remove_existing: bool) -> str:
         generator = PythonCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
@@ -166,7 +167,7 @@ class ClientFactory:
             return f"{client_path}/dist/{pkg_name}-{self.rpc.info.version}.tar.gz"
         return client_path.as_posix()
 
-    def _generate_typescript_client(self, build: bool, exists_okay: bool) -> str:
+    def _generate_typescript_client(self, build: bool, remove_existing: bool) -> str:
         generator = TypeScriptGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
@@ -217,3 +218,21 @@ class ClientFactory:
             shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
             return f"{client_path}/{tarball}"
         return client_path.as_posix()
+
+    def _client_exists(self, language: Language) -> bool:
+        version = self.rpc.info.version
+        if language == Language.DOTNET:
+            sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
+            debug_path = self._out_dir / "dotnet" / sln_name / "bin" / "Debug"
+            nupkg = debug_path / "net472" / f"{sln_name}.{version}.nupkg"
+            return Path(nupkg).exists()
+        if language == Language.KOTLIN:
+            return False
+        if language == Language.PYTHON:
+            pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
+            tarball = self._out_dir / pkg_name / "dist" / f"{pkg_name}-{version}.tar.gz"
+            return Path(tarball).exists()
+        if language == Language.TYPE_SCRIPT:
+            pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
+            tarball = self._out_dir / pkg_name / f"{pkg_name}-{version}.tar.gz"
+            return Path(tarball).exists()

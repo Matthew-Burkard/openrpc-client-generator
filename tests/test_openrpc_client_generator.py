@@ -24,7 +24,7 @@ class RPCTest(unittest.TestCase):
         super(RPCTest, self).__init__(*args)
 
     def test_dotnet(self) -> None:
-        self.assertEqual(str, type(self.test_cf.generate_client(Language.DOTNET, True)))
+        self.assertEqual(str, type(self.test_cf.generate_client(Language.DOTNET)))
 
     def test_kotlin(self) -> None:
         self.assertEqual(str, type(self.test_cf.generate_client(Language.KOTLIN)))
@@ -36,7 +36,7 @@ class RPCTest(unittest.TestCase):
         self.assertEqual(str, type(self.test_cf.generate_client(Language.TYPE_SCRIPT)))
 
     def test_dotnet_no_models(self) -> None:
-        self.assertEqual(str, type(self.math_cf.generate_client(Language.DOTNET, True)))
+        self.assertEqual(str, type(self.math_cf.generate_client(Language.DOTNET)))
 
     def test_kotlin_no_models(self) -> None:
         self.assertEqual(str, type(self.math_cf.generate_client(Language.KOTLIN)))
