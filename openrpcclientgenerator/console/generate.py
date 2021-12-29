@@ -15,7 +15,7 @@ from typing import Optional
 
 from openrpc.objects import InfoObject, OpenRPCObject
 
-from openrpcclientgenerator.client_factory import ClientFactory
+from openrpcclientgenerator.client_factory import ClientFactory, Language
 
 log = logging.getLogger(__name__)
 
@@ -51,12 +51,7 @@ def generate(url: str, lang: str, out: str, version: Optional[str] = None) -> in
     # Generate client.
     try:
         cf = ClientFactory(out, openrpc_doc)
-        {
-            "dotnet": cf.build_dotnet_client(),
-            "python": cf.build_python_client(),
-            "kotlin": cf.build_kotlin_client(),
-            "typescript": cf.build_typescript_client(),
-        }[lang]()
+        cf.generate_client(Language(lang))
     except Exception as e:
         log.exception(f"{type(e).__name__}:")
         return 1
