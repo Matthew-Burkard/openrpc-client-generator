@@ -61,7 +61,7 @@ class ClientFactory:
             Language.KOTLIN: self._generate_kotlin_client,
             Language.PYTHON: self._generate_python_client,
             Language.TYPE_SCRIPT: self._generate_typescript_client,
-        }[language].__call__(build, remove_existing)
+        }[language].__call__(build)
 
     def _generate_dotnet_client(self, build: bool) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
