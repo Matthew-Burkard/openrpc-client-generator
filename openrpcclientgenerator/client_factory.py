@@ -259,5 +259,5 @@ class ClientFactory:
         if language == Language.TYPE_SCRIPT:
             pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
             client_dir = self._out_dir / "typescript" / pkg_name
-            tarball = client_dir / f"{pkg_name}-{version}.tar.gz"
+            tarball = client_dir / f"{pkg_name}-{version}.tgz"
             return Path(tarball).as_posix()
