@@ -44,7 +44,7 @@ class TypeScriptGenerator(CodeGenerator):
         used_models = [
             self._get_ts_type(p.json_schema)
             for m in self.openrpc.methods
-            for p in m.params
+            for p in m.params + [m.result]
         ]
         if self.schemas:
             models = ", ".join(k for k in self.schemas.keys() if k in used_models)

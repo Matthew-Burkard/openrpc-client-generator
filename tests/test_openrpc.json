@@ -140,7 +140,7 @@
       "result": {
         "name": "result",
         "schema": {
-          "$ref": "#/components/schemas/Vector3"
+          "$ref": "#/components/schemas/OnlyResult"
         },
         "required": true
       }
@@ -584,6 +584,17 @@
           "y",
           "z"
         ]
+      },
+      "OnlyResult": {
+        "title": "OnlyResult",
+        "type": "object",
+        "properties": {
+          "x": {
+            "description": "Model only present as a result, never a param",
+            "title": "X",
+            "type": "number"
+          }
+        }
       }
     }
   }
