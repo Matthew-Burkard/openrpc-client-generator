@@ -35,7 +35,7 @@ export class {name} {{
   }}
 
   static fromJSON(data: any): {name} {{
-    let instance = new {name};
+    let instance = new {name}();
 {from_json}
     return instance;
   }}
