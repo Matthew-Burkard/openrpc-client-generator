@@ -253,9 +253,11 @@ class ClientFactory:
             return Path().as_posix()
         if language == Language.PYTHON:
             pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
-            tarball = self._out_dir / pkg_name / "dist" / f"{pkg_name}-{version}.tar.gz"
+            client_dir = self._out_dir / "python" / pkg_name
+            tarball = client_dir / "dist" / f"{pkg_name}-{version}.tar.gz"
             return Path(tarball).as_posix()
         if language == Language.TYPE_SCRIPT:
             pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
-            tarball = self._out_dir / pkg_name / f"{pkg_name}-{version}.tar.gz"
+            client_dir = self._out_dir / "typescript" / pkg_name
+            tarball = client_dir / f"{pkg_name}-{version}.tar.gz"
             return Path(tarball).as_posix()
