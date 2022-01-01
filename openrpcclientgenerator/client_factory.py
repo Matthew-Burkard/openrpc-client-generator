@@ -17,7 +17,10 @@ from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.typescript import TypeScriptGenerator
 from openrpcclientgenerator.templates.dotnet import dotnet_files
 from openrpcclientgenerator.templates.python import build_files as py_build_files
-from openrpcclientgenerator.templates.typescript import build_files as ts_build_files
+from openrpcclientgenerator.templates.typescript import (
+    build_files as ts_build_files,
+    prettier,
+)
 from openrpcclientgenerator.templates.typescript.index import index_ts
 
 __all__ = ("ClientFactory", "Language")
@@ -211,6 +214,14 @@ class ClientFactory:
                 license="custom",
             )
         )
+        # Prettier
+        prettier_rc = client_path / ".prettierrc"
+        prettier_rc.touch()
+        prettier_rc.write_text(prettier.prettier_rc)
+        prettier_ignore = client_path / ".prettierignore"
+        prettier_ignore.touch()
+        prettier_ignore.write_text(prettier.prettier_ignore)
+        os.system(f"npx prettier --write {client_path}")
         # Build Client
         if build:
             os.system(f"npm i --prefix {client_path}")
