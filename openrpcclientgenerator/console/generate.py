@@ -13,9 +13,8 @@ import logging
 import re
 from typing import Optional
 
-from openrpc.objects import InfoObject, OpenRPCObject
-
 from openrpcclientgenerator.client_factory import ClientFactory, Language
+from openrpcclientgenerator.console import discover
 
 log = logging.getLogger(__name__)
 
@@ -31,27 +30,26 @@ def generate(url: str, lang: str, out: str, version: Optional[str] = None) -> in
     :return: Process status code.
     """
     # Get OpenRPC doc.
-    openrpc_doc = OpenRPCObject(
-        openrpc="TODO", info=InfoObject(title="TODO", version="TODO"), methods=[]
-    )
     try:
         if re.search(r"^https?://", url):
-            # TODO Make rpc.discover request.
-            pass
+            openrpc_doc = discover.discover(url)
         else:
-            # TODO Get doc from local file.
-            pass
+            openrpc_doc = discover.from_file(url)
     except Exception as e:
         log.exception(f"{type(e).__name__}:")
         return 1
 
-    # TODO Create out dir if it doesn't exist.
-    # TODO Confirm chosen language is valid.
+    try:
+        language = Language(lang)
+    except ValueError:
+        languages = ", ".join(it.value for it in Language)
+        log.exception(f"{lang} is not a valid language, must be one of: {languages}")
+        return 1
 
     # Generate client.
     try:
         cf = ClientFactory(out, openrpc_doc)
-        cf.generate_client(Language(lang))
+        cf.generate_client(language)
     except Exception as e:
         log.exception(f"{type(e).__name__}:")
         return 1
