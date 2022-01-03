@@ -29,6 +29,14 @@ def generate(url: str, lang: str, out: str, version: Optional[str] = None) -> in
     :param version: Version of the client.
     :return: Process status code.
     """
+    # Validate language.
+    try:
+        language = Language(lang)
+    except ValueError:
+        languages = ", ".join(f"'{it.value}'" for it in Language)
+        log.error(f'"{lang}" is not a valid language, must be one of: [{languages}]')
+        return 1
+
     # Get OpenRPC doc.
     try:
         if re.search(r"^https?://", url):
@@ -37,21 +45,16 @@ def generate(url: str, lang: str, out: str, version: Optional[str] = None) -> in
             openrpc_doc = discover.from_file(url)
     except Exception as e:
         log.exception(f"{type(e).__name__}:")
-        return 1
-
-    try:
-        language = Language(lang)
-    except ValueError:
-        languages = ", ".join(it.value for it in Language)
-        log.exception(f"{lang} is not a valid language, must be one of: {languages}")
+        log.error(f'Failed to get OpenRPC document from "{url}"')
         return 1
 
     # Generate client.
     try:
         cf = ClientFactory(out, openrpc_doc)
-        cf.generate_client(language)
+        cf.generate_client(language, False)
     except Exception as e:
         log.exception(f"{type(e).__name__}:")
+        log.error("Failed to build client.")
         return 1
 
     return 0
