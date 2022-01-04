@@ -39,6 +39,12 @@ class ClientFactory:
     """Factory to generate OpenRPC clients for various languages."""
 
     def __init__(self, out_dir: str, rpc: OpenRPCObject) -> None:
+        """Init a ClientFactory instance.
+
+        :param out_dir: Directory to place generated clients. A
+            subdirectory will be made for each language generated.
+        :param rpc: OpenRPC document object.
+        """
         self.rpc = rpc
         self.rpc.info.contact = self.rpc.info.contact or ContactObject()
         self.rpc.info.contact.name = self.rpc.info.contact.name or "Not Provided"
@@ -52,8 +58,8 @@ class ClientFactory:
         """Generate an RPC client for the given language.
 
         :param language: Language to generate code of.
-        :param build: Build or pack the client into a tarball.
-        :param remove_existing: Remove existing clients of the same
+        :param build: Build/pack the client into a tarball.
+        :param remove_existing: Replace existing clients of the same
             version.
         :return: Path to client tarball if it exists, else root dir.
         """
