@@ -46,6 +46,7 @@ class TypeScriptGenerator(CodeGenerator):
             for m in self.openrpc.methods
             for p in m.params + [m.result]
         ]
+        used_models.sort()
         if self.schemas:
             models = ", ".join(k for k in self.schemas.keys() if k in used_models)
             models_import = f"import {{{models}}} from './models.js';"
