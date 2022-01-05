@@ -40,7 +40,7 @@ class Language(Enum):
 class ClientFactory:
     """Factory to generate OpenRPC clients for various languages."""
 
-    def __init__(self, out_dir: Union[str, os.PathLike], rpc: OpenRPCObject) -> None:
+    def __init__(self, rpc: OpenRPCObject, out_dir: Union[str, os.PathLike]) -> None:
         """Init a ClientFactory instance.
 
         :param out_dir: Directory to place generated clients. A
