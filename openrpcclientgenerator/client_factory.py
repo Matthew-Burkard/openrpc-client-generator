@@ -1,6 +1,7 @@
 """Provides the ClientFactory class."""
 import os
 import shutil
+import subprocess
 import uuid
 from datetime import datetime
 from enum import Enum
@@ -112,7 +113,7 @@ class ClientFactory:
         )
         # Pack client.
         if build:
-            os.system(f"dotnet pack {solution_file}")
+            subprocess.run(['dotnet', 'pack', solution_file])
             bin_dir = f"{client_path}/{sln_name}/bin"
             return f"{bin_dir}/Debug/{sln_name}.{self.rpc.info.version}.nupkg"
         return client_path.as_posix()
@@ -151,13 +152,13 @@ class ClientFactory:
             models_file = package_path / "models.py"
             models_file.touch()
             models_file.write_text(models_str)
-            os.system(f"black {models_file.as_posix()}")
+            subprocess.run(["black", models_file])
         # Methods
         client_str = generator.get_client()
         client_file = package_path / "client.py"
         client_file.touch()
         client_file.write_text(client_str)
-        os.system(f"black {client_file.as_posix()}")
+        subprocess.run(["black", client_file])
         # Build Files
         setup = client_path / "setup.cfg"
         setup.touch()
@@ -227,12 +228,12 @@ class ClientFactory:
         prettier_ignore = client_path / ".prettierignore"
         prettier_ignore.touch()
         prettier_ignore.write_text(prettier.prettier_ignore)
-        os.system(f"npx prettier --write {client_path}")
+        subprocess.run(["npx", "prettier", "--write", client_path])
         # Build Client
         if build:
-            os.system(f"npm i --prefix {client_path}")
-            os.system(f"npm run build --prefix {client_path}")
-            os.system(f"npm pack {client_path}")
+            subprocess.run(["npm", "i", "--prefix", client_path])
+            subprocess.run(["npm", "run", "build", "--prefix", client_path])
+            subprocess.run(["npm", "pack", client_path])
             tarball = f"{pkg_name}-{self.rpc.info.version}.tgz"
             shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
             return f"{client_path}/{tarball}"
