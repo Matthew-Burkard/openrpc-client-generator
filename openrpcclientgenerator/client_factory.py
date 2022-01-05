@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from typing import Union
 
 import caseswitcher as cs
 from build.__main__ import main as build_py
@@ -39,7 +40,7 @@ class Language(Enum):
 class ClientFactory:
     """Factory to generate OpenRPC clients for various languages."""
 
-    def __init__(self, out_dir: str, rpc: OpenRPCObject) -> None:
+    def __init__(self, out_dir: Union[str, os.PathLike], rpc: OpenRPCObject) -> None:
         """Init a ClientFactory instance.
 
         :param out_dir: Directory to place generated clients. A
