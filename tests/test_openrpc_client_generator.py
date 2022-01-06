@@ -16,11 +16,11 @@ class RPCTest(unittest.TestCase):
         test_openrpc_doc = OpenRPCObject(
             **json.loads(Path(f"{pwd}/test_openrpc.json").read_text())
         )
-        self.test_cf = ClientFactory(f"{pwd}/../dist/generated", test_openrpc_doc)
+        self.test_cf = ClientFactory(test_openrpc_doc, f"{pwd}/../dist/generated")
         math_openrpc_doc = OpenRPCObject(
             **json.loads(Path(f"{pwd}/math_openrpc.json").read_text())
         )
-        self.math_cf = ClientFactory(f"{pwd}/../dist/generated", math_openrpc_doc)
+        self.math_cf = ClientFactory(math_openrpc_doc, f"{pwd}/../dist/generated")
         super(RPCTest, self).__init__(*args)
 
     def test_dotnet(self) -> None:
