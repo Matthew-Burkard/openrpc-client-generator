@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openrpcclientgenerator"
-version = "0.24.1"
+version = "0.24.2"
 description = "Generate clients from an Open RPC document."
 readme = "README.md"
 repository = "https://gitlab.com/mburkard/openrpc-client-generator"
@@ -10,7 +10,7 @@ authors = ["Matthew Burkard <matthewjburkard@gmail.com>"]
 classifiers = ["Programming Language :: Python :: 3"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 case-switcher = "^1.1.7"
 openrpc = "^3.0.20"
 build = "^0.7.0"
