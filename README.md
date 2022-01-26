@@ -36,13 +36,13 @@ package.
 import json
 
 from openrpc.objects import OpenRPCObject
-from openrpcclientgenerator.client_factory import ClientFactory
+from openrpcclientgenerator.client_factory import ClientFactory, Language
 
 openrpc_doc_obj = OpenRPCObject(**json.loads(openrpc_doc_json))
 client_dir = "./dist/generated/"
 
-cf = ClientFactory(out_dir=client_dir, rpc=openrpc_doc_obj)
-cf.build_python_client()
-cf.build_dotnet_client()
-cf.build_typescript_client()
+cf = ClientFactory(rpc=openrpc_doc_obj, out_dir=client_dir)
+cf.generate_client(Language.PYTHON)
+cf.generate_client(Language.TYPE_SCRIPT)
+cf.generate_client(Language.DOTNET)
 ```
