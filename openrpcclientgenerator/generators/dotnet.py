@@ -66,10 +66,10 @@ class CSharpCodeGenerator(CodeGenerator):
                 doc = " * No description provided."
             return code.method.format(
                 doc=doc,
-                return_type=self._get_cs_type(method.result.json_schema),
+                return_type=self._get_cs_type(method.result.schema_),
                 name=cs.to_pascal(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(
-                    f"{self._get_cs_type(it.json_schema)} {cs.to_camel(it.name)}"
+                    f"{self._get_cs_type(it.schema_)} {cs.to_camel(it.name)}"
                     for it in method.params
                 ),
                 method=method.name,

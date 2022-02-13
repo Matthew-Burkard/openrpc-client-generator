@@ -53,7 +53,7 @@ class KotlinCodeGenerator(CodeGenerator):
         def _get_method(method: MethodObject) -> str:
             args = []
             for param in method.params:
-                k_type = self._get_kotlin_type(param.json_schema)
+                k_type = self._get_kotlin_type(param.schema_)
                 if not param.required:
                     k_type = f"{k_type}?"
                 args.append(f"{cs.to_camel(param.name)}: {k_type}")
@@ -68,7 +68,7 @@ class KotlinCodeGenerator(CodeGenerator):
                 doc=method.description,
                 name=cs.to_camel(re.sub(r".*?\.", "", method.name)),
                 args=", ".join(args),
-                return_type=self._get_kotlin_type(method.result.json_schema),
+                return_type=self._get_kotlin_type(method.result.schema_),
                 params=params,
             )
 

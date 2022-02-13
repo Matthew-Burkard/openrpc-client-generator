@@ -113,7 +113,7 @@ class ClientFactory:
         )
         # Pack client.
         if build:
-            subprocess.run(['dotnet', 'pack', solution_file])
+            subprocess.run(["dotnet", "pack", solution_file])
             bin_dir = f"{client_path}/{sln_name}/bin"
             return f"{bin_dir}/Debug/{sln_name}.{self.rpc.info.version}.nupkg"
         return client_path.as_posix()
@@ -240,31 +240,33 @@ class ClientFactory:
         return client_path.as_posix()
 
     def _client_exists(self, language: Language) -> bool:
-        if language == Language.DOTNET:
-            return Path(self._get_tarball_path(language)).exists()
-        if language == Language.KOTLIN:
-            return False
-        if language == Language.PYTHON:
-            return Path(self._get_tarball_path(language)).exists()
-        if language == Language.TYPE_SCRIPT:
-            return Path(self._get_tarball_path(language)).exists()
+        match language:
+            case Language.DOTNET:
+                return Path(self._get_tarball_path(language)).exists()
+            case Language.KOTLIN:
+                return False
+            case Language.PYTHON:
+                return Path(self._get_tarball_path(language)).exists()
+            case Language.TYPE_SCRIPT:
+                return Path(self._get_tarball_path(language)).exists()
 
     def _get_tarball_path(self, language: Language) -> str:
         version = self.rpc.info.version
-        if language == Language.DOTNET:
-            sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
-            debug_path = self._out_dir / "dotnet" / sln_name / "bin" / "Debug"
-            nupkg = debug_path / "net472" / f"{sln_name}.{version}.nupkg"
-            return Path(nupkg).as_posix()
-        if language == Language.KOTLIN:
-            return Path().as_posix()
-        if language == Language.PYTHON:
-            pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
-            client_dir = self._out_dir / "python" / pkg_name
-            tarball = client_dir / "dist" / f"{pkg_name}-{version}.tar.gz"
-            return Path(tarball).as_posix()
-        if language == Language.TYPE_SCRIPT:
-            pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
-            client_dir = self._out_dir / "typescript" / pkg_name
-            tarball = client_dir / f"{pkg_name}-{version}.tgz"
-            return Path(tarball).as_posix()
+        match language:
+            case Language.DOTNET:
+                sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
+                debug_path = self._out_dir / "dotnet" / sln_name / "bin" / "Debug"
+                nupkg = debug_path / "net472" / f"{sln_name}.{version}.nupkg"
+                return Path(nupkg).as_posix()
+            case Language.KOTLIN:
+                return Path().as_posix()
+            case Language.PYTHON:
+                pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
+                client_dir = self._out_dir / "python" / pkg_name
+                tarball = client_dir / "dist" / f"{pkg_name}-{version}.tar.gz"
+                return Path(tarball).as_posix()
+            case Language.TYPE_SCRIPT:
+                pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
+                client_dir = self._out_dir / "typescript" / pkg_name
+                tarball = client_dir / f"{pkg_name}-{version}.tgz"
+                return Path(tarball).as_posix()

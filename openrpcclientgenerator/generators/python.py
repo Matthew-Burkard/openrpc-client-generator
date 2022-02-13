@@ -67,7 +67,7 @@ class PythonCodeGenerator(CodeGenerator):
             # Get method arguments.
             args = []
             for param in method.params:
-                p_type = self._get_py_type_from_schema(param.json_schema)
+                p_type = self._get_py_type_from_schema(param.schema_)
                 if not param.required and not p_type.startswith("Optional"):
                     p_type = f"Optional[{p_type}]"
                 if p_type.startswith("Optional"):
@@ -82,7 +82,7 @@ class PythonCodeGenerator(CodeGenerator):
                 params = _get_list_params()
 
             # Get return type and add code to deserialize results.
-            return_type = self._get_py_type_from_schema(method.result.json_schema)
+            return_type = self._get_py_type_from_schema(method.result.schema_)
 
             # Get doc string.
             if method.description:

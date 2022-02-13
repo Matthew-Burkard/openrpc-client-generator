@@ -42,7 +42,7 @@ class TypeScriptGenerator(CodeGenerator):
         :return: TypeScript class with all RPC methods.
         """
         used_models = [
-            self._get_ts_type(p.json_schema)
+            self._get_ts_type(p.schema_)
             for m in self.openrpc.methods
             for p in m.params + [m.result]
         ]
@@ -73,7 +73,7 @@ class TypeScriptGenerator(CodeGenerator):
                 required = "" if p.required else "?"
                 p_name = cs.to_camel(p.name)
                 interface_args.append(
-                    f"{p_name}{required}: {self._get_ts_type(p.json_schema)}"
+                    f"{p_name}{required}: {self._get_ts_type(p.schema_)}"
                 )
             args_str = f",\n{self._indent}".join(interface_args)
             interface_name = f"interface {cs.to_pascal(method.name)}Parameters"
@@ -89,7 +89,7 @@ class TypeScriptGenerator(CodeGenerator):
             for p in method.params:
                 required = "" if p.required else "?"
                 p_name = cs.to_camel(p.name)
-                array.append(f"{p_name}{required}: {self._get_ts_type(p.json_schema)}")
+                array.append(f"{p_name}{required}: {self._get_ts_type(p.schema_)}")
             return ", ".join(array)
 
         def _get_object_args() -> str:
@@ -108,7 +108,7 @@ class TypeScriptGenerator(CodeGenerator):
             return f"serializeObjectParams({{{key_value_pairs}}})"
 
         # Get return type.
-        return_type = self._get_ts_type(method.result.json_schema)
+        return_type = self._get_ts_type(method.result.schema_)
         return_value = f"result as {return_type}"
         is_model = not (return_type in self._type_map.values() or return_type == "any")
         # If not a primitive return type.
@@ -141,6 +141,7 @@ class TypeScriptGenerator(CodeGenerator):
 
         def _get_model(name: str, schema: SchemaObject) -> _Model:
             model = _Model(name)
+            schema.properties = schema.properties or {}
             for prop_name, prop in schema.properties.items():
                 required = "?" if prop_name in (schema.required or []) else ""
                 field_type = self._get_ts_type(prop)
