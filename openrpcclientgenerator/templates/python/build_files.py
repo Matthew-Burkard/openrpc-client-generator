@@ -15,8 +15,8 @@ package_dir =
 packages = find:
 python_requires = >=3.9
 install_requires =
-    pydantic~=1.8.2
-    jsonrpc2-objects~=1.3.7
+    pydantic~=1.9.0
+    jsonrpc2-objects~=2.1.1
     jsonrpc2-pyclient~=2.1.1
 
 [options.packages.find]
