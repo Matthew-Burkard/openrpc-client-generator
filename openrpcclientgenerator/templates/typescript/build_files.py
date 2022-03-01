@@ -29,7 +29,7 @@ package_json = """
     "build": "tsc"
   }},
   "dependencies": {{
-    "jsonrpc2-tsclient": "^1.3.1"
+    "jsonrpc2-tsclient": "^1.3.9"
   }},
   "author": "{author}",
   "license": "{license}"
