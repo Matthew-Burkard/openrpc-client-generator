@@ -39,7 +39,7 @@ tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>
 
 [[package]]
 name = "case-switcher"
-version = "1.2.1"
+version = "1.2.4"
 description = "Library to change the casing of strings."
 category = "main"
 optional = false
@@ -231,14 +231,14 @@ python-versions = "*"
 
 [[package]]
 name = "openrpc"
-version = "4.0.1"
+version = "4.1.0"
 description = "OpenRPC provides classes to rapidly develop an OpenRPC server."
 category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
 
 [package.dependencies]
-case-switcher = ">=1.2.1,<2.0.0"
+case-switcher = ">=1.2.4,<2.0.0"
 jsonrpc2-objects = ">=2.0.0,<3.0.0"
 pydantic = ">=1.9.0,<2.0.0"
 
@@ -454,8 +454,8 @@ attrs = [
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
 case-switcher = [
-    {file = "case-switcher-1.2.1.tar.gz", hash = "sha256:1c1e3da6cbdcae9e06c68510ed7ac2b7b72c231b12a71cd88f264c8a1def2465"},
-    {file = "case_switcher-1.2.1-py3-none-any.whl", hash = "sha256:a4491fed52f89f9cf6de1629dfe50c168fc8e838dc9370d07da447af61bc0f6b"},
+    {file = "case-switcher-1.2.4.tar.gz", hash = "sha256:699dfe300a10cce9d14224deb60bdcaa5b65a826ef49d26fa3732a7f6bfc4cda"},
+    {file = "case_switcher-1.2.4-py3-none-any.whl", hash = "sha256:3d709cb683a19ce106469180f19b328d52f2c8924454d964e884ad1964c8b68b"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
@@ -579,8 +579,8 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
 openrpc = [
-    {file = "openrpc-4.0.1-py3-none-any.whl", hash = "sha256:6706d0d2cd5e42b4d0e6bc906590e114a0b5c977081a52ccbc9def841a9c0ef2"},
-    {file = "openrpc-4.0.1.tar.gz", hash = "sha256:d5ba1e9805e5fb9ac36bc302b5a5d40a860bb401998a721babb6def6a8064c8f"},
+    {file = "openrpc-4.1.0-py3-none-any.whl", hash = "sha256:66e9a6ebe12e402050cb2418e98985817a02fe87c015e94a0e2a38418f53ca49"},
+    {file = "openrpc-4.1.0.tar.gz", hash = "sha256:f6eb38f50413fc00443e2a995cb82c7ce6b5852faa1fcd83a67972eb51152fa3"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
