@@ -19,12 +19,10 @@ class CodeGenerator(abc.ABC):
     @abc.abstractmethod
     def get_client(self, transport: Transport = Transport.HTTP) -> str:
         """Get an RPC client."""
-        ...
 
     @abc.abstractmethod
     def get_models(self) -> str:
         """Get models."""
-        ...
 
     def _get_servers(self) -> dict[str, str]:
         servers = self.openrpc.servers

@@ -8,7 +8,6 @@ from enum import Enum
 from pathlib import Path
 
 import caseswitcher as cs
-from build.__main__ import main as build_py
 from openrpc.objects import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import _util
@@ -160,22 +159,22 @@ class ClientFactory:
         client_file.write_text(client_str)
         subprocess.run(["black", client_file])
         # Build Files
-        setup = client_path / "setup.cfg"
-        setup.touch()
-        setup.write_text(
-            py_build_files.setup.format(
+        py_proj_toml = client_path / "pyproject.toml"
+        py_proj_toml.write_text(
+            py_build_files.py_project.format(
                 name=pkg_name,
                 version=self.rpc.info.version,
                 author=self.rpc.info.contact.name,
                 author_email=self.rpc.info.contact.email,
-                pkg_dir="src",
+                pkg_dir=f"src/{pkg_name}",
             )
         )
-        py_proj_toml = client_path / "pyproject.toml"
-        py_proj_toml.write_text(py_build_files.py_project)
         # Build client.
         if build:
-            build_py([client_path.as_posix()])
+            old_pwd = os.getcwd()
+            os.chdir(client_path)
+            subprocess.run(["poetry", "build"])
+            os.chdir(old_pwd)
             return f"{client_path}/dist/{pkg_name}-{self.rpc.info.version}.tar.gz"
         return client_path.as_posix()
 
