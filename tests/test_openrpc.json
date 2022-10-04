@@ -120,6 +120,36 @@
       }
     },
     {
+      "name": "get_distances",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "instance",
+          "schema": {
+            "$ref": "#/components/schemas/Vector3"
+          },
+          "required": true
+        },
+        {
+          "name": "target",
+          "schema": {
+            "$ref": "#/components/schemas/Vector3"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Vector3"
+          }
+        },
+        "required": true
+      }
+    },
+    {
       "name": "list_foods",
       "paramStructure": "by-name",
       "params": [
@@ -318,6 +348,9 @@
                 "type": "number"
               },
               {
+                "type": "null"
+              },
+              {
                 "type": "array",
                 "items": {
                   "type": "boolean"
@@ -435,6 +468,17 @@
           "ai": {
             "title": "Ai",
             "type": "array"
+          },
+          "aj": {
+            "title": "Aj",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
