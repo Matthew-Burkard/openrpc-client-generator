@@ -113,9 +113,6 @@ class KotlinCodeGenerator(CodeGenerator):
 
     def _get_kotlin_type(self, schema: SchemaObject) -> str:
         # Get Kotlin type from JSON Schema type.
-        if schema is None:
-            return "Any"
-
         if schema.type:
             if schema.type == "array":
                 return f"List<{self._get_kotlin_type(schema.items)}>"
