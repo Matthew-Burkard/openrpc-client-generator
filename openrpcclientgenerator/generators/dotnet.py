@@ -86,7 +86,7 @@ class CSharpCodeGenerator(CodeGenerator):
             for prop_name, prop in schema.properties.items():
                 c_sharp_type = self._get_cs_type(prop)
 
-                if prop_name in (prop.required or []):
+                if prop_name in (schema.required or []):
                     required = ", Required = Required.Always"
                 else:
                     required = ""
