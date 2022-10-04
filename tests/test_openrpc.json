@@ -21,6 +21,7 @@
   "methods": [
     {
       "name": "add",
+      "description": "Add two numbers.",
       "params": [
         {
           "name": "a",
@@ -486,6 +487,7 @@
             "default": "🍩"
           },
           "english_muffin": {
+            "description": "Tasty",
             "type": [
               "string",
               "integer",
@@ -564,6 +566,7 @@
       },
       "Vector3": {
         "title": "Vector3",
+        "description": "Triplet of numeric values.\nA second line.",
         "type": "object",
         "properties": {
           "x": {
