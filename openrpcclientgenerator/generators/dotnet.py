@@ -23,6 +23,11 @@ class CSharpCodeGenerator(CodeGenerator):
     def __init__(
         self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
+        """Init generator for C# code.
+
+        :param openrpc: OpenRPC API object to generate client for.
+        :param schemas: JSON Schema schemas.
+        """
         self._type_map = {
             "boolean": "bool",
             "integer": "int",
@@ -43,7 +48,7 @@ class CSharpCodeGenerator(CodeGenerator):
         return code.client_file.format(
             namespace=f"{cs.to_pascal(self.openrpc.info.title)}Client",
             title=cs.to_pascal(self.openrpc.info.title),
-            transport="Http",
+            transport=transport.value.capitalize(),
             methods=self._get_methods(),
         ).lstrip()
 
