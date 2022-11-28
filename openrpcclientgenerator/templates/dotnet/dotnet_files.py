@@ -22,7 +22,7 @@ csproj = """
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net472</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>{name}</RootNamespace>
         <PackageId>{name}</PackageId>
         <Version>{version}</Version>
@@ -37,7 +37,7 @@ csproj = """
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="JsonRpcClient" Version="3.0.0" />
+      <PackageReference Include="JsonRpcClient" Version="4.0.1" />
     </ItemGroup>
 
 </Project>
