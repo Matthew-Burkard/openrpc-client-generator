@@ -113,25 +113,26 @@ class PythonCodeGenerator(CodeGenerator):
 
         def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
-            for n, prop in schema.properties.items():
-                field_name = cs.to_snake(n)
-                needs_alias = field_name != n
-                required = n in (schema.required or [])
-                if needs_alias and required:
-                    default = f' = Field(alias="{n}")'
-                    self._import_field = True
-                elif needs_alias:
-                    default = f' = Field(None, alias="{n}")'
-                    self._import_field = True
-                else:
-                    default = " = None"
-                fields.append(
-                    code.field.format(
-                        name=field_name,
-                        type=self._get_py_type_from_schema(prop),
-                        default=default,
+            if schema.properties:
+                for n, prop in schema.properties.items():
+                    field_name = cs.to_snake(n)
+                    needs_alias = field_name != n
+                    required = n in (schema.required or [])
+                    if needs_alias and required:
+                        default = f' = Field(alias="{n}")'
+                        self._import_field = True
+                    elif needs_alias:
+                        default = f' = Field(None, alias="{n}")'
+                        self._import_field = True
+                    else:
+                        default = " = None"
+                    fields.append(
+                        code.field.format(
+                            name=field_name,
+                            type=self._get_py_type_from_schema(prop),
+                            default=default,
+                        )
                     )
-                )
             if schema.description:
                 doc = f"\n{self._indent}".join(
                     line.strip() for line in schema.description.split("\n")

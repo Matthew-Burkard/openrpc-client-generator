@@ -81,15 +81,16 @@ class KotlinCodeGenerator(CodeGenerator):
 
         def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
-            for n, prop in schema.properties.items():
-                required = n in (schema.required or [])
-                fields.append(
-                    code.field.format(
-                        name=cs.to_camel(n),
-                        type=self._get_kotlin_type(prop) + "?" if required else "",
-                        default=" = null" if required else "",
+            if schema.properties:
+                for n, prop in schema.properties.items():
+                    required = n in (schema.required or [])
+                    fields.append(
+                        code.field.format(
+                            name=cs.to_camel(n),
+                            type=self._get_kotlin_type(prop) + "?" if required else "",
+                            default=" = null" if required else "",
+                        )
                     )
-                )
             if schema.description:
                 doc = f"\n{self._indent} * ".join(
                     line.strip() for line in schema.description.split("\n")

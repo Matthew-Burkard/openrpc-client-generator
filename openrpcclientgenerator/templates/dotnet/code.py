@@ -48,13 +48,25 @@ method = """
          */
         public async Task<{return_type}> {name}({args})
         {{
-            var v = await Call("{method}", {params});
+            var v = await Call("{method}"{params});
             if (v is {return_type} t)
             {{
                 return t;
             }}
 
             return JsonConvert.DeserializeObject<{return_type}>(v.ToString()!);
+        }}
+""".removeprefix(
+    "\n"
+)
+
+void_method = """
+        /**
+        {doc}
+         */
+        public async Task {name}({args})
+        {{
+            await Call("{method}"{params});
         }}
 """.removeprefix(
     "\n"

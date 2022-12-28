@@ -56,10 +56,12 @@ class CSharpCodeGenerator(CodeGenerator):
         def _get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
                 params = ", ".join(cs.to_camel(it.name) for it in method.params)
-                params = f"new List<object> {{{params}}}"
+                params = f", new List<object> {{{params}}}"
             else:
                 # Length is 1 or 0.
                 params = "".join(cs.to_camel(it.name) for it in method.params)
+                if len(method.params) > 0:
+                    params = ", " + params
 
             if method.description:
                 # TODO Use recommended xml (oof).
@@ -69,17 +71,25 @@ class CSharpCodeGenerator(CodeGenerator):
                 )
             else:
                 doc = " * No description provided."
-            return code.method.format(
-                doc=doc,
-                return_type=self._get_cs_type(method.result.schema_),
-                name=cs.to_pascal(re.sub(r".*?\.", "", method.name)),
-                args=", ".join(
-                    f"{self._get_cs_type(it.schema_)} {cs.to_camel(it.name)}"
-                    for it in method.params
-                ),
-                method=method.name,
-                params=params,
+            return_type = self._get_cs_type(method.result.schema_)
+            args = ", ".join(
+                f"{self._get_cs_type(it.schema_)} {cs.to_camel(it.name)}"
+                for it in method.params
             )
+            name = cs.to_pascal(re.sub(r".*?\.", "", method.name))
+            if return_type == "null":
+                return code.void_method.format(
+                    doc=doc, name=name, args=args, method=method.name, params=params
+                )
+            else:
+                return code.method.format(
+                    doc=doc,
+                    return_type=return_type,
+                    name=name,
+                    args=args,
+                    method=method.name,
+                    params=params,
+                )
 
         return "\n".join(_get_method(m) for m in self.openrpc.methods)
 
@@ -88,27 +98,28 @@ class CSharpCodeGenerator(CodeGenerator):
 
         def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
-            for prop_name, prop in schema.properties.items():
-                c_sharp_type = self._get_cs_type(prop)
+            if schema.properties:
+                for prop_name, prop in schema.properties.items():
+                    c_sharp_type = self._get_cs_type(prop)
 
-                if prop_name in (schema.required or []):
-                    required = ", Required = Required.Always"
-                else:
-                    required = ""
-                    if c_sharp_type in ["int", "double", "bool"]:
-                        c_sharp_type = f"{c_sharp_type}?"
+                    if prop_name in (schema.required or []):
+                        required = ", Required = Required.Always"
+                    else:
+                        required = ""
+                        if c_sharp_type in ["int", "double", "bool"]:
+                            c_sharp_type = f"{c_sharp_type}?"
 
-                field_name = cs.to_pascal(prop_name)
-                if field_name == name:
-                    field_name = f"Sub{field_name}"
-                fields.append(
-                    code.field.format(
-                        prop_name=prop_name,
-                        type=c_sharp_type,
-                        name=field_name,
-                        req=required,
+                    field_name = cs.to_pascal(prop_name)
+                    if field_name == name:
+                        field_name = f"Sub{field_name}"
+                    fields.append(
+                        code.field.format(
+                            prop_name=prop_name,
+                            type=c_sharp_type,
+                            name=field_name,
+                            req=required,
+                        )
                     )
-                )
             if schema.description:
                 doc = f"\n{self._indent} * ".join(
                     line.strip() for line in schema.description.split("\n")
