@@ -8,7 +8,7 @@ from enum import Enum
 from pathlib import Path
 
 import caseswitcher as cs
-from openrpc.objects import ContactObject, OpenRPCObject
+from openrpc import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import _util
 from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
@@ -65,7 +65,7 @@ class ClientFactory:
         """
         if not remove_existing and self._client_exists(language):
             return self._get_tarball_path(language)
-        return {
+        return {  # type: ignore
             Language.DOTNET: self._generate_dotnet_client,
             Language.KOTLIN: self._generate_kotlin_client,
             Language.PYTHON: self._generate_python_client,

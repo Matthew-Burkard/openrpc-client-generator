@@ -2,7 +2,7 @@
 import abc
 
 import caseswitcher as cs
-from openrpc.objects import OpenRPCObject, SchemaObject
+from openrpc import OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator.generators.transports import Transport
 
@@ -13,6 +13,11 @@ class CodeGenerator(abc.ABC):
     def __init__(
         self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
+        """Instantiate CodeGenerator class.
+
+        :param openrpc: OpenRPC doc to generate code from.
+        :param schemas: Schemas used.
+        """
         self.openrpc = openrpc
         self.schemas = schemas
 

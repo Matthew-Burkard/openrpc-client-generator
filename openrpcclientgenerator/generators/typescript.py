@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass, field
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, OpenRPCObject, ParamStructure, SchemaObject
+from openrpc import MethodObject, OpenRPCObject, ParamStructure, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
@@ -24,6 +24,11 @@ class TypeScriptGenerator(CodeGenerator):
     def __init__(
         self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
+        """Instantiate TypeScriptGenerator class.
+
+        :param openrpc: OpenRPC doc to generate code from.
+        :param schemas: Schemas used.
+        """
         self._type_map = {
             "boolean": "boolean",
             "integer": "number",
@@ -154,7 +159,7 @@ class TypeScriptGenerator(CodeGenerator):
             return model
 
         models = [_get_model(n, s) for n, s in self.schemas.items()]
-        models = "\n".join(
+        models_str = "\n".join(
             code.data_class.format(
                 name=model.name,
                 fields=self._indent + f"\n{self._indent}".join(model.fields),
@@ -174,7 +179,7 @@ class TypeScriptGenerator(CodeGenerator):
             )
             for model in models
         )
-        return code.models_file.format(models=models)
+        return code.models_file.format(models=models_str)
 
     def _get_ts_type(self, schema: SchemaObject) -> str:
         # Get TypeScript type from JSON Schema type.

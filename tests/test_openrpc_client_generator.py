@@ -4,7 +4,7 @@ import os
 import unittest
 from pathlib import Path
 
-from openrpc.objects import OpenRPCObject
+from openrpc import OpenRPCObject
 
 from openrpcclientgenerator.client_factory import ClientFactory, Language
 
@@ -26,16 +26,6 @@ class RPCTest(unittest.TestCase):
         )
         self.math_cf = ClientFactory(math_openrpc_doc, f"{pwd}/../dist/generated")
         super(RPCTest, self).__init__(*args)
-
-    def test_dotnet(self) -> None:
-        self.assertEqual(
-            str,
-            type(
-                self.test_cf.generate_client(
-                    Language.DOTNET, build=build, remove_existing=remove_existing
-                )
-            ),
-        )
 
     def test_kotlin(self) -> None:
         self.assertEqual(
@@ -63,16 +53,6 @@ class RPCTest(unittest.TestCase):
             type(
                 self.test_cf.generate_client(
                     Language.TYPE_SCRIPT, build=build, remove_existing=remove_existing
-                )
-            ),
-        )
-
-    def test_dotnet_no_models(self) -> None:
-        self.assertEqual(
-            str,
-            type(
-                self.math_cf.generate_client(
-                    Language.DOTNET, build=build, remove_existing=remove_existing
                 )
             ),
         )

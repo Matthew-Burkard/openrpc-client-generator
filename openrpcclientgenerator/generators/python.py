@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, OpenRPCObject, ParamStructure, SchemaObject
+from openrpc import MethodObject, OpenRPCObject, ParamStructure, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
@@ -23,6 +23,11 @@ class PythonCodeGenerator(CodeGenerator):
     def __init__(
         self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
+        """Instantiate PythonCodeGenerator class.
+
+        :param openrpc: OpenRPC doc to generate code from.
+        :param schemas: Schemas used.
+        """
         self._type_map = {
             "boolean": "bool",
             "integer": "int",
@@ -35,7 +40,7 @@ class PythonCodeGenerator(CodeGenerator):
         self._import_field = False
         super(PythonCodeGenerator, self).__init__(openrpc, schemas)
 
-    def get_client(self, transport=Transport.HTTP) -> str:
+    def get_client(self, transport: Transport = Transport.HTTP) -> str:
         """Get a Python RPC client.
 
         :param transport: Transport method of the client.

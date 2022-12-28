@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
+from openrpc import MethodObject, OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport

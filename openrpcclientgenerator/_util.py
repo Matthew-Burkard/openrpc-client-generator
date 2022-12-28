@@ -1,5 +1,5 @@
 """Functions shared across the project."""
-from openrpc.objects import SchemaObject
+from openrpc import SchemaObject
 
 
 def get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
@@ -9,7 +9,7 @@ def get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
     :return: All schemas with their names as keys.
     """
     schemas = schemas or {}
-    for name, schema in schemas.items():
+    for _name, schema in schemas.items():
         if schema.definitions:
             schemas = {**schemas, **get_schemas(schema.definitions)}
     return schemas

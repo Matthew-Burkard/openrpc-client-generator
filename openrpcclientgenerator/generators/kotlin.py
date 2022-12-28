@@ -1,12 +1,9 @@
-"""
-This module provides a class to generate a Kotlin JSON RPC Client from
-an OpenRPC object.
-"""
+"""Provides a Kotlin RPC client generator."""
 import re
 from dataclasses import dataclass, field
 
 import caseswitcher as cs
-from openrpc.objects import MethodObject, OpenRPCObject, SchemaObject
+from openrpc import MethodObject, OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator.generators._generator import CodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
@@ -26,6 +23,11 @@ class KotlinCodeGenerator(CodeGenerator):
     def __init__(
         self, openrpc: OpenRPCObject, schemas: dict[str, SchemaObject]
     ) -> None:
+        """Instantiate KotlinCodeGenerator class.
+
+        :param openrpc: OpenRPC doc to generate code from.
+        :param schemas: Schemas used.
+        """
         self._type_map = {
             "boolean": "Boolean",
             "integer": "Int",
@@ -76,7 +78,6 @@ class KotlinCodeGenerator(CodeGenerator):
 
     def get_models(self) -> str:
         """Get Kotlin code of all model declarations."""
-        _all = []
 
         def _get_model(name: str, schema: SchemaObject) -> _Model:
             fields = []
