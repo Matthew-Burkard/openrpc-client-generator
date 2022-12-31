@@ -14,6 +14,7 @@ from openrpcclientgenerator import _util
 from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
 from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
 from openrpcclientgenerator.generators.python import PythonCodeGenerator
+from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.generators.typescript import TypeScriptGenerator
 from openrpcclientgenerator.templates.dotnet import dotnet_files
 from openrpcclientgenerator.templates.python import build_files as py_build_files
@@ -53,11 +54,16 @@ class ClientFactory:
         self._out_dir = Path(out_dir)
 
     def generate_client(
-        self, language: Language, build: bool = True, remove_existing: bool = False
+        self,
+        language: Language,
+        transport: Transport,
+        build: bool = True,
+        remove_existing: bool = False,
     ) -> str:
         """Generate an RPC client for the given language.
 
         :param language: Language to generate code of.
+        :param transport: Client transport protocol.
         :param build: Build/pack the client into a tarball.
         :param remove_existing: Replace existing clients of the same
             version.
@@ -70,9 +76,9 @@ class ClientFactory:
             Language.KOTLIN: self._generate_kotlin_client,
             Language.PYTHON: self._generate_python_client,
             Language.TYPE_SCRIPT: self._generate_typescript_client,
-        }[language].__call__(build)
+        }[language].__call__(build, transport)
 
-    def _generate_dotnet_client(self, build: bool) -> str:
+    def _generate_dotnet_client(self, build: bool, transport: Transport) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "dotnet" / sln_name
@@ -86,7 +92,7 @@ class ClientFactory:
             models_file.touch()
             models_file.write_text(models_str)
         # Methods
-        client_str = generator.get_client()
+        client_str = generator.get_client(transport)
         client_file = package_path / "Client.cs"
         client_file.touch()
         client_file.write_text(client_str)
@@ -117,7 +123,7 @@ class ClientFactory:
             return f"{bin_dir}/Debug/{sln_name}.{self.rpc.info.version}.nupkg"
         return client_path.as_posix()
 
-    def _generate_kotlin_client(self, build: bool) -> str:
+    def _generate_kotlin_client(self, build: bool, transport: Transport) -> str:
         generator = KotlinCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "kotlin" / pkg_name
@@ -129,7 +135,7 @@ class ClientFactory:
         models_file.touch()
         models_file.write_text(models_str)
         # Methods
-        client_str = generator.get_client()
+        client_str = generator.get_client(transport)
         client_file = package_path / "Client.kt"
         client_file.touch()
         client_file.write_text(client_str)
@@ -137,7 +143,7 @@ class ClientFactory:
             pass  # TODO
         return client_path.as_posix()
 
-    def _generate_python_client(self, build: bool) -> str:
+    def _generate_python_client(self, build: bool, transport: Transport) -> str:
         generator = PythonCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
@@ -153,7 +159,7 @@ class ClientFactory:
             models_file.write_text(models_str)
             subprocess.run(["black", models_file])
         # Methods
-        client_str = generator.get_client()
+        client_str = generator.get_client(transport)
         client_file = package_path / "client.py"
         client_file.touch()
         client_file.write_text(client_str)
@@ -178,7 +184,7 @@ class ClientFactory:
             return f"{client_path}/dist/{pkg_name}-{self.rpc.info.version}.tar.gz"
         return client_path.as_posix()
 
-    def _generate_typescript_client(self, build: bool) -> str:
+    def _generate_typescript_client(self, build: bool, transport: Transport) -> str:
         generator = TypeScriptGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
@@ -192,7 +198,7 @@ class ClientFactory:
             models_file.touch()
             models_file.write_text(models_str)
         # Methods
-        client_str = generator.get_client()
+        client_str = generator.get_client(transport)
         client_file = src_path / "client.ts"
         client_file.touch()
         client_file.write_text(client_str)

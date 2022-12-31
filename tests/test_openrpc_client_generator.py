@@ -7,7 +7,7 @@ from pathlib import Path
 from openrpc import OpenRPCObject
 
 from openrpcclientgenerator.client_factory import ClientFactory, Language
-
+from openrpcclientgenerator.generators.transports import Transport
 
 build = not bool(os.environ.get("SKIP_BUILD"))
 remove_existing = not bool(os.environ.get("KEEP_EXISTING_CLIENT"))
@@ -32,7 +32,10 @@ class RPCTest(unittest.TestCase):
             str,
             type(
                 self.test_cf.generate_client(
-                    Language.KOTLIN, build=build, remove_existing=remove_existing
+                    language=Language.KOTLIN,
+                    transport=Transport.HTTP,
+                    build=build,
+                    remove_existing=remove_existing,
                 )
             ),
         )
@@ -42,7 +45,10 @@ class RPCTest(unittest.TestCase):
             str,
             type(
                 self.test_cf.generate_client(
-                    Language.PYTHON, build=build, remove_existing=remove_existing
+                    language=Language.PYTHON,
+                    transport=Transport.HTTP,
+                    build=build,
+                    remove_existing=remove_existing,
                 )
             ),
         )
@@ -52,7 +58,10 @@ class RPCTest(unittest.TestCase):
             str,
             type(
                 self.test_cf.generate_client(
-                    Language.TYPE_SCRIPT, build=build, remove_existing=remove_existing
+                    language=Language.TYPE_SCRIPT,
+                    transport=Transport.HTTP,
+                    build=build,
+                    remove_existing=remove_existing,
                 )
             ),
         )
@@ -62,7 +71,10 @@ class RPCTest(unittest.TestCase):
             str,
             type(
                 self.math_cf.generate_client(
-                    Language.KOTLIN, build=build, remove_existing=remove_existing
+                    language=Language.KOTLIN,
+                    transport=Transport.HTTP,
+                    build=build,
+                    remove_existing=remove_existing,
                 )
             ),
         )
@@ -72,7 +84,10 @@ class RPCTest(unittest.TestCase):
             str,
             type(
                 self.math_cf.generate_client(
-                    Language.PYTHON, build=build, remove_existing=remove_existing
+                    language=Language.PYTHON,
+                    transport=Transport.HTTP,
+                    build=build,
+                    remove_existing=remove_existing,
                 )
             ),
         )
@@ -82,7 +97,10 @@ class RPCTest(unittest.TestCase):
             str,
             type(
                 self.math_cf.generate_client(
-                    Language.TYPE_SCRIPT, build=build, remove_existing=remove_existing
+                    language=Language.TYPE_SCRIPT,
+                    transport=Transport.HTTP,
+                    build=build,
+                    remove_existing=remove_existing,
                 )
             ),
         )
