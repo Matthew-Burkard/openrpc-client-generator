@@ -56,12 +56,12 @@ class CSharpCodeGenerator(CodeGenerator):
         def _get_method(method: MethodObject) -> str:
             if len(method.params) > 1:
                 params = ", ".join(cs.to_camel(it.name) for it in method.params)
-                params = f", new List<object> {{{params}}}"
+                params = f", new List<object> {{new List<object> {{{params}}}}}"
             else:
                 # Length is 1 or 0.
                 params = "".join(cs.to_camel(it.name) for it in method.params)
                 if len(method.params) > 0:
-                    params = ", " + params
+                    params = ", " + f"new List<object> {{{params}}}"
 
             if method.description:
                 # TODO Use recommended xml (oof).
@@ -112,12 +112,26 @@ class CSharpCodeGenerator(CodeGenerator):
                     field_name = cs.to_pascal(prop_name)
                     if field_name == name:
                         field_name = f"Sub{field_name}"
+                    if "default" not in prop.__fields_set__:
+                        default = ""
+                    else:
+                        if prop.default in [True, False, None]:
+                            default_value = {
+                                True: "true",
+                                False: "false",
+                                None: "null",
+                            }.get(prop.default) or prop.default
+                            default = f"[DefaultValue({default_value})]"
+                        else:
+                            # TODO
+                            default = ""
                     fields.append(
                         code.field.format(
                             prop_name=prop_name,
+                            req=required,
+                            default=default,
                             type=c_sharp_type,
                             name=field_name,
-                            req=required,
                         )
                     )
             if schema.description:

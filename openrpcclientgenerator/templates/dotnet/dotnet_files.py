@@ -37,7 +37,9 @@ csproj = """
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="JsonRpcClient" Version="5.0.0" />
+      <PackageReference Include="JsonRpcClient" Version="5.1.0" >
+        <SpecificVersion>True</SpecificVersion>
+      </PackageReference>
     </ItemGroup>
 
 </Project>
