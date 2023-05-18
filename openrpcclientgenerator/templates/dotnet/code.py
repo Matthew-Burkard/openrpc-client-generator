@@ -3,6 +3,7 @@
 # Models
 class_file = """
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
@@ -20,7 +21,9 @@ data_class = """
         {fields}
     }}
 """.rstrip()
-field = '[JsonProperty("{prop_name}"{req})] public {type} {name} {{ get; set; }}'
+field = (
+    '[JsonProperty("{prop_name}"{req})]{default} public {type} {name} {{ get; set; }}'
+)
 
 # Methods
 client_file = """
@@ -28,6 +31,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JsonRpcClient.Clients;
 using Newtonsoft.Json;
+using QuickType;
 
 namespace {namespace}
 {{

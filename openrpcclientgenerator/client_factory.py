@@ -8,7 +8,7 @@ from enum import Enum
 from pathlib import Path
 
 import caseswitcher as cs
-from openrpc import ContactObject, OpenRPCObject
+from openrpc import ContactObject, OpenRPCObject, SchemaObject
 
 from openrpcclientgenerator import _util
 from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
@@ -80,23 +80,24 @@ class ClientFactory:
 
     def _generate_dotnet_client(self, build: bool, transport: Transport) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
-        sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
+        sln_name = f"{cs.to_dot(self.rpc.info.title)}.client"
         client_path = self._out_dir / "dotnet" / sln_name
         shutil.rmtree(client_path, ignore_errors=True)
         package_path = client_path / sln_name
         os.makedirs(package_path, exist_ok=True)
         # Models
         if self._schemas:
-            models_str = generator.get_models()
-            models_file = package_path / "Models.cs"
-            models_file.touch()
-            models_file.write_text(models_str)
+            model_file = package_path / "Models.cs"
+            models = SchemaObject(properties=self._schemas)
+            schema = models.json(exclude_unset=True, by_alias=True)
+            schema = schema.replace("components/schemas", "properties")
+            _util.quicktype(package_path, schema, model_file)
         # Methods
         client_str = generator.get_client(transport)
         client_file = package_path / "Client.cs"
         client_file.touch()
         client_file.write_text(client_str)
-        # Build files.
+        # Build files
         solution_file = client_path / f"{sln_name}.sln"
         solution_file.touch()
         solution_file.write_text(
