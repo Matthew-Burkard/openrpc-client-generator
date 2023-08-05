@@ -10,6 +10,6 @@ def get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
     """
     schemas = schemas or {}
     for _name, schema in schemas.items():
-        if schema.definitions:
-            schemas = {**schemas, **get_schemas(schema.definitions)}
+        if schema.defs:
+            schemas = {**schemas, **get_schemas(schema.defs)}
     return schemas

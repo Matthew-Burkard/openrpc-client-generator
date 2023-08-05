@@ -1,7 +1,6 @@
 """Provides the ClientFactory class."""
 import os
 import shutil
-import subprocess
 import uuid
 from datetime import datetime
 from enum import Enum
@@ -11,11 +10,11 @@ import caseswitcher as cs
 from openrpc import ContactObject, OpenRPCObject
 
 from openrpcclientgenerator import _util
+from openrpcclientgenerator.generators import typescript
 from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
 from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
 from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
-from openrpcclientgenerator.generators.typescript import TypeScriptGenerator
 from openrpcclientgenerator.templates.dotnet import dotnet_files
 from openrpcclientgenerator.templates.python import build_files as py_build_files
 from openrpcclientgenerator.templates.typescript import (
@@ -57,14 +56,12 @@ class ClientFactory:
         self,
         language: Language,
         transport: Transport,
-        build: bool = True,
         remove_existing: bool = False,
     ) -> str:
         """Generate an RPC client for the given language.
 
         :param language: Language to generate code of.
         :param transport: Client transport protocol.
-        :param build: Build/pack the client into a tarball.
         :param remove_existing: Replace existing clients of the same
             version.
         :return: Path to client tarball if it exists, else root dir.
@@ -76,9 +73,9 @@ class ClientFactory:
             Language.KOTLIN: self._generate_kotlin_client,
             Language.PYTHON: self._generate_python_client,
             Language.TYPE_SCRIPT: self._generate_typescript_client,
-        }[language].__call__(build, transport)
+        }[language].__call__(transport)
 
-    def _generate_dotnet_client(self, build: bool, transport: Transport) -> str:
+    def _generate_dotnet_client(self, transport: Transport) -> str:
         generator = CSharpCodeGenerator(self.rpc, self._schemas)
         sln_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "dotnet" / sln_name
@@ -116,14 +113,9 @@ class ClientFactory:
                 year=datetime.now().year,
             )
         )
-        # Pack client.
-        if build:
-            subprocess.run(["dotnet", "pack", solution_file])
-            bin_dir = f"{client_path}/{sln_name}/bin"
-            return f"{bin_dir}/Debug/{sln_name}.{self.rpc.info.version}.nupkg"
         return client_path.as_posix()
 
-    def _generate_kotlin_client(self, build: bool, transport: Transport) -> str:
+    def _generate_kotlin_client(self, transport: Transport) -> str:
         generator = KotlinCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "kotlin" / pkg_name
@@ -139,11 +131,9 @@ class ClientFactory:
         client_file = package_path / "Client.kt"
         client_file.touch()
         client_file.write_text(client_str)
-        if build:
-            pass  # TODO
         return client_path.as_posix()
 
-    def _generate_python_client(self, build: bool, transport: Transport) -> str:
+    def _generate_python_client(self, transport: Transport) -> str:
         generator = PythonCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
@@ -157,13 +147,11 @@ class ClientFactory:
             models_file = package_path / "models.py"
             models_file.touch()
             models_file.write_text(models_str)
-            subprocess.run(["black", models_file])
         # Methods
         client_str = generator.get_client(transport)
         client_file = package_path / "client.py"
         client_file.touch()
         client_file.write_text(client_str)
-        subprocess.run(["black", client_file])
         # Build Files
         py_proj_toml = client_path / "pyproject.toml"
         py_proj_toml.write_text(
@@ -175,17 +163,9 @@ class ClientFactory:
                 pkg_dir=f"src/{pkg_name}",
             )
         )
-        # Build client.
-        if build:
-            old_pwd = os.getcwd()
-            os.chdir(client_path)
-            subprocess.run(["poetry", "build"])
-            os.chdir(old_pwd)
-            return f"{client_path}/dist/{pkg_name}-{self.rpc.info.version}.tar.gz"
         return client_path.as_posix()
 
-    def _generate_typescript_client(self, build: bool, transport: Transport) -> str:
-        generator = TypeScriptGenerator(self.rpc, self._schemas)
+    def _generate_typescript_client(self, transport: Transport) -> str:
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "typescript" / pkg_name
         shutil.rmtree(client_path, ignore_errors=True)
@@ -193,12 +173,12 @@ class ClientFactory:
         os.makedirs(src_path, exist_ok=True)
         # Models
         if self._schemas:
-            models_str = generator.get_models()
+            models_str = typescript.get_models(self._schemas)
             models_file = src_path / "models.ts"
             models_file.touch()
             models_file.write_text(models_str)
         # Methods
-        client_str = generator.get_client(transport)
+        client_str = typescript.get_client(self.rpc, self._schemas, transport)
         client_file = src_path / "client.ts"
         client_file.touch()
         client_file.write_text(client_str)
@@ -233,15 +213,6 @@ class ClientFactory:
         prettier_ignore = client_path / ".prettierignore"
         prettier_ignore.touch()
         prettier_ignore.write_text(prettier.prettier_ignore)
-        subprocess.run(["npx", "prettier", "--write", client_path])
-        # Build Client
-        if build:
-            subprocess.run(["npm", "i", "--prefix", client_path])
-            subprocess.run(["npm", "run", "build", "--prefix", client_path])
-            subprocess.run(["npm", "pack", client_path])
-            tarball = f"{pkg_name}-{self.rpc.info.version}.tgz"
-            shutil.move(f"{os.getcwd()}/{tarball}", f"{client_path}/{tarball}")
-            return f"{client_path}/{tarball}"
         return client_path.as_posix()
 
     def _client_exists(self, language: Language) -> bool:
