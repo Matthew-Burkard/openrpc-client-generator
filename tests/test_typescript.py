@@ -16,9 +16,18 @@ def test_primitive_types() -> None:
     assert typescript._common.get_ts_type(common.null) == "null"
 
 
+# noinspection PyUnresolvedReferences
 def test_schemas() -> None:
-    # noinspection PyUnresolvedReferences
-    typescript._common.get_ts_type()
+    assert typescript._common.get_ts_type(common.plain_array) == "any[]"
+    assert typescript._common.get_ts_type(common.property_array) == "number[]"
+    assert typescript._common.get_ts_type(common.array_array) == "number[][]"
+
+    assert typescript._common.get_ts_type(common.plain_object) == "object"
+    assert typescript._common.get_ts_type(common.properties_object) == "object"
+    assert (
+        typescript._common.get_ts_type(common.additional_properties_object) == "object"
+    )
+    assert typescript._common.get_ts_type(common.nested_properties) == "object"
 
 
 def test_get_models() -> None:

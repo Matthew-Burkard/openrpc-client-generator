@@ -20,5 +20,5 @@ array_array = SchemaObject(type="array", items=property_array)
 
 plain_object = SchemaObject(type="object")
 properties_object = SchemaObject(type="object", properties={"a": number})
-additional_properties_object = SchemaObject(type="apo", additionalProperties=number)
-nested_properties = SchemaObject(type="np", properties={"a": properties_object})
+additional_properties_object = SchemaObject(type="object", additionalProperties=number)
+nested_properties = SchemaObject(type="object", properties={"a": properties_object})
