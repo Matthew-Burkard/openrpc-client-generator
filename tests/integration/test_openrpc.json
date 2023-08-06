@@ -7,7 +7,7 @@
   "servers": [
     {
       "name": "Local",
-      "url": "http://localhost:5000/api/v1/"
+      "url": "http://localhost:8000/api/v1/"
     },
     {
       "name": "Develop",
@@ -578,7 +578,7 @@
         "required": [
           "camelCaseRequired"
         ],
-        "definitions": {
+        "$defs": {
           "Icing": {
             "properties": {
               "flavor": {
@@ -588,7 +588,7 @@
                 "$ref": "#/components/schemas/Arepa/definitions/Icing"
               }
             },
-            "definitions": {
+            "$defs": {
               "Jam": {
                 "properties": {
                   "kale": {
