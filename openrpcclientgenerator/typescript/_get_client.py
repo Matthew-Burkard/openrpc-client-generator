@@ -6,7 +6,7 @@ from openrpc import MethodObject, OpenRPCObject, ParamStructure, SchemaObject
 
 from openrpcclientgenerator.common import get_servers
 from openrpcclientgenerator.generators.transports import Transport
-from openrpcclientgenerator.templates.typescript import code
+from openrpcclientgenerator.typescript import _templates
 from openrpcclientgenerator.typescript._common import get_ts_type, indent, type_map
 
 
@@ -29,7 +29,7 @@ def get_client(
     else:
         models_import = ""
 
-    return code.client.format(
+    return _templates.client.format(
         models_import=models_import,
         name=cs.to_pascal(openrpc.info.title),
         methods="".join(_get_method(m) for m in openrpc.methods),
@@ -85,7 +85,7 @@ def _get_method(method: MethodObject) -> str:
         args = _get_array_args()
         params = _get_array_params()
 
-    return code.method.format(
+    return _templates.method.format(
         name=cs.to_camel(method.name),
         args=args,
         return_type=return_type,

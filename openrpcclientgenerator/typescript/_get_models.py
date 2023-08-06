@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 import caseswitcher as cs
 from openrpc import SchemaObject
 
-from openrpcclientgenerator.templates.typescript import code
+from openrpcclientgenerator.typescript import _templates
 from openrpcclientgenerator.typescript._common import get_ts_type, indent
 
 
@@ -38,7 +38,7 @@ def get_models(schemas: dict[str, SchemaObject]) -> str:
 
     models = [_get_model(n, s) for n, s in schemas.items()]
     models_str = "\n".join(
-        code.data_class.format(
+        _templates.data_class.format(
             name=model.name,
             fields=indent + f"\n{indent}".join(model.fields),
             args=", ".join(model.args),
@@ -57,4 +57,4 @@ def get_models(schemas: dict[str, SchemaObject]) -> str:
         )
         for model in models
     )
-    return code.models_file.format(models=models_str)
+    return _templates.models_file.format(models=models_str)
