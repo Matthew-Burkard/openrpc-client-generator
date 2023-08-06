@@ -7,21 +7,15 @@ from enum import Enum
 from pathlib import Path
 
 import caseswitcher as cs
-from openrpc import ContactObject, OpenRPCObject
+from openrpc import ContactObject, OpenRPCObject, SchemaObject
 
-from openrpcclientgenerator import _util
-from openrpcclientgenerator.generators import typescript
+from openrpcclientgenerator import typescript
 from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
 from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
 from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.templates.dotnet import dotnet_files
 from openrpcclientgenerator.templates.python import build_files as py_build_files
-from openrpcclientgenerator.templates.typescript import (
-    build_files as ts_build_files,
-    prettier,
-)
-from openrpcclientgenerator.templates.typescript.index import index_ts
 
 __all__ = ("ClientFactory", "Language")
 
@@ -49,7 +43,7 @@ class ClientFactory:
         self.rpc.info.contact = self.rpc.info.contact or ContactObject()
         self.rpc.info.contact.name = self.rpc.info.contact.name or "Not Provided"
         self.rpc.info.contact.email = self.rpc.info.contact.email or "Not Provided"
-        self._schemas = _util.get_schemas(rpc.components.schemas)
+        self._schemas = _get_schemas(rpc.components.schemas)
         self._out_dir = Path(out_dir)
 
     def generate_client(
@@ -171,48 +165,36 @@ class ClientFactory:
         shutil.rmtree(client_path, ignore_errors=True)
         src_path = client_path / "src"
         os.makedirs(src_path, exist_ok=True)
+
         # Models
         if self._schemas:
-            models_str = typescript.get_models(self._schemas)
-            models_file = src_path / "models.ts"
-            models_file.touch()
-            models_file.write_text(models_str)
+            _create_file(src_path / "models.ts", typescript.get_models(self._schemas))
         # Methods
-        client_str = typescript.get_client(self.rpc, self._schemas, transport)
-        client_file = src_path / "client.ts"
-        client_file.touch()
-        client_file.write_text(client_str)
-        # Index TS
-        index = src_path / "index.ts"
-        index.touch()
-        index.write_text(
-            index_ts.format(
-                name=cs.to_pascal(self.rpc.info.title),
-                models=", ".join(self._schemas.keys()),
-            )
+        _create_file(
+            path=src_path / "client.ts",
+            content=typescript.get_client(self.rpc, self._schemas, transport),
         )
-        # Build Files
-        tsconfig = client_path / "tsconfig.json"
-        tsconfig.touch()
-        tsconfig.write_text(ts_build_files.tsconfig)
-        package_json = client_path / "package.json"
-        package_json.touch()
-        package_json.write_text(
-            ts_build_files.package_json.format(
-                name=pkg_name,
-                version=self.rpc.info.version,
-                description=f"{self.rpc.info.title} RPC Client.",
-                author=self.rpc.info.contact.name,
-                license="custom",
-            )
+        # Project Files
+        _create_file(
+            path=src_path / "index.ts",
+            content=typescript.get_index_ts(
+                self.rpc.info.title, self._schemas.keys(), transport.value
+            ),
         )
+        _create_file(
+            path=client_path / "package.json",
+            content=typescript.get_package_json(
+                pkg_name,
+                self.rpc.info.version,
+                self.rpc.info.description,
+                self.rpc.info.contact.name,
+                os.environ.get("CLIENT_LICENSE") or "custom",
+            ),
+        )
+        _create_file(client_path / "tsconfig.json", typescript.get_ts_config())
         # Prettier
-        prettier_rc = client_path / ".prettierrc"
-        prettier_rc.touch()
-        prettier_rc.write_text(prettier.prettier_rc)
-        prettier_ignore = client_path / ".prettierignore"
-        prettier_ignore.touch()
-        prettier_ignore.write_text(prettier.prettier_ignore)
+        _create_file(path=client_path / ".prettierrc", content="{}")
+        _create_file(client_path / ".prettierignore", "/node_modules/\n/dist/")
         return client_path.as_posix()
 
     def _client_exists(self, language: Language) -> bool:
@@ -246,3 +228,21 @@ class ClientFactory:
                 client_dir = self._out_dir / "typescript" / pkg_name
                 tarball = client_dir / f"{pkg_name}-{version}.tgz"
                 return Path(tarball).as_posix()
+
+
+def _get_schemas(schemas: dict[str, SchemaObject]) -> dict[str, SchemaObject]:
+    """Recursively get all schemas from a dict schemas.
+
+    :param schemas: The schemas to recursively search for sub-schemas.
+    :return: All schemas with their names as keys.
+    """
+    schemas = schemas or {}
+    for _name, schema in schemas.items():
+        if schema.defs:
+            schemas = {**schemas, **_get_schemas(schema.defs)}
+    return schemas
+
+
+def _create_file(path: Path, content: str) -> None:
+    path.touch()
+    path.write_text(content)
