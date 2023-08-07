@@ -1,5 +1,5 @@
 """Properties used in all client unit tests."""
-from openrpc import SchemaObject
+from openrpc import ContentDescriptorObject, MethodObject, SchemaObject
 
 
 number = SchemaObject(type="number")
@@ -27,4 +27,13 @@ model = SchemaObject(
     title="TestModel",
     type="object",
     properties={"number_field": number, "string_field": string},
+)
+
+method = MethodObject(
+    name="test_method",
+    params=[
+        ContentDescriptorObject(name="a", schema=number),
+        ContentDescriptorObject(name="b", schema=string),
+    ],
+    result=ContentDescriptorObject(name="result", schema=model),
 )

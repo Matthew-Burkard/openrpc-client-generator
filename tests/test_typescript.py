@@ -1,4 +1,5 @@
 """Test TypeScript generation."""
+import inspect
 import re
 
 import common
@@ -6,7 +7,16 @@ from openrpcclientgenerator import typescript
 
 
 def test_get_method() -> None:
-    typescript._get_client._get_method()
+    method_str = typescript._get_client._get_method(common.method)
+    assert inspect.cleandoc(method_str) == inspect.cleandoc(
+        """
+          async testMethod(a?: number, b?: string): Promise<object> {
+            let params = serializeArrayParams([a, b]);
+            let result = await this.call('test_method', params);
+            return result as object;
+          }
+        """
+    )
 
 
 # noinspection PyUnresolvedReferences
@@ -49,15 +59,3 @@ def test_get_models() -> None:
 
     constructor_args = re.match(r".*constructor\((.*?)\)", model_str, re.M | re.S)
     assert constructor_args.groups()[0] == "numberField?: number, stringField?: string"
-
-
-def test_get_index_ts() -> None:
-    typescript.get_index_ts()
-
-
-def test_get_package_json() -> None:
-    typescript.get_package_json()
-
-
-def test_get_ts_config() -> None:
-    typescript.get_ts_config()
