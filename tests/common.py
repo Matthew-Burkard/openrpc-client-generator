@@ -22,3 +22,9 @@ plain_object = SchemaObject(type="object")
 properties_object = SchemaObject(type="object", properties={"a": number})
 additional_properties_object = SchemaObject(type="object", additionalProperties=number)
 nested_properties = SchemaObject(type="object", properties={"a": properties_object})
+
+model = SchemaObject(
+    title="TestModel",
+    type="object",
+    properties={"number_field": number, "string_field": string},
+)

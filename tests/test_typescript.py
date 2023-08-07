@@ -1,4 +1,6 @@
 """Test TypeScript generation."""
+import re
+
 import common
 from openrpcclientgenerator import typescript
 
@@ -31,7 +33,22 @@ def test_schemas() -> None:
 
 
 def test_get_models() -> None:
-    typescript.get_models()
+    schemas = {"TestModel": common.model}
+    model_str = typescript.get_models(schemas)
+    match_groups = re.match(
+        r"\nexport class (\w+)\W*(\w*?: \w*?;)\W*(\w*?: \w*?;)", model_str, re.M | re.S
+    ).groups()
+
+    class_name = match_groups[0]
+    field1 = match_groups[1]
+    field2 = match_groups[2]
+
+    assert class_name == "TestModel"
+    assert field1 == "numberField: number;"
+    assert field2 == "stringField: string;"
+
+    constructor_args = re.match(r".*constructor\((.*?)\)", model_str, re.M | re.S)
+    assert constructor_args.groups()[0] == "numberField?: number, stringField?: string"
 
 
 def test_get_index_ts() -> None:
