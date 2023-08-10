@@ -64,7 +64,6 @@ class CSharpCodeGenerator(CodeGenerator):
                     params = ", " + f"new List<object> {{{params}}}"
 
             if method.description:
-                # TODO Use recommended xml (oof).
                 doc = f"\n{self._indent * 2}".join(
                     f" * {line.strip()}".rstrip()
                     for line in method.description.split("\n")
@@ -121,7 +120,6 @@ class CSharpCodeGenerator(CodeGenerator):
                         }.get(prop.default) or prop.default
                         default = f"[DefaultValue({default_value})]"
                     else:
-                        # TODO
                         default = ""
                     fields.append(
                         code.field.format(
@@ -163,21 +161,21 @@ class CSharpCodeGenerator(CodeGenerator):
         if schema is None:
             return "object"
 
+        type_ = "object"
         if schema.type:
             if schema.type == "array":
-                return f"List<{self._get_cs_type(schema.items)}>"
-            if schema.type == "object":
-                return "Dictionary<string, object>"
-            if isinstance(schema.type, list):
-                # FIXME C# unions?.
-                return "object"
-            if schema.type == "string" and schema.format:
-                return {"binary": "byte[]"}.get(schema.format) or "string"
-            return self._type_map[schema.type]
-        if schema.all_of or schema.any_of or schema.one_of:
-            # FIXME C# unions?.
-            return "object"
-        if schema.ref:
-            return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
+                type_ = f"List<{self._get_cs_type(schema.items)}>"
+            elif schema.type == "object":
+                type_ = "Dictionary<string, object>"
+            elif isinstance(schema.type, list):
+                type_ = "object"
+            elif schema.type == "string" and schema.format:
+                type_ = {"binary": "byte[]"}.get(schema.format) or "string"
+            else:
+                type_ = self._type_map[schema.type]
+        elif schema.all_of or schema.any_of or schema.one_of:
+            type_ = "object"
+        elif schema.ref:
+            type_ = re.sub(r"#/.*/(.*)", r"\1", schema.ref)
 
-        return "object"
+        return type_

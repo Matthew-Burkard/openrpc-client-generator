@@ -27,6 +27,17 @@ model = SchemaObject(
     type="object",
     properties={"number_field": number, "string_field": string},
 )
+parent_model = SchemaObject(
+    title="ParentModel",
+    type="object",
+    properties={
+        "date_field": SchemaObject(
+            title="Date Field", format="date-time", type="string"
+        ),
+        "child_field": SchemaObject(**{"$ref": "#/components/schemas/TestModel"}),
+    },
+    required=["child_field"]
+)
 
 method = MethodObject(
     name="test_method",
@@ -34,5 +45,5 @@ method = MethodObject(
         ContentDescriptorObject(name="a", schema=number),
         ContentDescriptorObject(name="b", schema=string),
     ],
-    result=ContentDescriptorObject(name="result", schema=model),
+    result=ContentDescriptorObject(name="result", schema=parent_model),
 )

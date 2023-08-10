@@ -19,18 +19,20 @@ def get_ts_type(schema: SchemaObject) -> str:
     if schema is None:
         return "any"
 
+    type_ = "any"
     if schema.type:
         if schema.type == "array":
-            return f"{get_ts_type(schema.items)}[]"
-        if schema.type == "object":
-            return "object"
-        if isinstance(schema.type, list):
-            return " | ".join(type_map[it] for it in schema.type)
-        if schema.type == "string" and schema.format:
-            return {"binary": "any"}.get(schema.format) or "string"
-        return type_map[schema.type]
-    if schema_list := schema.all_of or schema.any_of or schema.one_of:
-        return " | ".join(get_ts_type(it) for it in schema_list)
-    if schema.ref:
-        return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
-    return "any"
+            type_ = f"{get_ts_type(schema.items)}[]"
+        elif schema.type == "object":
+            type_ = "object"
+        elif isinstance(schema.type, list):
+            type_ = " | ".join(type_map[it] for it in schema.type)
+        elif schema.type == "string" and schema.format:
+            type_ = {"binary": "any"}.get(schema.format) or "string"
+        else:
+            type_ = type_map[schema.type]
+    elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+        type_ = " | ".join(get_ts_type(it) for it in schema_list)
+    elif schema.ref:
+        type_ = re.sub(r"#/.*/(.*)", r"\1", schema.ref)
+    return type_

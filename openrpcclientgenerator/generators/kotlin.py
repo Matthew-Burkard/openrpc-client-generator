@@ -115,22 +115,27 @@ class KotlinCodeGenerator(CodeGenerator):
 
     def _get_kotlin_type(self, schema: SchemaObject) -> str:
         # Get Kotlin type from JSON Schema type.
+        if schema is None:
+            return "Any"
+
+        type_ = "Any"
         if schema.type:
             if schema.type == "array":
-                return f"List<{self._get_kotlin_type(schema.items)}>"
-            if schema.type == "object":
+                type_ = f"List<{self._get_kotlin_type(schema.items)}>"
+            elif schema.type == "object":
                 v_type = self._get_kotlin_type(schema.items) if schema.items else "Any"
-                return f"Map<String, {v_type}>"
-            if isinstance(schema.type, list):
+                type_ = f"Map<String, {v_type}>"
+            elif isinstance(schema.type, list):
                 types = " | ".join(self._type_map[it] for it in schema.type)
-                return f"dynamic /* {types} */"
-            # TODO Class with ByteArray should override equals and hashCode.
-            if schema.type == "string" and schema.format:
-                return {"binary": "ByteArray"}.get(schema.format) or "String"
-            return self._type_map[schema.type]
-        if schema_list := schema.all_of or schema.any_of or schema.one_of:
+                type_ = f"dynamic /* {types} */"
+            # TODO: Class with ByteArray should override equals and hashCode.
+            elif schema.type == "string" and schema.format:
+                type_ = {"binary": "ByteArray"}.get(schema.format) or "String"
+            else:
+                type_ = self._type_map[schema.type]
+        elif schema_list := schema.all_of or schema.any_of or schema.one_of:
             types = " | ".join(self._get_kotlin_type(it) for it in schema_list)
-            return f"dynamic /* {types} */"
-        if schema.ref:
-            return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
-        return "Any"
+            type_ = f"dynamic /* {types} */"
+        elif schema.ref:
+            type_ = re.sub(r"#/.*/(.*)", r"\1", schema.ref)
+        return type_

@@ -43,7 +43,7 @@ def test_schemas() -> None:
 
 
 def test_get_models() -> None:
-    schemas = {"TestModel": common.model}
+    schemas = {"ParentModel": common.parent_model}
     model_str = typescript.get_models(schemas)
     match_groups = re.match(
         r"\nexport class (\w+)\W*(\w*?: \w*?;)\W*(\w*?: \w*?;)", model_str, re.M | re.S
@@ -59,3 +59,46 @@ def test_get_models() -> None:
 
     constructor_args = re.match(r".*constructor\((.*?)\)", model_str, re.M | re.S)
     assert constructor_args.groups()[0] == "numberField?: number, stringField?: string"
+
+
+"""
+export class TestModel {
+  numberField: number;
+  stringField: string;
+
+  constructor(numberField?: number, stringField?: string) {
+    this.numberField = numberField;
+    this.stringField = stringField;
+  }
+
+  toJSON() {
+    return {
+      number_field: toJSON(this.numberField),
+      string_field: toJSON(this.stringField),
+    }
+  }
+
+  static fromJSON(data: any): TestModel {
+    let instance = new TestModel();
+    instance.numberField = fromJSON(data.number_field);
+    instance.stringField = fromJSON(data.string_field);
+    return instance;
+  }
+}
+
+
+function fromJSON(obj: any) {
+  if (obj !== null && obj !== undefined && obj.hasOwnProperty('fromJSON')) {
+    return obj.fromJSON();
+  }
+  return obj;
+}
+
+
+function toJSON(obj: any) {
+  if (obj !== null && obj !== undefined && obj.hasOwnProperty('toJSON')) {
+    return obj.toJSON();
+  }
+  return obj;
+}
+"""
