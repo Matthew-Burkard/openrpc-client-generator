@@ -5,8 +5,8 @@ from dataclasses import dataclass
 import caseswitcher as cs
 from openrpc import SchemaObject
 
-from openrpcclientgenerator.python._common import get_py_type_from_schema, indent
-from openrpcclientgenerator.templates.python import code
+from openrpcclientgenerator.python._common import get_py_type, indent
+from openrpcclientgenerator.python import _templates
 
 
 @dataclass
@@ -39,9 +39,9 @@ def get_models(schemas: dict[str, SchemaObject]) -> str:
                 else:
                     default = " = None"
                 fields.append(
-                    code.field.format(
+                    _templates.field.format(
                         name=field_name,
-                        type=get_py_type_from_schema(prop),
+                        type=get_py_type(prop),
                         default=default,
                     )
                 )
@@ -67,11 +67,11 @@ def get_models(schemas: dict[str, SchemaObject]) -> str:
         return _Model(name=name, doc=f'"""{doc}"""', fields=fields)
 
     models = [_get_model(n, s) for n, s in schemas.items()]
-    return code.model_file.format(
+    return _templates.model_file.format(
         field_import=", Field" if import_field else "",
         all=", ".join(f'"{it}"' for it in _all),
         classes="\n".join(
-            code.data_class.format(
+            _templates.data_class.format(
                 name=model.name, doc=model.doc, fields=f"\n{indent}".join(model.fields)
             )
             for model in models
