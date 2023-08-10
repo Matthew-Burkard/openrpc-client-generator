@@ -44,7 +44,7 @@ def get_models(schemas: dict[str, SchemaObject]) -> str:
             args=", ".join(model.args),
             initiations="\n".join(
                 f"{indent * 2}this.{name} = {name};"
-                for name in model.property_names.keys()
+                for name in model.property_names
             ),
             to_json="\n".join(
                 f"{indent * 3}{prop_name}: toJSON(this.{name}),"

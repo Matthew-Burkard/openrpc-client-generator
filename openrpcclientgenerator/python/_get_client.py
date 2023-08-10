@@ -36,11 +36,11 @@ def get_client(
     )
 
 
-def _get_methods(methods: list[MethodObject], is_async: bool = True) -> str:
-    return "".join(_get_method(m, is_async) for m in methods)
+def _get_methods(methods: list[MethodObject], *_args, is_async: bool = True) -> str:
+    return "".join(_get_method(m, is_async=is_async) for m in methods)
 
 
-def _get_method(method: MethodObject, is_async: bool = True) -> str:
+def _get_method(method: MethodObject, *_args, is_async: bool = True) -> str:
     def _get_list_params() -> str:
         return f"[{', '.join(cs.to_snake(it.name) for it in method.params)}]"
 
@@ -71,10 +71,7 @@ def _get_method(method: MethodObject, is_async: bool = True) -> str:
     return_type = get_py_type(method.result.schema_)
 
     # Get doc string.
-    if method.description:
-        doc = f'\n{indent * 2}"""{method.description}"""'
-    else:
-        doc = ""
+    doc = f'\n{indent * 2}"""{method.description}"""' if method.description else ""
 
     template = _templates.async_method if is_async else _templates.method
     return template.format(

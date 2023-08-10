@@ -15,7 +15,7 @@ def test_get_method() -> None:
             return _deserialize(await self.call('test_method', [a, b]), dict[str, Any])
         """
     )
-    method_str = python._get_client._get_method(common.method, False)
+    method_str = python._get_client._get_method(common.method, is_async=False)
     assert inspect.cleandoc(method_str) == inspect.cleandoc(
         f"""
         def test_method({args}) -> dict[str, Any]:

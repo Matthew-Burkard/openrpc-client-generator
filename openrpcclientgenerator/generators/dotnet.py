@@ -81,15 +81,14 @@ class CSharpCodeGenerator(CodeGenerator):
                 return code.void_method.format(
                     doc=doc, name=name, args=args, method=method.name, params=params
                 )
-            else:
-                return code.method.format(
-                    doc=doc,
-                    return_type=return_type,
-                    name=name,
-                    args=args,
-                    method=method.name,
-                    params=params,
-                )
+            return code.method.format(
+                doc=doc,
+                return_type=return_type,
+                name=name,
+                args=args,
+                method=method.name,
+                params=params,
+            )
 
         return "\n".join(_get_method(m) for m in self.openrpc.methods)
 
@@ -112,19 +111,18 @@ class CSharpCodeGenerator(CodeGenerator):
                     field_name = cs.to_pascal(prop_name)
                     if field_name == name:
                         field_name = f"Sub{field_name}"
-                    if "default" not in prop.__fields_set__:
+                    if "default" not in prop.model_fields_set:
                         default = ""
+                    elif prop.default in [True, False, None]:
+                        default_value = {
+                            True: "true",
+                            False: "false",
+                            None: "null",
+                        }.get(prop.default) or prop.default
+                        default = f"[DefaultValue({default_value})]"
                     else:
-                        if prop.default in [True, False, None]:
-                            default_value = {
-                                True: "true",
-                                False: "false",
-                                None: "null",
-                            }.get(prop.default) or prop.default
-                            default = f"[DefaultValue({default_value})]"
-                        else:
-                            # TODO
-                            default = ""
+                        # TODO
+                        default = ""
                     fields.append(
                         code.field.format(
                             prop_name=prop_name,
@@ -168,18 +166,18 @@ class CSharpCodeGenerator(CodeGenerator):
         if schema.type:
             if schema.type == "array":
                 return f"List<{self._get_cs_type(schema.items)}>"
-            elif schema.type == "object":
+            if schema.type == "object":
                 return "Dictionary<string, object>"
-            elif isinstance(schema.type, list):
+            if isinstance(schema.type, list):
                 # FIXME C# unions?.
                 return "object"
             if schema.type == "string" and schema.format:
                 return {"binary": "byte[]"}.get(schema.format) or "string"
             return self._type_map[schema.type]
-        elif schema.all_of or schema.any_of or schema.one_of:
+        if schema.all_of or schema.any_of or schema.one_of:
             # FIXME C# unions?.
             return "object"
-        elif schema.ref:
+        if schema.ref:
             return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
 
         return "object"

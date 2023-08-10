@@ -49,6 +49,7 @@ class ClientFactory:
         self,
         language: Language,
         transport: Transport,
+        *_args,
         remove_existing: bool = False,
     ) -> str:
         """Generate an RPC client for the given language.
@@ -74,7 +75,7 @@ class ClientFactory:
         client_path = self._out_dir / "dotnet" / sln_name
         shutil.rmtree(client_path, ignore_errors=True)
         package_path = client_path / sln_name
-        os.makedirs(package_path, exist_ok=True)
+        Path.mkdir(package_path, parents=True, exist_ok=True)
         # Models
         if self._schemas:
             models_str = generator.get_models()
@@ -113,7 +114,7 @@ class ClientFactory:
         pkg_name = f"{cs.to_pascal(self.rpc.info.title)}Client"
         client_path = self._out_dir / "kotlin" / pkg_name
         package_path = client_path / "src" / pkg_name
-        os.makedirs(package_path, exist_ok=True)
+        Path.mkdir(package_path, parents=True, exist_ok=True)
         # Models
         models_str = generator.get_models()
         models_file = package_path / "Models.kt"
@@ -131,7 +132,7 @@ class ClientFactory:
         client_path = self._out_dir / "python" / pkg_name
         package_path = client_path / "src" / pkg_name
         shutil.rmtree(client_path, ignore_errors=True)
-        os.makedirs(package_path, exist_ok=True)
+        Path.mkdir(package_path, parents=True, exist_ok=True)
         (package_path / "__init__.py").touch()
         # Models
         if self._schemas:
@@ -158,7 +159,7 @@ class ClientFactory:
         client_path = self._out_dir / "typescript" / pkg_name
         shutil.rmtree(client_path, ignore_errors=True)
         src_path = client_path / "src"
-        os.makedirs(src_path, exist_ok=True)
+        Path.mkdir(src_path, parents=True, exist_ok=True)
 
         # Models
         if self._schemas:

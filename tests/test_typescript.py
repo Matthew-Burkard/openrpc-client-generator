@@ -22,7 +22,7 @@ def test_get_method() -> None:
 # noinspection PyUnresolvedReferences
 def test_primitive_types() -> None:
     assert typescript._common.get_ts_type(common.number) == "number"
-    assert typescript._common.get_ts_type(common.integer) == "integer"
+    assert typescript._common.get_ts_type(common.integer) == "number"
     assert typescript._common.get_ts_type(common.string) == "string"
     assert typescript._common.get_ts_type(common.boolean) == "boolean"
     assert typescript._common.get_ts_type(common.null) == "null"

@@ -88,19 +88,6 @@ python-versions = ">=3.7"
 test = ["pytest (>=6)"]
 
 [[package]]
-name = "flake8"
-version = "6.1.0"
-description = "the modular source code checker: pep8 pyflakes and co"
-category = "dev"
-optional = false
-python-versions = ">=3.8.1"
-
-[package.dependencies]
-mccabe = ">=0.7.0,<0.8.0"
-pycodestyle = ">=2.11.0,<2.12.0"
-pyflakes = ">=3.1.0,<3.2.0"
-
-[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -128,20 +115,12 @@ python-versions = ">=3.9,<4.0"
 pydantic = ">=2.0,<3.0"
 
 [[package]]
-name = "mccabe"
-version = "0.7.0"
-description = "McCabe checker, plugin for flake8"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "mypy"
-version = "1.4.1"
+version = "1.5.0"
 description = "Optional static typing for Python"
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.dependencies]
 mypy-extensions = ">=1.0.0"
@@ -151,7 +130,6 @@ typing-extensions = ">=4.1.0"
 [package.extras]
 dmypy = ["psutil (>=4.0)"]
 install-types = ["pip"]
-python2 = ["typed-ast (>=1.4.0,<2)"]
 reports = ["lxml"]
 
 [[package]]
@@ -198,14 +176,6 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
-name = "pycodestyle"
-version = "2.11.0"
-description = "Python style guide checker"
-category = "dev"
-optional = false
-python-versions = ">=3.8"
-
-[[package]]
 name = "pydantic"
 version = "2.1.1"
 description = "Data validation using Python type hints"
@@ -231,14 +201,6 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
-
-[[package]]
-name = "pyflakes"
-version = "3.1.0"
-description = "passive checker of Python programs"
-category = "dev"
-optional = false
-python-versions = ">=3.8"
 
 [[package]]
 name = "pyparsing"
@@ -312,6 +274,14 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "ruff"
+version = "0.0.284"
+description = "An extremely fast Python linter, written in Rust."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "safety"
 version = "2.3.5"
 description = "Checks installed dependencies for known vulnerabilities and licenses."
@@ -363,7 +333,7 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "17b5565f039f73435ccfa1737fb77645efc57d92803af09cfc2aeabf5d9ed017"
+content-hash = "48c1fee27936130986113761ecbc72490ecf56105def3c6d94a0d77d9db90b8d"
 
 [metadata.files]
 annotated-types = []
@@ -375,25 +345,22 @@ colorama = []
 coverage = []
 dparse = []
 exceptiongroup = []
-flake8 = []
 idna = []
 iniconfig = []
 jsonrpc2-objects = []
-mccabe = []
 mypy = []
 mypy-extensions = []
 openrpc = []
 packaging = []
 pluggy = []
-pycodestyle = []
 pydantic = []
 pydantic-core = []
-pyflakes = []
 pyparsing = []
 pytest = []
 requests = []
 "ruamel.yaml" = []
 "ruamel.yaml.clib" = []
+ruff = []
 safety = []
 tomli = []
 typing-extensions = []

@@ -24,7 +24,7 @@ def get_client(
 
     # If there are schemas, add imports for them if they are used.
     if schemas:
-        models = ", ".join(k for k in schemas.keys() if k in used_models)
+        models = ", ".join(k for k in schemas if k in used_models)
         models_import = f"import {{{models}}} from './models.js';"
     else:
         models_import = ""

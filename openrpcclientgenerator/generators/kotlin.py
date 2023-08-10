@@ -118,19 +118,19 @@ class KotlinCodeGenerator(CodeGenerator):
         if schema.type:
             if schema.type == "array":
                 return f"List<{self._get_kotlin_type(schema.items)}>"
-            elif schema.type == "object":
+            if schema.type == "object":
                 v_type = self._get_kotlin_type(schema.items) if schema.items else "Any"
                 return f"Map<String, {v_type}>"
-            elif isinstance(schema.type, list):
+            if isinstance(schema.type, list):
                 types = " | ".join(self._type_map[it] for it in schema.type)
                 return f"dynamic /* {types} */"
             # TODO Class with ByteArray should override equals and hashCode.
             if schema.type == "string" and schema.format:
                 return {"binary": "ByteArray"}.get(schema.format) or "String"
             return self._type_map[schema.type]
-        elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+        if schema_list := schema.all_of or schema.any_of or schema.one_of:
             types = " | ".join(self._get_kotlin_type(it) for it in schema_list)
             return f"dynamic /* {types} */"
-        elif schema.ref:
+        if schema.ref:
             return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
         return "Any"

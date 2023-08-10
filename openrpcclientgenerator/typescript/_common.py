@@ -22,15 +22,15 @@ def get_ts_type(schema: SchemaObject) -> str:
     if schema.type:
         if schema.type == "array":
             return f"{get_ts_type(schema.items)}[]"
-        elif schema.type == "object":
+        if schema.type == "object":
             return "object"
-        elif isinstance(schema.type, list):
+        if isinstance(schema.type, list):
             return " | ".join(type_map[it] for it in schema.type)
         if schema.type == "string" and schema.format:
             return {"binary": "any"}.get(schema.format) or "string"
         return type_map[schema.type]
-    elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+    if schema_list := schema.all_of or schema.any_of or schema.one_of:
         return " | ".join(get_ts_type(it) for it in schema_list)
-    elif schema.ref:
+    if schema.ref:
         return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
     return "any"
