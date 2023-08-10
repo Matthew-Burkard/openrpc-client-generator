@@ -1,4 +1,4 @@
-"""Shared typescript properties."""
+"""Shared TypeScript properties."""
 import re
 
 from openrpc import SchemaObject
@@ -16,7 +16,6 @@ indent = " " * 2
 
 def get_ts_type(schema: SchemaObject) -> str:
     """Get TypeScript type from JSON Schema."""
-    # Get TypeScript type from JSON Schema type.
     if schema is None:
         return "any"
 

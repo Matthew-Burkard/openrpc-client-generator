@@ -1,7 +1,6 @@
 """Properties used in all client unit tests."""
 from openrpc import ContentDescriptorObject, MethodObject, SchemaObject
 
-
 number = SchemaObject(type="number")
 integer = SchemaObject(type="integer")
 string = SchemaObject(type="string")

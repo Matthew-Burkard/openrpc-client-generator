@@ -15,7 +15,7 @@ def get_client(
     schemas: dict[str, SchemaObject],
     transport: Transport = Transport.HTTP,
 ) -> str:
-    """Generate a TypeScript RPC client."""
+    """Get a TypeScript RPC client file content."""
     # Get all models used in methods.
     used_models = [
         get_ts_type(p.schema_) for m in openrpc.methods for p in m.params + [m.result]

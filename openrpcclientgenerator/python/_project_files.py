@@ -1,4 +1,4 @@
-"""Python project file templates."""
+"""Get Python project files."""
 
 py_project = """
 [tool.poetry]
@@ -21,3 +21,14 @@ jsonrpc2-pyclient = "^2.1.1"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 """.lstrip()
+
+
+def get_pyproject(pkg_name: str, version: str, author: str, email: str) -> str:
+    """Get pyproject file content."""
+    return py_project.format(
+        name=pkg_name,
+        version=version,
+        author=author,
+        author_email=email,
+        pkg_dir=f"src/{pkg_name}",
+    )

@@ -9,13 +9,12 @@ from pathlib import Path
 import caseswitcher as cs
 from openrpc import ContactObject, OpenRPCObject, SchemaObject
 
+from openrpcclientgenerator import python
 from openrpcclientgenerator import typescript
 from openrpcclientgenerator.generators.dotnet import CSharpCodeGenerator
 from openrpcclientgenerator.generators.kotlin import KotlinCodeGenerator
-from openrpcclientgenerator.generators.python import PythonCodeGenerator
 from openrpcclientgenerator.generators.transports import Transport
 from openrpcclientgenerator.templates.dotnet import dotnet_files
-from openrpcclientgenerator.templates.python import build_files as py_build_files
 
 __all__ = ("ClientFactory", "Language")
 
@@ -128,7 +127,6 @@ class ClientFactory:
         return client_path.as_posix()
 
     def _generate_python_client(self, transport: Transport) -> str:
-        generator = PythonCodeGenerator(self.rpc, self._schemas)
         pkg_name = f"{cs.to_snake(self.rpc.info.title)}_client"
         client_path = self._out_dir / "python" / pkg_name
         package_path = client_path / "src" / pkg_name
@@ -137,25 +135,21 @@ class ClientFactory:
         (package_path / "__init__.py").touch()
         # Models
         if self._schemas:
-            models_str = generator.get_models()
-            models_file = package_path / "models.py"
-            models_file.touch()
-            models_file.write_text(models_str)
+            _create_file(package_path / "models.py", python.get_models(self._schemas))
         # Methods
-        client_str = generator.get_client(transport)
-        client_file = package_path / "client.py"
-        client_file.touch()
-        client_file.write_text(client_str)
+        _create_file(
+            package_path / "client.py",
+            python.get_client(self.rpc, self._schemas, transport),
+        )
         # Build Files
-        py_proj_toml = client_path / "pyproject.toml"
-        py_proj_toml.write_text(
-            py_build_files.py_project.format(
-                name=pkg_name,
+        _create_file(
+            client_path / "pyproject.toml",
+            python.get_pyproject(
+                pkg_name=pkg_name,
                 version=self.rpc.info.version,
                 author=self.rpc.info.contact.name,
-                author_email=self.rpc.info.contact.email,
-                pkg_dir=f"src/{pkg_name}",
-            )
+                email=self.rpc.info.contact.email,
+            ),
         )
         return client_path.as_posix()
 
