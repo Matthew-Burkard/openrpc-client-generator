@@ -1,0 +1,55 @@
+#!/bin/python
+"""Generate clients from an OpenRPC document."""
+import argparse
+import json
+from pathlib import Path
+
+from openrpc import OpenRPCObject
+
+from openrpcclientgenerator.client_factory import ClientFactory, Language
+from openrpcclientgenerator.generators.transports import Transport
+
+parser = argparse.ArgumentParser(
+    prog="OpenRPC Client Generator",
+    description="Generate clients from an OpenRPC document.",
+)
+parser.add_argument(
+    "openrpc", help="Path to OpenRPC JSON document.", default="./openrpc.json"
+)
+parser.add_argument("out", help="Directory to place generated client.", default="./out")
+parser.add_argument(
+    "--language", help="Language of generated client.", choices=["py", "ts", "cs", "kt"]
+)
+parser.add_argument(
+    "--transport", help="Client transport method.", choices=["http", "ws"]
+)
+
+
+def main() -> None:
+    """Generate client."""
+    args = parser.parse_args()
+    rpc = OpenRPCObject(**json.loads(Path(args["openrpc"]).read_text()))
+    cf = ClientFactory(rpc, args["out"])
+    match args["language"]:
+        case "py":
+            language = Language.PYTHON
+        case "ts":
+            language = Language.TYPE_SCRIPT
+        case "cs":
+            language = Language.DOTNET
+        case "kt":
+            language = Language.KOTLIN
+        case other:
+            raise Exception(f"{other} is not a valid language choice.")
+    match args["transport"]:
+        case "http":
+            transport = Transport.HTTP
+        case "ws":
+            transport = Transport.WS
+        case other:
+            raise Exception(f"{other} is not a valid transport choice.")
+    cf.generate_client(language, transport)
+
+
+if __name__ == "__main__":
+    main()
