@@ -1,6 +1,5 @@
 """Test TypeScript generation."""
 import inspect
-import re
 
 import common
 from openrpcclientgenerator import typescript
@@ -45,60 +44,51 @@ def test_schemas() -> None:
 def test_get_models() -> None:
     schemas = {"ParentModel": common.parent_model}
     model_str = typescript.get_models(schemas)
-    match_groups = re.match(
-        r"\nexport class (\w+)\W*(\w*?: \w*?;)\W*(\w*?: \w*?;)", model_str, re.M | re.S
-    ).groups()
+    model_match = inspect.cleandoc(
+        """
+        export class ParentModel {
+          dateField: string;
+          recursiveField: ParentModel;
+          childField?: TestModel;
 
-    class_name = match_groups[0]
-    field1 = match_groups[1]
-    field2 = match_groups[2]
+          constructor(dateField?: string, childField?: TestModel, recursiveField?: ParentModel) {
+            this.dateField = dateField;
+            this.childField = childField;
+            this.recursiveField = recursiveField;
+          }
 
-    assert class_name == "TestModel"
-    assert field1 == "numberField: number;"
-    assert field2 == "stringField: string;"
+          toJSON() {
+            return {
+              date_field: toJSON(this.dateField),
+              child_field: toJSON(this.childField),
+              recursive_field: toJSON(this.recursiveField),
+            }
+          }
 
-    constructor_args = re.match(r".*constructor\((.*?)\)", model_str, re.M | re.S)
-    assert constructor_args.groups()[0] == "numberField?: number, stringField?: string"
-
-
-"""
-export class TestModel {
-  numberField: number;
-  stringField: string;
-
-  constructor(numberField?: number, stringField?: string) {
-    this.numberField = numberField;
-    this.stringField = stringField;
-  }
-
-  toJSON() {
-    return {
-      number_field: toJSON(this.numberField),
-      string_field: toJSON(this.stringField),
-    }
-  }
-
-  static fromJSON(data: any): TestModel {
-    let instance = new TestModel();
-    instance.numberField = fromJSON(data.number_field);
-    instance.stringField = fromJSON(data.string_field);
-    return instance;
-  }
-}
+          static fromJSON(data: any): ParentModel {
+            let instance = new ParentModel();
+            instance.dateField = fromJSON(data.date_field);
+            instance.childField = fromJSON(data.child_field);
+            instance.recursiveField = fromJSON(data.recursive_field);
+            return instance;
+          }
+        }
 
 
-function fromJSON(obj: any) {
-  if (obj !== null && obj !== undefined && obj.hasOwnProperty('fromJSON')) {
-    return obj.fromJSON();
-  }
-  return obj;
-}
+        function fromJSON(obj: any) {
+          if (obj !== null && obj !== undefined && obj.hasOwnProperty('fromJSON')) {
+            return obj.fromJSON();
+          }
+          return obj;
+        }
 
 
-function toJSON(obj: any) {
-  if (obj !== null && obj !== undefined && obj.hasOwnProperty('toJSON')) {
-    return obj.toJSON();
-  }
-  return obj;
-}
-"""
+        function toJSON(obj: any) {
+          if (obj !== null && obj !== undefined && obj.hasOwnProperty('toJSON')) {
+            return obj.toJSON();
+          }
+          return obj;
+        }
+        """
+    )
+    assert model_str == f"\n{model_match}\n"

@@ -1,6 +1,5 @@
 """Test TypeScript generation."""
 import inspect
-import re
 
 import common
 from openrpcclientgenerator import python
@@ -49,8 +48,26 @@ def test_schemas() -> None:
 
 
 def test_get_models() -> None:
-    schemas = {"TestModel": common.model}
+    schemas = {"ParentModel": common.parent_model}
     model_str = python.get_models(schemas)
-    assert re.match(r".*class TestModel\(BaseModel\):", model_str, re.M | re.S)
-    assert re.match(r".*number_field: Optional\[float] = None", model_str, re.M | re.S)
-    assert re.match(r".*string_field: Optional\[str] = None", model_str, re.M | re.S)
+    model_match = inspect.cleandoc(
+        """
+        from __future__ import annotations
+
+        from typing import *
+
+        from pydantic import BaseModel
+
+        __all__ = ("ParentModel",)
+
+
+        class ParentModel(BaseModel):
+            ""\"ParentModel object.""\"
+            date_field: Optional[str] = None
+            child_field: Optional[TestModel] = None
+            recursive_field: Optional[ParentModel] = None
+
+        ParentModel.update_forward_refs()
+        """
+    )
+    assert model_str == f"{model_match}"

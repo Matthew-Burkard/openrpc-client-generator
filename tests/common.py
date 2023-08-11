@@ -35,6 +35,7 @@ parent_model = SchemaObject(
             title="Date Field", format="date-time", type="string"
         ),
         "child_field": SchemaObject(**{"$ref": "#/components/schemas/TestModel"}),
+        "recursive_field": SchemaObject(**{"$ref": "#/components/schemas/ParentModel"}),
     },
     required=["child_field"]
 )

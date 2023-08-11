@@ -17,18 +17,3 @@ repos:
     hooks:
       - id: mypy
         exclude: tests
-
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 5.0.4
-    hooks:
-    - id: flake8
-      additional_dependencies: [
-        flake8-bugbear,
-        flake8-comprehensions,
-        flake8-debugger,
-        flake8-deprecated,
-        flake8-docstrings,
-        flake8-polyfill,
-        flake8-print,
-        flake8-quotes,
-      ]
