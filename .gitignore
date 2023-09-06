@@ -1,7 +1,13 @@
-/log/
-/build/
-/dist/
-/venv/
-/.idea/
+# IDE
+.idea/
+.vscode/
+.fleet/
+
+# Python
+dist/
+venv/
 *.egg-info
 *__pycache__*
+
+# Tests
+tests/integration/out

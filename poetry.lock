@@ -1,4 +1,12 @@
 [[package]]
+name = "aiofiles"
+version = "23.2.1"
+description = "File support for asyncio."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "annotated-types"
 version = "0.5.0"
 description = "Reusable constraint types to use with typing.Annotated"
@@ -32,7 +40,7 @@ python-versions = ">=3.7.0"
 
 [[package]]
 name = "click"
-version = "8.1.6"
+version = "8.1.7"
 description = "Composable command line interface toolkit"
 category = "dev"
 optional = false
@@ -51,11 +59,11 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
 
 [[package]]
 name = "coverage"
-version = "7.2.7"
+version = "7.3.0"
 description = "Code coverage measurement for Python"
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.extras]
 toml = ["tomli"]
@@ -78,7 +86,7 @@ pipenv = ["pipenv (<=2022.12.19)"]
 
 [[package]]
 name = "exceptiongroup"
-version = "1.1.2"
+version = "1.1.3"
 description = "Backport of PEP 654 (exception groups)"
 category = "dev"
 optional = false
@@ -86,6 +94,25 @@ python-versions = ">=3.7"
 
 [package.extras]
 test = ["pytest (>=6)"]
+
+[[package]]
+name = "html5tagger"
+version = "1.3.0"
+description = "Pythonic HTML generation/templating (no template files)"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "httptools"
+version = "0.6.0"
+description = "A collection of framework independent HTTP protocol utils."
+category = "dev"
+optional = false
+python-versions = ">=3.5.0"
+
+[package.extras]
+test = ["Cython (>=0.29.24,<0.30.0)"]
 
 [[package]]
 name = "idna"
@@ -115,8 +142,27 @@ python-versions = ">=3.9,<4.0"
 pydantic = ">=2.0,<3.0"
 
 [[package]]
+name = "lorem-pysum"
+version = "1.1.1"
+description = "Library to generate instances of Pydantic models."
+category = "main"
+optional = false
+python-versions = ">=3.9,<4.0"
+
+[package.dependencies]
+pydantic = ">=2.3.0,<3.0.0"
+
+[[package]]
+name = "multidict"
+version = "6.0.4"
+description = "multidict implementation"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "mypy"
-version = "1.5.0"
+version = "1.5.1"
 description = "Optional static typing for Python"
 category = "dev"
 optional = false
@@ -142,7 +188,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "openrpc"
-version = "7.2.1"
+version = "7.5.0"
 description = "Transport agnostic framework for developing OpenRPC servers."
 category = "main"
 optional = false
@@ -150,7 +196,8 @@ python-versions = ">=3.9,<4.0"
 
 [package.dependencies]
 jsonrpc2-objects = ">=3.0.0,<4.0.0"
-pydantic = ">=2.0.3,<3.0.0"
+lorem-pysum = ">=1.0.2,<2.0.0"
+pydantic = ">=2.3.0,<3.0.0"
 
 [[package]]
 name = "packaging"
@@ -165,11 +212,11 @@ pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "pluggy"
-version = "1.2.0"
+version = "1.3.0"
 description = "plugin and hook calling mechanisms for python"
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.extras]
 dev = ["pre-commit", "tox"]
@@ -177,7 +224,7 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pydantic"
-version = "2.1.1"
+version = "2.3.0"
 description = "Data validation using Python type hints"
 category = "main"
 optional = false
@@ -185,7 +232,7 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 annotated-types = ">=0.4.0"
-pydantic-core = "2.4.0"
+pydantic-core = "2.6.3"
 typing-extensions = ">=4.6.1"
 
 [package.extras]
@@ -193,7 +240,7 @@ email = ["email-validator (>=2.0.0)"]
 
 [[package]]
 name = "pydantic-core"
-version = "2.4.0"
+version = "2.6.3"
 description = ""
 category = "main"
 optional = false
@@ -215,7 +262,7 @@ diagrams = ["railroad-diagrams", "jinja2"]
 
 [[package]]
 name = "pytest"
-version = "7.4.0"
+version = "7.4.1"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
@@ -275,7 +322,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "ruff"
-version = "0.0.284"
+version = "0.0.287"
 description = "An extremely fast Python linter, written in Rust."
 category = "dev"
 optional = false
@@ -301,6 +348,42 @@ github = ["pygithub (>=1.43.3)", "jinja2 (>=3.1.0)"]
 gitlab = ["python-gitlab (>=1.3.0)"]
 
 [[package]]
+name = "sanic"
+version = "23.6.0"
+description = "A web server and web framework that's written to go fast. Build fast. Run fast."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+aiofiles = ">=0.6.0"
+html5tagger = ">=1.2.1"
+httptools = ">=0.0.10"
+multidict = ">=5.0,<7.0"
+sanic-routing = ">=23.6.0"
+tracerite = ">=1.0.0"
+typing-extensions = ">=4.4.0"
+ujson = {version = ">=1.35", markers = "sys_platform != \"win32\" and implementation_name == \"cpython\""}
+uvloop = {version = ">=0.15.0", markers = "sys_platform != \"win32\" and implementation_name == \"cpython\""}
+websockets = ">=10.0"
+
+[package.extras]
+all = ["docutils", "pytest-sanic", "sanic-testing (>=23.6.0)", "pygments", "m2r2", "mypy", "flake8", "cryptography", "tox", "chardet (>=3.0.0,<4.0.0)", "sphinx (>=2.1.2)", "slotscheck (>=0.8.0,<1)", "pytest-benchmark", "isort (>=5.0.0)", "beautifulsoup4", "black", "uvicorn (<0.15.0)", "mistune (<2.0.0)", "pytest (>=7.1.0,<7.2.0)", "enum-tools", "towncrier", "sphinx-rtd-theme (>=0.4.3)", "bandit", "coverage", "types-ujson"]
+dev = ["sanic-testing (>=23.6.0)", "pytest (>=7.1.0,<7.2.0)", "coverage", "beautifulsoup4", "pytest-sanic", "pytest-benchmark", "chardet (>=3.0.0,<4.0.0)", "flake8", "black", "isort (>=5.0.0)", "bandit", "mypy", "docutils", "pygments", "uvicorn (<0.15.0)", "slotscheck (>=0.8.0,<1)", "cryptography", "tox", "towncrier", "types-ujson"]
+docs = ["sphinx (>=2.1.2)", "sphinx-rtd-theme (>=0.4.3)", "docutils", "pygments", "m2r2", "enum-tools", "mistune (<2.0.0)"]
+ext = ["sanic-ext"]
+http3 = ["aioquic"]
+test = ["sanic-testing (>=23.6.0)", "pytest (>=7.1.0,<7.2.0)", "coverage", "beautifulsoup4", "pytest-sanic", "pytest-benchmark", "chardet (>=3.0.0,<4.0.0)", "flake8", "black", "isort (>=5.0.0)", "bandit", "mypy", "docutils", "pygments", "uvicorn (<0.15.0)", "slotscheck (>=0.8.0,<1)", "types-ujson"]
+
+[[package]]
+name = "sanic-routing"
+version = "23.6.0"
+description = "Core routing component for Sanic"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -309,12 +392,31 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "tracerite"
+version = "1.1.0"
+description = "Human-readable HTML tracebacks for Python exceptions"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+html5tagger = ">=1.2.1"
+
+[[package]]
 name = "typing-extensions"
 version = "4.7.1"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
 python-versions = ">=3.7"
+
+[[package]]
+name = "ujson"
+version = "5.8.0"
+description = "Ultra fast JSON encoder and decoder for Python"
+category = "dev"
+optional = false
+python-versions = ">=3.8"
 
 [[package]]
 name = "urllib3"
@@ -330,12 +432,34 @@ secure = ["certifi", "cryptography (>=1.9)", "idna (>=2.0.0)", "pyopenssl (>=17.
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
+[[package]]
+name = "uvloop"
+version = "0.17.0"
+description = "Fast implementation of asyncio event loop on top of libuv"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+dev = ["Cython (>=0.29.32,<0.30.0)", "pytest (>=3.6.0)", "Sphinx (>=4.1.2,<4.2.0)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)", "flake8 (>=3.9.2,<3.10.0)", "psutil", "pycodestyle (>=2.7.0,<2.8.0)", "pyOpenSSL (>=22.0.0,<22.1.0)", "mypy (>=0.800)", "aiohttp"]
+docs = ["Sphinx (>=4.1.2,<4.2.0)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)"]
+test = ["flake8 (>=3.9.2,<3.10.0)", "psutil", "pycodestyle (>=2.7.0,<2.8.0)", "pyOpenSSL (>=22.0.0,<22.1.0)", "mypy (>=0.800)", "Cython (>=0.29.32,<0.30.0)", "aiohttp"]
+
+[[package]]
+name = "websockets"
+version = "11.0.3"
+description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "48c1fee27936130986113761ecbc72490ecf56105def3c6d94a0d77d9db90b8d"
+content-hash = "10ca59a989af56f931e1b835ada6d25600b86aab2f698681e5ce108e4ab47fea"
 
 [metadata.files]
+aiofiles = []
 annotated-types = []
 case-switcher = []
 certifi = []
@@ -345,9 +469,13 @@ colorama = []
 coverage = []
 dparse = []
 exceptiongroup = []
+html5tagger = []
+httptools = []
 idna = []
 iniconfig = []
 jsonrpc2-objects = []
+lorem-pysum = []
+multidict = []
 mypy = []
 mypy-extensions = []
 openrpc = []
@@ -362,6 +490,12 @@ requests = []
 "ruamel.yaml.clib" = []
 ruff = []
 safety = []
+sanic = []
+sanic-routing = []
 tomli = []
+tracerite = []
 typing-extensions = []
+ujson = []
 urllib3 = []
+uvloop = []
+websockets = []

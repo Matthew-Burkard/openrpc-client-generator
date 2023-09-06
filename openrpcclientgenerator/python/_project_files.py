@@ -13,8 +13,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pydantic = "^1.9.0"
-jsonrpc2-objects = "^2.0.0"
+pydantic = "^2.0.3"
+jsonrpc2-objects = "^3.0.0"
 jsonrpc2-pyclient = "^2.1.1"
 
 [build-system]
