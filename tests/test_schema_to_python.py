@@ -1,7 +1,7 @@
 """Test JSON schema to Python type."""
 from openrpc import Schema
 
-from models import (
+from test_models import (
     CollectionsModel,
     Constantly,
     ConstrainedCollections,
@@ -111,6 +111,39 @@ def test_constrained_collections() -> None:
 
 def test_pydantic_types() -> None:
     schema = Schema(**PydanticTypes.model_json_schema())
+    assert _pytype(schema, "strict_bool") == "bool"
+    assert _pytype(schema, "positive_int") == "int"
+    assert _pytype(schema, "negative_int") == "int"
+    assert _pytype(schema, "non_positive_int") == "int"
+    assert _pytype(schema, "non_negative_int") == "int"
+    assert _pytype(schema, "strict_int") == "int"
+    assert _pytype(schema, "positive_float") == "float"
+    assert _pytype(schema, "negative_float") == "float"
+    assert _pytype(schema, "non_positive_float") == "float"
+    assert _pytype(schema, "non_negative_float") == "float"
+    assert _pytype(schema, "strict_float") == "float"
+    assert _pytype(schema, "finite_float") == "float"
+    assert _pytype(schema, "strict_bytes") == "bytes"
+    assert _pytype(schema, "strict_str") == "str"
+    assert _pytype(schema, "uuid1") == "UUID1"
+    assert _pytype(schema, "uuid3") == "UUID3"
+    assert _pytype(schema, "uuid4") == "UUID4"
+    assert _pytype(schema, "uuid5") == "UUID5"
+    assert _pytype(schema, "base64bytes") == "str"
+    assert _pytype(schema, "base64str") == "str"
+    assert _pytype(schema, "str_constraints_strip_whitespace") == "str"
+    assert _pytype(schema, "str_constraints_to_upper") == "str"
+    assert _pytype(schema, "str_constraints_to_lower") == "str"
+    assert _pytype(schema, "str_constraints_strict") == "str"
+    assert _pytype(schema, "str_constraints_min_length") == "str"
+    assert _pytype(schema, "str_constraints_max_length") == "str"
+    assert _pytype(schema, "json_field") == "str"
+    assert _pytype(schema, "past_date") == "datetime.date"
+    assert _pytype(schema, "future_date") == "datetime.date"
+    assert _pytype(schema, "aware_datetime") == "datetime.datetime"
+    assert _pytype(schema, "naive_datetime") == "datetime.datetime"
+    assert _pytype(schema, "past_datetime") == "datetime.datetime"
+    assert _pytype(schema, "future_datetime") == "datetime.datetime"
 
 
 def test_pydantic_network_types() -> None:
