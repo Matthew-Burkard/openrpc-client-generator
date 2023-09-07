@@ -1,4 +1,6 @@
 """Generate Python client."""
+from __future__ import annotations
+
 import re
 from pathlib import Path
 
@@ -12,7 +14,7 @@ from openrpcclientgenerator import common
 
 root = Path(__file__).parent
 templates = root.joinpath("templates")
-env = Environment(
+env = Environment(  # noqa: S701
     loader=FileSystemLoader(templates), lstrip_blocks=True, trim_blocks=True
 )
 black_mode = black.Mode(magic_trailing_comma=False)
@@ -60,8 +62,7 @@ def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
         "cs": caseswitcher,
         "url": url,
     }
-    client = black.format_str(isort.code(template.render(context)), mode=black_mode)
-    return client
+    return black.format_str(isort.code(template.render(context)), mode=black_mode)
 
 
 def _get_models(schemas: dict[str, Schema]) -> tuple[str, str]:
@@ -72,8 +73,7 @@ def _get_models(schemas: dict[str, Schema]) -> tuple[str, str]:
         "get_enum_option_name": common.get_enum_option_name,
     }
     template = env.get_template("python/models.j2")
-    models = black.format_str(isort.code(template.render(context)), mode=black_mode)
-    return models
+    return black.format_str(isort.code(template.render(context)), mode=black_mode)
 
 
 def _get_setup(rpc_title: str, version: str, transport: str) -> str:
@@ -107,21 +107,25 @@ def py_type(schema: SchemaType | None) -> str:
     if "const" in schema.model_fields_set:
         return _get_const_type(schema.const)
     if schema.type:
-        if schema.type == "array":
-            return _get_array_type(schema)
-        elif schema.type == "object":
-            return _get_object_type(schema)
-        elif isinstance(schema.type, list):
-            return " | ".join(type_map[it] for it in schema.type)
-        if schema.type == "string" and schema.format:
-            return _get_str_type(schema.format)
-        return type_map[schema.type]
-    elif schema_list := schema.all_of or schema.any_of or schema.one_of:
+        return _get_schema_from_type(schema)
+    if schema_list := schema.all_of or schema.any_of or schema.one_of:
         return " | ".join(py_type(it) for it in schema_list)
-    elif schema.ref:
+    if schema.ref:
         return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
 
     return "Any"
+
+
+def _get_schema_from_type(schema: Schema) -> str:
+    if schema.type == "array":
+        return _get_array_type(schema)
+    if schema.type == "object":
+        return _get_object_type(schema)
+    if isinstance(schema.type, list):
+        return " | ".join(type_map[it] for it in schema.type)
+    if schema.type == "string" and schema.format:
+        return _get_str_type(schema.format)
+    return type_map[schema.type]
 
 
 def _get_str_type(str_format: str) -> str:
@@ -140,10 +144,7 @@ def _get_str_type(str_format: str) -> str:
 
 
 def _get_const_type(const_value: str) -> str:
-    if not isinstance(const_value, str):
-        const = const_value
-    else:
-        const = f'"{const_value}"'
+    const = f'"{const_value}"' if isinstance(const_value, str) else const_value
     return f"Literal[{const}]"
 
 
