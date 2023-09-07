@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 import black
 import caseswitcher
 import isort
 from jinja2 import Environment, FileSystemLoader
-from openrpc import OpenRPC, Schema, SchemaType
+from openrpc import Method, OpenRPC, Schema, SchemaType
 
 from openrpcclientgenerator import common
 
@@ -25,21 +26,26 @@ type_map = {
     "string": "str",
     "null": "None",
     "object": "dict[str, Any]",
+    None: "Any",
 }
 
 
 def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     """Generate a Python client."""
+    # Create client directory adn src directory.
     out.mkdir(exist_ok=True)
-    client = _get_client(rpc, url, transport)
-    models = _get_models(rpc.components.schemas)
     client_dir = out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
     client_dir.mkdir(exist_ok=True)
     src_dir = client_dir.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
     src_dir.mkdir(exist_ok=True)
+    # Create Python files.
+    schemas = (rpc.components.schemas if rpc.components is not None else {}) or {}
+    client = _get_client(rpc.info.title, rpc.methods, schemas, url, transport)
     common.touch_and_write(src_dir.joinpath("client.py"), client)
+    models = _get_models(schemas)
     common.touch_and_write(src_dir.joinpath("models.py"), models)
     src_dir.joinpath("__init__.py").touch(exist_ok=True)
+    # Create setup and README files.
     common.touch_and_write(
         client_dir.joinpath("setup.py"),
         _get_setup(rpc.info.title, rpc.info.version, transport),
@@ -50,11 +56,17 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     )
 
 
-def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
-    group = common.get_rpc_group(caseswitcher.to_pascal(rpc.info.title), rpc.methods)
+def _get_client(
+    title: str,
+    methods: list[Method],
+    schemas: dict[str, SchemaType],
+    url: str,
+    transport: str,
+) -> str:
+    group = common.get_rpc_group(caseswitcher.to_pascal(title), methods)
     template = env.get_template("python/client_module.j2")
     context = {
-        "imports": ",".join(rpc.components.schemas),
+        "imports": ",".join(schemas),
         "transport": transport,
         "group": group,
         "indent": "",
@@ -65,7 +77,7 @@ def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
     return black.format_str(isort.code(template.render(context)), mode=black_mode)
 
 
-def _get_models(schemas: dict[str, Schema]) -> tuple[str, str]:
+def _get_models(schemas: dict[str, SchemaType]) -> str:
     context = {
         "schemas": schemas,
         "py_type": py_type,
@@ -103,7 +115,6 @@ def py_type(schema: SchemaType | None) -> str:
     """Get Python type from JSON Schema type."""
     if schema is None or isinstance(schema, bool):
         return "Any"
-
     if "const" in schema.model_fields_set:
         return _get_const_type(schema.const)
     if schema.type:
@@ -143,7 +154,7 @@ def _get_str_type(str_format: str) -> str:
     }.get(str_format) or "str"
 
 
-def _get_const_type(const_value: str) -> str:
+def _get_const_type(const_value: Any) -> str:
     const = f'"{const_value}"' if isinstance(const_value, str) else const_value
     return f"Literal[{const}]"
 
@@ -157,7 +168,9 @@ def _get_object_type(schema: Schema) -> str:
 
 def _get_array_type(schema: Schema) -> str:
     if "prefix_items" in schema.model_fields_set:
-        types = ", ".join(py_type(prefix_item) for prefix_item in schema.prefix_items)
+        types = ", ".join(
+            py_type(prefix_item) for prefix_item in schema.prefix_items or []
+        )
         return f"tuple[{types}]"
     collection_type = "set" if schema.unique_items else "list"
     return f"{collection_type}[{py_type(schema.items)}]"

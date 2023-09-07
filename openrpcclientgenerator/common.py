@@ -58,7 +58,7 @@ def get_enum_option_name(option: Any) -> str:
     return f"NUMBER_{option}"
 
 
-def touch_and_write(path: Path, content) -> None:
+def touch_and_write(path: Path, content: str) -> None:
     """Create a file and write text to it."""
     path.touch(exist_ok=True)
     path.write_text(content)
