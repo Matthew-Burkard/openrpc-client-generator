@@ -4,7 +4,6 @@ from pathlib import Path
 
 import black
 import caseswitcher
-import httpx
 import isort
 from jinja2 import Environment, FileSystemLoader
 from openrpc import OpenRPC, Schema, SchemaType
@@ -160,13 +159,3 @@ def _get_array_type(schema: Schema) -> str:
         return f"tuple[{types}]"
     collection_type = "set" if schema.unique_items else "list"
     return f"{collection_type}[{py_type(schema.items)}]"
-
-
-if __name__ == "__main__":
-    resp = httpx.get("http://localhost:8000/openrpc.json")
-    generate_client(
-        OpenRPC(**resp.json()),
-        "ws://localhost:8000/api/v1",
-        "WS",
-        root.parent.joinpath("build"),
-    )

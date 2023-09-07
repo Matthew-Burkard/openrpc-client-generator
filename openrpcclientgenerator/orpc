@@ -1,0 +1,35 @@
+#!/bin/python3
+"""CLI main entry point."""
+import argparse
+import json
+from pathlib import Path
+
+import httpx
+from openrpc import OpenRPC
+
+from openrpcclientgenerator.python import generate_client
+
+parser = argparse.ArgumentParser(description="Open-RPC Client Generator")
+parser.add_argument("--lang", help="The language of the client.")
+parser.add_argument("--out", help="Output path for the generated client.")
+parser.add_argument("--url", help="URL of Open-RPC API.")
+parser.add_argument(
+    "--openrpc", help="Path, WebSocket URL, or HTTP URL to openrpc.json file."
+)
+
+args = parser.parse_args()
+
+if __name__ == "__main__":
+    if not args.openrpc:
+        discover = {"id": 1, "method": "rpc.discover", "jsonrpc": "2.0"}
+        resp = httpx.post(args.url, json=discover)
+        openrpc = OpenRPC(**resp.json()["result"])
+    elif args.openrpc.startswith("http"):
+        resp = httpx.get(args.openrpc)
+        openrpc = OpenRPC(**resp.json())
+    else:
+        openrpc = OpenRPC(**json.loads(Path(args.openrpc).read_text()))
+    transport = "WS" if args.url.startswith("ws") else "HTTP"
+    generate_client(
+        openrpc, args.url, transport, Path(args.out or Path.cwd().joinpath("out"))
+    )
