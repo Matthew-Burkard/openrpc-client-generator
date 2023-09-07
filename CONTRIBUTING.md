@@ -3,6 +3,26 @@
 OpenRPC Client Generator is open source and open to feedback and contributions from
 the community!
 
+## Requirements
+
+- [Poetry](https://python-poetry.org/docs/)
+- [Black](https://github.com/psf/black/)
+- [pre-commit](https://pre-commit.com/)
+
+## Getting Started
+
+Fork or clone this repository, then run the following.
+
+```shell
+cd openrpc-client-generator
+poetry shell
+poetry install
+pre-commit install
+pre-commit run
+```
+
+Start hacking!
+
 ## Pull Requests
 
 - An [issue](https://gitlab.com/mburkard/openrpc-client-generator/-/issues)

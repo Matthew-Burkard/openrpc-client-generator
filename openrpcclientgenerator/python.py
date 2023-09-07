@@ -30,7 +30,7 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     """Generate a Python client."""
     out.mkdir(exist_ok=True)
     client = _get_client(rpc, url, transport)
-    models = _get_models(rpc, url, transport)
+    models = _get_models(rpc.components.schemas)
     client_dir = out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
     client_dir.mkdir(exist_ok=True)
     src_dir = client_dir.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
@@ -59,9 +59,9 @@ def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
     return client
 
 
-def _get_models(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
+def _get_models(schemas: dict[str, Schema]) -> tuple[str, str]:
     context = {
-        "schemas": rpc.components.schemas,
+        "schemas": schemas,
         "py_type": py_type,
         "cs": caseswitcher,
         "get_enum_option_name": common.get_enum_option_name,
