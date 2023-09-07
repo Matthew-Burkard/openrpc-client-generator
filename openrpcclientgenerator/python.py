@@ -4,6 +4,7 @@ from pathlib import Path
 
 import black
 import caseswitcher
+import httpx
 from jinja2 import Environment, FileSystemLoader
 from openrpc import OpenRPC, Schema
 
@@ -73,7 +74,7 @@ def py_type(schema: Schema) -> str:
         elif isinstance(schema.type, list):
             return " | ".join(type_map[it] for it in schema.type)
         if schema.type == "string" and schema.format:
-            return {"binary": "bytes"}.get(schema.format) or "str"
+            return _get_str_type(schema.format)
         return type_map[schema.type]
     elif schema_list := schema.all_of or schema.any_of or schema.one_of:
         str_types = [py_type(it) for it in schema_list]
@@ -83,3 +84,23 @@ def py_type(schema: Schema) -> str:
 
     return "Any"
 
+
+def _get_str_type(str_format: str) -> str:
+    if str_format == "binary":
+        return "bytes"
+    if str_format == "date":
+        return "datetime.date"
+    if str_format == "time":
+        return "datetime.time"
+    if str_format == "date-time":
+        return "datetime.datetime"
+    if str_format == "duration":
+        return "datetime.timedelta"
+    if str_format == "uuid":
+        return "UUID"
+    return "str"
+
+
+if __name__ == "__main__":
+    resp = httpx.get("http://localhost:8000/openrpc.json")
+    generate_client(OpenRPC(**resp.json()), "WebSocket", root.parent.joinpath("dist"))
