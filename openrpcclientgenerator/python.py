@@ -82,9 +82,10 @@ def py_type(schema: Schema) -> str:
         if schema.type == "string" and schema.format:
             return _get_str_type(schema.format)
         return type_map[schema.type]
+    elif _recursive_schema(schema):
+        return py_type(schema.defs[schema.all_of[0].ref.removeprefix("#/$defs/")])
     elif schema_list := schema.all_of or schema.any_of or schema.one_of:
-        str_types = [py_type(it) for it in schema_list]
-        return " | ".join(str_types)
+        return " | ".join(py_type(it) for it in schema_list)
     elif schema.ref:
         return re.sub(r"#/.*/(.*)", r"\1", schema.ref)
 
@@ -113,6 +114,19 @@ def _get_const_type(const_value: str) -> str:
     else:
         const = f'"{const_value}"'
     return f"Literal[{const}]"
+
+
+def _recursive_schema(schema: Schema) -> bool:
+    return (
+        schema.all_of
+        and schema.defs
+        and len(schema.all_of) == 1
+        and len(schema.defs) == 1
+        and (
+            (ref := schema.all_of[0].ref)
+            and (schema.defs.get(ref.removeprefix("#/$defs/")))
+        )
+    )
 
 
 if __name__ == "__main__":
