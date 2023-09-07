@@ -1,8 +1,8 @@
 
-{{ indent }}@rpc_client(transport=transport)
+{{ indent }}@rpc_client(transport=transport, method_prefix="{{ prefix }}")
 {{ indent }}class {{ cs.to_pascal(group.title) }}Client:
 {% for method in group.methods %}
-{{ indent }}    def {{ cs.to_snake(method.name) or "_" }}(
+{{ indent }}    async def {{ cs.to_snake(method.name) or "_" }}(
 {{ indent }}        self,
                     {% for param in method.params %}
 {{ indent }}        {{ cs.to_snake(param.name) }}: {{ py_type(param.schema_) }}
@@ -13,8 +13,20 @@
 {{ indent }}    ) -> {{ py_type(method.result.schema_) }}: ...
 {% endfor %}
 {% for group in group.child_groups.values() %}
-    {% with indent=indent + " " * 4 %}
+    {% with indent=indent + " " * 4, prefix=cs.to_snake(group.name) + "." %}
         {% include "python/client.j2" %}
     {% endwith %}
 {{ indent }}    {{ cs.to_snake(group.name) }} = {{ cs.to_pascal(group.title) }}Client()
 {% endfor %}
+{# Check to see if this is root level group. #}
+{% if indent == "" and transport == "WS" %}
+    @staticmethod
+    async def connect() -> None:
+        """Connect to WebSocket server."""
+        await transport.connect()
+
+    @staticmethod
+    async def close() -> None:
+        """Close connection to WebSocket server."""
+        await transport.close()
+{% endif %}

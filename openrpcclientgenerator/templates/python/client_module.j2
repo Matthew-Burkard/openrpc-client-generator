@@ -2,9 +2,11 @@
 import datetime
 from uuid import UUID
 from typing import Any, Literal
-from .models import *
+from models import *
+from jsonrpc2pyclient.decorator import rpc_client
+from jsonrpc2pyclient.{{ transport.lower() }}client import AsyncRPC{{ transport }}Client
 
 
-transport = RPC{{ transport }}Client("{{ url }}")
+transport = AsyncRPC{{ transport }}Client("{{ url }}")
 
 {% include "python/client.j2" %}

@@ -22,10 +22,10 @@ type_map = {
 }
 
 
-def generate_client(rpc: OpenRPC, transport: str, out: Path) -> None:
+def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     """Generate a Python client."""
     out.mkdir(exist_ok=True)
-    client, models = _get_code(rpc, transport)
+    client, models = _get_code(rpc, url, transport)
     client_path = out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
     client_path.mkdir(exist_ok=True)
     src_dir = client_path.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
@@ -35,7 +35,7 @@ def generate_client(rpc: OpenRPC, transport: str, out: Path) -> None:
     src_dir.joinpath("__init__.py").touch(exist_ok=True)
 
 
-def _get_code(rpc: OpenRPC, transport: str) -> tuple[str, str]:
+def _get_code(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
     group = common.get_rpc_group(caseswitcher.to_pascal(rpc.info.title), rpc.methods)
     env = Environment(
         loader=FileSystemLoader(templates), lstrip_blocks=True, trim_blocks=True
@@ -47,6 +47,7 @@ def _get_code(rpc: OpenRPC, transport: str) -> tuple[str, str]:
         "indent": "",
         "py_type": py_type,
         "cs": caseswitcher,
+        "url": url,
     }
     client = black.format_str(
         client_template.render(context), mode=black.Mode(magic_trailing_comma=False)
@@ -126,7 +127,7 @@ def _get_object_type(schema: Schema) -> str:
 
 def _get_array_type(schema: Schema) -> str:
     if "prefix_items" in schema.model_fields_set:
-        types = ', '.join(py_type(prefix_item) for prefix_item in schema.prefix_items)
+        types = ", ".join(py_type(prefix_item) for prefix_item in schema.prefix_items)
         return f"tuple[{types}]"
     collection_type = "set" if schema.unique_items else "list"
     return f"{collection_type}[{py_type(schema.items)}]"
@@ -147,4 +148,9 @@ def _recursive_schema(schema: Schema) -> bool:
 
 if __name__ == "__main__":
     resp = httpx.get("http://localhost:8000/openrpc.json")
-    generate_client(OpenRPC(**resp.json()), "WebSocket", root.parent.joinpath("dist"))
+    generate_client(
+        OpenRPC(**resp.json()),
+        "ws://localhost:8000/api/v1",
+        "WS",
+        root.parent.joinpath("build"),
+    )
