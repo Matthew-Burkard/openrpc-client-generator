@@ -118,7 +118,9 @@ def _get_const_type(const_value: str) -> str:
 def _get_object_type(schema: Schema) -> str:
     if schema.properties and schema.title:
         return schema.title
-    v_type = py_type(schema.items) if schema.items else "Any"
+    v_type = (
+        py_type(schema.additional_properties) if schema.additional_properties else "Any"
+    )
     return f"dict[str, {v_type}]"
 
 
