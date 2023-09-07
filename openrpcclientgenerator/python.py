@@ -75,8 +75,7 @@ def py_type(schema: Schema) -> str:
         if schema.type == "array":
             return f"list[{py_type(schema.items)}]"
         elif schema.type == "object":
-            v_type = py_type(schema.items) if schema.items else "Any"
-            return f"dict[str, {v_type}]"
+            return _get_object_type(schema)
         elif isinstance(schema.type, list):
             return " | ".join(type_map[it] for it in schema.type)
         if schema.type == "string" and schema.format:
@@ -114,6 +113,13 @@ def _get_const_type(const_value: str) -> str:
     else:
         const = f'"{const_value}"'
     return f"Literal[{const}]"
+
+
+def _get_object_type(schema: Schema) -> str:
+    if schema.properties and schema.title:
+        return schema.title
+    v_type = py_type(schema.items) if schema.items else "Any"
+    return f"dict[str, {v_type}]"
 
 
 def _recursive_schema(schema: Schema) -> bool:
