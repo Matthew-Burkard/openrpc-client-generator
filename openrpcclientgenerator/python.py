@@ -52,6 +52,7 @@ def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
     group = common.get_rpc_group(caseswitcher.to_pascal(rpc.info.title), rpc.methods)
     template = env.get_template("python/client_module.j2")
     context = {
+        "imports": ",".join(rpc.components.schemas),
         "transport": transport,
         "group": group,
         "indent": "",

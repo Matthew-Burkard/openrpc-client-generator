@@ -1,4 +1,6 @@
 """Shared components."""
+from __future__ import annotations
+
 import copy
 from pathlib import Path
 from typing import Any
@@ -9,6 +11,8 @@ from pydantic import BaseModel, Field
 
 
 class RPCGroup(BaseModel):
+    """Group RPC methods by `.` separator."""
+
     name: str
     title: str
     methods: list[Method] = Field(default_factory=list)
