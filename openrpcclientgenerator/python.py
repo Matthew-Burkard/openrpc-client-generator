@@ -123,6 +123,14 @@ def _get_str_type(str_format: str) -> str:
         return "datetime.timedelta"
     if str_format == "uuid":
         return "UUID"
+    if str_format == "uuid1":
+        return "UUID1"
+    if str_format == "uuid3":
+        return "UUID3"
+    if str_format == "uuid4":
+        return "UUID4"
+    if str_format == "uuid5":
+        return "UUID5"
     return "str"
 
 

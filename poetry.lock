@@ -194,6 +194,20 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "isort"
+version = "5.12.0"
+description = "A Python utility / library to sort Python imports."
+category = "main"
+optional = false
+python-versions = ">=3.8.0"
+
+[package.extras]
+colors = ["colorama (>=0.4.3)"]
+requirements-deprecated-finder = ["pip-api", "pipreqs"]
+pipfile-deprecated-finder = ["pip-shims (>=0.5.2)", "pipreqs", "requirementslib"]
+plugins = ["setuptools"]
+
+[[package]]
 name = "jinja2"
 version = "3.1.2"
 description = "A very fast and expressive template engine."
@@ -381,7 +395,7 @@ all = ["phonenumbers (>=8,<9)", "pycountry (>=22,<23)"]
 
 [[package]]
 name = "pytest"
-version = "7.4.1"
+version = "7.4.2"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
@@ -441,7 +455,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "c5738e6c7b63860a5b0d3905337a6f66235d603e92f2b57dd7a8f83e79169920"
+content-hash = "56f9a977b37c3c26c411d40d8d9cf597709964eb4eaa96354d6d6e4949a6d817"
 
 [metadata.files]
 annotated-types = []
@@ -460,6 +474,7 @@ httpcore = []
 httpx = []
 idna = []
 iniconfig = []
+isort = []
 jinja2 = []
 jsonrpc2-objects = []
 jsonrpc2-pyclient = []

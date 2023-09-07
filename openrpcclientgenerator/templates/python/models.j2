@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID1, UUID3, UUID4, UUID5
 
 
 {% for schema_name, schema in schemas.items() %}
