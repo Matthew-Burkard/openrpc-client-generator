@@ -1,5 +1,6 @@
 """Shared components."""
 import copy
+from pathlib import Path
 from typing import Any
 
 import caseswitcher
@@ -51,3 +52,9 @@ def get_enum_option_name(option: Any) -> str:
     if isinstance(option, str):
         return caseswitcher.to_snake(option).upper()
     return f"NUMBER_{option}"
+
+
+def touch_and_write(path: Path, content) -> None:
+    """Create a file and write text to it."""
+    path.touch(exist_ok=True)
+    path.write_text(content)

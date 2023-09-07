@@ -30,12 +30,9 @@ def generate_client(rpc: OpenRPC, transport: str, out: Path) -> None:
     client_path.mkdir(exist_ok=True)
     src_dir = client_path.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
     src_dir.mkdir(exist_ok=True)
-    client_file = src_dir.joinpath("client.py")
-    client_file.touch(exist_ok=True)
-    client_file.write_text(client)
-    models_file = src_dir.joinpath("models.py")
-    models_file.touch(exist_ok=True)
-    models_file.write_text(models)
+    common.touch_and_write(src_dir.joinpath("client.py"), client)
+    common.touch_and_write(src_dir.joinpath("models.py"), models)
+    src_dir.joinpath("__init__.py").touch(exist_ok=True)
 
 
 def _get_code(rpc: OpenRPC, transport: str) -> tuple[str, str]:
