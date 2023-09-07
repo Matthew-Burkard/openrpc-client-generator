@@ -7,7 +7,7 @@ import caseswitcher
 import httpx
 import isort
 from jinja2 import Environment, FileSystemLoader
-from openrpc import OpenRPC, Schema
+from openrpc import OpenRPC, Schema, SchemaType
 
 from openrpcclientgenerator import common
 
@@ -84,9 +84,9 @@ def _get_setup(rpc_title: str, version: str, transport: str) -> str:
     return template.render(context) + "\n"
 
 
-def py_type(schema: Schema) -> str:
+def py_type(schema: SchemaType | None) -> str:
     """Get Python type from JSON Schema type."""
-    if schema is None or schema is True:
+    if schema is None or isinstance(schema, bool):
         return "Any"
 
     if "const" in schema.model_fields_set:
@@ -101,8 +101,6 @@ def py_type(schema: Schema) -> str:
         if schema.type == "string" and schema.format:
             return _get_str_type(schema.format)
         return type_map[schema.type]
-    elif _recursive_schema(schema):
-        return py_type(schema.defs[schema.all_of[0].ref.removeprefix("#/$defs/")])
     elif schema_list := schema.all_of or schema.any_of or schema.one_of:
         return " | ".join(py_type(it) for it in schema_list)
     elif schema.ref:
@@ -135,8 +133,6 @@ def _get_const_type(const_value: str) -> str:
 
 
 def _get_object_type(schema: Schema) -> str:
-    if schema.properties and schema.title:
-        return schema.title
     v_type = (
         py_type(schema.additional_properties) if schema.additional_properties else "Any"
     )
@@ -149,19 +145,6 @@ def _get_array_type(schema: Schema) -> str:
         return f"tuple[{types}]"
     collection_type = "set" if schema.unique_items else "list"
     return f"{collection_type}[{py_type(schema.items)}]"
-
-
-def _recursive_schema(schema: Schema) -> bool:
-    return (
-        schema.all_of
-        and schema.defs
-        and len(schema.all_of) == 1
-        and len(schema.defs) == 1
-        and (
-            (ref := schema.all_of[0].ref)
-            and (schema.defs.get(ref.removeprefix("#/$defs/")))
-        )
-    )
 
 
 if __name__ == "__main__":

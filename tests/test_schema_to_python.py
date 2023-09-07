@@ -148,10 +148,36 @@ def test_pydantic_types() -> None:
 
 def test_pydantic_network_types() -> None:
     schema = Schema(**PydanticNetworkTypes.model_json_schema())
+    assert _pytype(schema, "any_url") == "str"
+    assert _pytype(schema, "any_http_url") == "str"
+    assert _pytype(schema, "http_url") == "str"
+    assert _pytype(schema, "postgres_dsn") == "str"
+    assert _pytype(schema, "cockroach_dsn") == "str"
+    assert _pytype(schema, "amqp_dsn") == "str"
+    assert _pytype(schema, "redis_dsn") == "str"
+    assert _pytype(schema, "mongo_dsn") == "str"
+    assert _pytype(schema, "kafka_dsn") == "str"
+    assert _pytype(schema, "mysql_dsn") == "str"
+    assert _pytype(schema, "mariadb_dsn") == "str"
+    assert _pytype(schema, "email_str") == "str"
+    assert _pytype(schema, "name_email") == "str"
+    assert _pytype(schema, "ipv_any_address") == "str"
+    assert _pytype(schema, "ipv_any_interface") == "str"
+    assert _pytype(schema, "ipv_any_network") == "str"
 
 
 def test_pydantic_extra() -> None:
     schema = Schema(**PydanticExtra.model_json_schema())
+    assert _pytype(schema, "color") == "str"
+    assert _pytype(schema, "payment_card_brand") == "PaymentCardBrand"
+    assert _pytype(schema, "payment_card_number") == "str"
+    assert _pytype(schema, "aba_routing_number") == "str"
+
+
+def test_remaining() -> None:
+    assert python.py_type(None) == "Any"
+    assert python.py_type(True) == "Any"
+    assert python.py_type(Schema(type=["string", "integer"])) == "str | int"
 
 
 def _pytype(schema: Schema, prop: str) -> str:
