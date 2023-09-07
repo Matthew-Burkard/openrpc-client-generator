@@ -1,11 +1,11 @@
 
 {{ indent }}@rpc_client(transport=transport)
-{{ indent }}class {{ group.title }}Client:
+{{ indent }}class {{ cs.to_pascal(group.title) }}Client:
 {% for method in group.methods %}
-{{ indent }}    def {{ method.name }}(
+{{ indent }}    def {{ cs.to_snake(method.name) or "_" }}(
 {{ indent }}        self,
                     {% for param in method.params %}
-{{ indent }}        {{ param.name }}: {{ py_type(param.schema_) }}
+{{ indent }}        {{ cs.to_snake(param.name) }}: {{ py_type(param.schema_) }}
                         {% if not loop.last %}
                             ,
                         {% endif %}
@@ -16,5 +16,5 @@
     {% with indent=indent + " " * 4 %}
         {% include "python/client.j2" %}
     {% endwith %}
-{{ indent }}    {{ group.name }} = {{ group.title }}Client()
+{{ indent }}    {{ cs.to_snake(group.name) }} = {{ cs.to_pascal(group.title) }}Client()
 {% endfor %}

@@ -44,7 +44,13 @@ def _get_code(rpc: OpenRPC, transport: str) -> tuple[str, str]:
         loader=FileSystemLoader(templates), lstrip_blocks=True, trim_blocks=True
     )
     client_template = env.get_template("python/client_module.j2")
-    context = {"transport": transport, "group": group, "indent": "", "py_type": py_type}
+    context = {
+        "transport": transport,
+        "group": group,
+        "indent": "",
+        "py_type": py_type,
+        "cs": caseswitcher,
+    }
     client = black.format_str(
         client_template.render(context), mode=black.Mode(magic_trailing_comma=False)
     )
@@ -52,6 +58,7 @@ def _get_code(rpc: OpenRPC, transport: str) -> tuple[str, str]:
         "schemas": rpc.components.schemas,
         "py_type": py_type,
         "cs": caseswitcher,
+        "get_enum_option_name": common.get_enum_option_name,
     }
     models_template = env.get_template("python/models.j2")
     models = black.format_str(

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel
 
@@ -9,9 +9,9 @@ from pydantic import BaseModel
 {% for schema_name, schema in schemas.items() %}
     {% if schema.enum %}
 
-class {{ schema_name }}(Enum):
+class {{ cs.to_pascal(schema_name) }}(Enum):
 {% for value in schema.enum %}
-    {{ cs.to_snake(value).upper() }} = "{{ value }}"
+    {{ get_enum_option_name(value) }} = "{{ value }}"
 {% endfor %}
 
     {% endif %}
@@ -20,9 +20,9 @@ class {{ schema_name }}(Enum):
 {% for schema_name, schema in schemas.items() %}
     {% if schema.properties %}
 
-class {{ schema_name }}(BaseModel):
+class {{ cs.to_pascal(schema_name) }}(BaseModel):
 {% for name, schema in schema.properties.items() %}
-    {{ name }}: {{ py_type(schema) }}
+    {{ cs.to_snake(name) }}: {{ py_type(schema) }}
 {% endfor %}
 
     {% endif %}

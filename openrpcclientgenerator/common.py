@@ -1,5 +1,6 @@
 """Shared components."""
 import copy
+from typing import Any
 
 import caseswitcher
 from openrpc import Method
@@ -43,3 +44,10 @@ def get_rpc_group(client_name: str, methods: list[Method]) -> RPCGroup:
                 current_group.child_groups[title] = new_group
             current_group = current_group.child_groups[title]
     return group
+
+
+def get_enum_option_name(option: Any) -> str:
+    """Get a name for an enum option."""
+    if isinstance(option, str):
+        return caseswitcher.to_snake(option).upper()
+    return f"NUMBER_{option}"
