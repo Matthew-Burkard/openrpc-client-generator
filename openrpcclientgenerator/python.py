@@ -12,6 +12,10 @@ from openrpcclientgenerator import common
 
 root = Path(__file__).parent
 templates = root.joinpath("templates")
+env = Environment(
+    loader=FileSystemLoader(templates), lstrip_blocks=True, trim_blocks=True
+)
+black_mode = black.Mode(magic_trailing_comma=False)
 type_map = {
     "boolean": "bool",
     "integer": "int",
@@ -25,22 +29,24 @@ type_map = {
 def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     """Generate a Python client."""
     out.mkdir(exist_ok=True)
-    client, models = _get_code(rpc, url, transport)
-    client_path = out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
-    client_path.mkdir(exist_ok=True)
-    src_dir = client_path.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
+    client = _get_client(rpc, url, transport)
+    models = _get_models(rpc, url, transport)
+    client_dir = out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
+    client_dir.mkdir(exist_ok=True)
+    src_dir = client_dir.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
     src_dir.mkdir(exist_ok=True)
     common.touch_and_write(src_dir.joinpath("client.py"), client)
     common.touch_and_write(src_dir.joinpath("models.py"), models)
     src_dir.joinpath("__init__.py").touch(exist_ok=True)
-
-
-def _get_code(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
-    group = common.get_rpc_group(caseswitcher.to_pascal(rpc.info.title), rpc.methods)
-    env = Environment(
-        loader=FileSystemLoader(templates), lstrip_blocks=True, trim_blocks=True
+    common.touch_and_write(
+        client_dir.joinpath("setup.py"),
+        _get_setup(rpc.info.title, rpc.info.version, transport),
     )
-    client_template = env.get_template("python/client_module.j2")
+
+
+def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
+    group = common.get_rpc_group(caseswitcher.to_pascal(rpc.info.title), rpc.methods)
+    template = env.get_template("python/client_module.j2")
     context = {
         "transport": transport,
         "group": group,
@@ -49,20 +55,32 @@ def _get_code(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
         "cs": caseswitcher,
         "url": url,
     }
-    client = black.format_str(
-        client_template.render(context), mode=black.Mode(magic_trailing_comma=False)
-    )
+    client = black.format_str(template.render(context), mode=black_mode)
+    return client
+
+
+def _get_models(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
     context = {
         "schemas": rpc.components.schemas,
         "py_type": py_type,
         "cs": caseswitcher,
         "get_enum_option_name": common.get_enum_option_name,
     }
-    models_template = env.get_template("python/models.j2")
-    models = black.format_str(
-        models_template.render(context), mode=black.Mode(magic_trailing_comma=False)
-    )
-    return client, models
+    template = env.get_template("python/models.j2")
+    models = black.format_str(template.render(context), mode=black_mode)
+    return models
+
+
+def _get_setup(rpc_title: str, version: str, transport: str) -> str:
+    template = env.get_template("python/setup.j2")
+    context = {
+        "project_name": caseswitcher.to_kebab(rpc_title) + "-client",
+        "project_dir": caseswitcher.to_snake(rpc_title) + "_client",
+        "project_title": caseswitcher.to_title(rpc_title),
+        "version": version,
+        "transport": transport,
+    }
+    return template.render(context) + "\n"
 
 
 def py_type(schema: Schema) -> str:

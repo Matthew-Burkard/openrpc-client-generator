@@ -219,6 +219,19 @@ python-versions = ">=3.9,<4.0"
 pydantic = ">=2.0,<3.0"
 
 [[package]]
+name = "jsonrpc2-pyclient"
+version = "4.1.0"
+description = "Python JSON-RPC 2.0 client library."
+category = "dev"
+optional = false
+python-versions = ">=3.9,<4.0"
+
+[package.dependencies]
+httpx = ">=0.24.1,<0.25.0"
+jsonrpc2-objects = ">=3.0.0,<4.0.0"
+websockets = ">=11.0.3,<12.0.0"
+
+[[package]]
 name = "lorem-pysum"
 version = "1.4.3"
 description = "Library to generate instances of Pydantic models."
@@ -417,10 +430,18 @@ category = "main"
 optional = false
 python-versions = ">=3.7"
 
+[[package]]
+name = "websockets"
+version = "11.0.3"
+description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "8735941f446c9780d9873af86399efb6329ae0c1522f3087e28a1a92a3e25b41"
+content-hash = "c5738e6c7b63860a5b0d3905337a6f66235d603e92f2b57dd7a8f83e79169920"
 
 [metadata.files]
 annotated-types = []
@@ -441,6 +462,7 @@ idna = []
 iniconfig = []
 jinja2 = []
 jsonrpc2-objects = []
+jsonrpc2-pyclient = []
 lorem-pysum = []
 markupsafe = []
 mypy = []
@@ -459,3 +481,4 @@ ruff = []
 sniffio = []
 tomli = []
 typing-extensions = []
+websockets = []
