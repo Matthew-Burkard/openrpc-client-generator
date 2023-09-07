@@ -59,7 +59,11 @@ def test_constantly() -> None:
 
 def test_recursive_model() -> None:
     schema = Schema(**RecursiveModel.model_json_schema())
-    # assert python.py_type() == "Literal[False]"
+    assert python.py_type(schema) == "RecursiveModel"
+    assert (
+        python.py_type(schema.defs["RecursiveModel"].properties["child"])
+        == "RecursiveModel | None"
+    )
 
 
 def test_collections_model() -> None:
