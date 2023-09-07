@@ -12,7 +12,6 @@ from models import (
     PydanticTypes,
     PythonTypes,
     RecursiveModel,
-    VanillaModel,
 )
 from openrpcclientgenerator import python
 
@@ -41,24 +40,26 @@ def test_python_types() -> None:
 
 def test_defaults() -> None:
     schema = Schema(**Defaults.model_json_schema())
-    assert python.py_type(schema.properties["str_field"]) == ""
-    assert python.py_type(schema.properties["int_field"]) == ""
-    assert python.py_type(schema.properties["float_field"]) == ""
-    assert python.py_type(schema.properties["bool_true"]) == ""
-    assert python.py_type(schema.properties["bool_false"]) == ""
-    assert python.py_type(schema.properties["list_field"]) == ""
+    assert python.py_type(schema.properties["str_field"]) == "str"
+    assert python.py_type(schema.properties["int_field"]) == "int"
+    assert python.py_type(schema.properties["float_field"]) == "float"
+    assert python.py_type(schema.properties["bool_true"]) == "bool"
+    assert python.py_type(schema.properties["bool_false"]) == "bool"
+    assert python.py_type(schema.properties["list_field"]) == "list[str] | None"
 
 
 def test_constantly() -> None:
     schema = Schema(**Constantly.model_json_schema())
-
-
-def test_vanilla_model() -> None:
-    schema = Schema(**VanillaModel.model_json_schema())
+    assert python.py_type(schema.properties["const_str_field"]) == 'Literal["Cat."]'
+    assert python.py_type(schema.properties["const_num_field"]) == "Literal[3]"
+    assert python.py_type(schema.properties["const_none_field"]) == "Literal[None]"
+    assert python.py_type(schema.properties["const_true_field"]) == "Literal[True]"
+    assert python.py_type(schema.properties["const_false_field"]) == "Literal[False]"
 
 
 def test_recursive_model() -> None:
     schema = Schema(**RecursiveModel.model_json_schema())
+    # assert python.py_type() == "Literal[False]"
 
 
 def test_collections_model() -> None:

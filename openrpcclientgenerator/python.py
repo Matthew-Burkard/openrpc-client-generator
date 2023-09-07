@@ -65,6 +65,8 @@ def py_type(schema: Schema) -> str:
     if schema is None or schema is True:
         return "Any"
 
+    if "const" in schema.model_fields_set:
+        return _get_const_type(schema.const)
     if schema.type:
         if schema.type == "array":
             return f"list[{py_type(schema.items)}]"
@@ -99,6 +101,14 @@ def _get_str_type(str_format: str) -> str:
     if str_format == "uuid":
         return "UUID"
     return "str"
+
+
+def _get_const_type(const_value: str) -> str:
+    if not isinstance(const_value, str):
+        const = const_value
+    else:
+        const = f'"{const_value}"'
+    return f"Literal[{const}]"
 
 
 if __name__ == "__main__":
