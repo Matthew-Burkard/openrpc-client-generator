@@ -73,7 +73,7 @@ def py_type(schema: Schema) -> str:
         return _get_const_type(schema.const)
     if schema.type:
         if schema.type == "array":
-            return f"list[{py_type(schema.items)}]"
+            return _get_array_type(schema)
         elif schema.type == "object":
             return _get_object_type(schema)
         elif isinstance(schema.type, list):
@@ -122,6 +122,14 @@ def _get_object_type(schema: Schema) -> str:
         py_type(schema.additional_properties) if schema.additional_properties else "Any"
     )
     return f"dict[str, {v_type}]"
+
+
+def _get_array_type(schema: Schema) -> str:
+    if "prefix_items" in schema.model_fields_set:
+        types = ', '.join(py_type(prefix_item) for prefix_item in schema.prefix_items)
+        return f"tuple[{types}]"
+    collection_type = "set" if schema.unique_items else "list"
+    return f"{collection_type}[{py_type(schema.items)}]"
 
 
 def _recursive_schema(schema: Schema) -> bool:

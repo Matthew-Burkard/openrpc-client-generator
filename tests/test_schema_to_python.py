@@ -68,6 +68,45 @@ def test_recursive_model() -> None:
 
 def test_collections_model() -> None:
     schema = Schema(**CollectionsModel.model_json_schema())
+    assert python.py_type(schema.properties["list_field"]) == "list[Any]"
+    assert python.py_type(schema.properties["list_str"]) == "list[str]"
+    assert python.py_type(schema.properties["list_list"]) == "list[list[Any]]"
+    assert python.py_type(schema.properties["list_list_int"]) == "list[list[int]]"
+    assert python.py_type(schema.properties["list_model"]) == "list[VanillaModel]"
+    assert (
+        python.py_type(schema.properties["list_model_or_model"])
+        == "list[VanillaModel | RecursiveModel]"
+    )
+    assert python.py_type(schema.properties["list_union"]) == "list[str | int]"
+    assert python.py_type(schema.properties["list_dict"]) == "list[dict[str, Any]]"
+    assert python.py_type(schema.properties["list_dict_str"]) == "list[dict[str, str]]"
+    assert (
+        python.py_type(schema.properties["list_dict_int_keys"])
+        == "list[dict[str, str]]"
+    )
+    assert python.py_type(schema.properties["tuple_field"]) == "list[Any]"
+    assert python.py_type(schema.properties["tuple_str"]) == "tuple[str]"
+    assert python.py_type(schema.properties["tuple_tuple"]) == "tuple[list[Any]]"
+    assert python.py_type(schema.properties["tuple_tuple_int"]) == "tuple[tuple[int]]"
+    assert python.py_type(schema.properties["tuple_model"]) == "tuple[VanillaModel]"
+    assert python.py_type(schema.properties["tuple_union"]) == "tuple[str | int]"
+    assert (
+        python.py_type(schema.properties["tuple_int_str_none"])
+        == "tuple[int, str, None]"
+    )
+    assert python.py_type(schema.properties["set_str"]) == "set[str]"
+    assert python.py_type(schema.properties["set_union"]) == "set[str | int]"
+    assert python.py_type(schema.properties["dict_field"]) == "dict[str, Any]"
+    assert python.py_type(schema.properties["dict_str"]) == "dict[str, str]"
+    assert python.py_type(schema.properties["dict_dict"]) == "dict[str, dict[str, Any]]"
+    assert python.py_type(schema.properties["dict_int_keys"]) == "dict[str, str]"
+    assert python.py_type(schema.properties["dict_model"]) == "dict[str, VanillaModel]"
+    assert (
+        python.py_type(schema.properties["dict_model_or_model"])
+        == "dict[str, VanillaModel | RecursiveModel]"
+    )
+    assert python.py_type(schema.properties["dict_union"]) == "dict[str, str | int]"
+    assert python.py_type(schema.properties["dict_list"]) == "dict[str, list[int]]"
 
 
 def test_constrained_collections() -> None:
