@@ -5,6 +5,7 @@ from pathlib import Path
 import black
 import caseswitcher
 import httpx
+import isort
 from jinja2 import Environment, FileSystemLoader
 from openrpc import OpenRPC, Schema
 
@@ -55,7 +56,7 @@ def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
         "cs": caseswitcher,
         "url": url,
     }
-    client = black.format_str(template.render(context), mode=black_mode)
+    client = black.format_str(isort.code(template.render(context)), mode=black_mode)
     return client
 
 
@@ -67,7 +68,7 @@ def _get_models(schemas: dict[str, Schema]) -> tuple[str, str]:
         "get_enum_option_name": common.get_enum_option_name,
     }
     template = env.get_template("python/models.j2")
-    models = black.format_str(template.render(context), mode=black_mode)
+    models = black.format_str(isort.code(template.render(context)), mode=black_mode)
     return models
 
 
@@ -111,27 +112,18 @@ def py_type(schema: Schema) -> str:
 
 
 def _get_str_type(str_format: str) -> str:
-    if str_format == "binary":
-        return "bytes"
-    if str_format == "date":
-        return "datetime.date"
-    if str_format == "time":
-        return "datetime.time"
-    if str_format == "date-time":
-        return "datetime.datetime"
-    if str_format == "duration":
-        return "datetime.timedelta"
-    if str_format == "uuid":
-        return "UUID"
-    if str_format == "uuid1":
-        return "UUID1"
-    if str_format == "uuid3":
-        return "UUID3"
-    if str_format == "uuid4":
-        return "UUID4"
-    if str_format == "uuid5":
-        return "UUID5"
-    return "str"
+    return {
+        "binary": "bytes",
+        "date": "datetime.date",
+        "time": "datetime.time",
+        "date-time": "datetime.datetime",
+        "duration": "datetime.timedelta",
+        "uuid": "UUID",
+        "uuid1": "UUID1",
+        "uuid3": "UUID3",
+        "uuid4": "UUID4",
+        "uuid5": "UUID5",
+    }.get(str_format) or "str"
 
 
 def _get_const_type(const_value: str) -> str:
