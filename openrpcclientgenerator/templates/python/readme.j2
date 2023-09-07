@@ -1,0 +1,25 @@
+# {{ project_title }}
+
+{{ project_title }} Python {{ "WebSocket" if transport == "WS" else transport }} client.
+
+## Example Usage
+
+```python
+from {{ package_name }}.client import {{ client_name }}Client
+
+
+async def main() -> None:
+    # Get an instance of the client.
+    client = {{ client_name }}Client(headers={})
+{% if transport == "WS" %}
+    await client.connect()
+{% endif %}
+    # Use client for method calls...
+{% if transport == "WS" %}
+    await client.close()
+{% endif %}
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```

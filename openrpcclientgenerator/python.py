@@ -43,6 +43,10 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
         client_dir.joinpath("setup.py"),
         _get_setup(rpc.info.title, rpc.info.version, transport),
     )
+    common.touch_and_write(
+        client_dir.joinpath("README.md"),
+        _get_readme(rpc.info.title, transport),
+    )
 
 
 def _get_client(rpc: OpenRPC, url: str, transport: str) -> tuple[str, str]:
@@ -79,6 +83,17 @@ def _get_setup(rpc_title: str, version: str, transport: str) -> str:
         "project_dir": caseswitcher.to_snake(rpc_title) + "_client",
         "project_title": caseswitcher.to_title(rpc_title),
         "version": version,
+        "transport": transport,
+    }
+    return template.render(context) + "\n"
+
+
+def _get_readme(rpc_title: str, transport: str) -> str:
+    template = env.get_template("python/readme.j2")
+    context = {
+        "project_title": caseswitcher.to_title(rpc_title),
+        "package_name": caseswitcher.to_snake(rpc_title) + "_client",
+        "client_name": caseswitcher.to_pascal(rpc_title),
         "transport": transport,
     }
     return template.render(context) + "\n"
