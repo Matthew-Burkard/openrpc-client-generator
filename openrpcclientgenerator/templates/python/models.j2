@@ -1,0 +1,29 @@
+from __future__ import annotations
+
+from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel
+
+
+{% for schema_name, schema in schemas.items() %}
+    {% if schema.enum %}
+
+class {{ schema_name }}(Enum):
+{% for value in schema.enum %}
+    {{ cs.to_snake(value).upper() }} = "{{ value }}"
+{% endfor %}
+
+    {% endif %}
+{% endfor %}
+
+{% for schema_name, schema in schemas.items() %}
+    {% if schema.properties %}
+
+class {{ schema_name }}(BaseModel):
+{% for name, schema in schema.properties.items() %}
+    {{ name }}: {{ py_type(schema) }}
+{% endfor %}
+
+    {% endif %}
+{% endfor %}
