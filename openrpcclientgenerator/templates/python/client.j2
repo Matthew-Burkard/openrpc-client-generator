@@ -1,0 +1,20 @@
+
+{{ indent }}@rpc_client(transport=transport)
+{{ indent }}class {{ group.title }}Client:
+{% for method in group.methods %}
+{{ indent }}    def {{ method.name }}(
+{{ indent }}        self,
+                    {% for param in method.params %}
+{{ indent }}        {{ param.name }}: {{ py_type(param.schema_) }}
+                        {% if not loop.last %}
+                            ,
+                        {% endif %}
+                    {% endfor %}
+{{ indent }}    ) -> {{ py_type(method.result.schema_) }}: ...
+{% endfor %}
+{% for group in group.child_groups.values() %}
+    {% with indent=indent + " " * 4 %}
+        {% include "python/client.j2" %}
+    {% endwith %}
+{{ indent }}    {{ group.name }} = {{ group.title }}Client()
+{% endfor %}

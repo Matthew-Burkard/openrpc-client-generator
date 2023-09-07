@@ -12,7 +12,10 @@ classifiers = ["Programming Language :: Python :: 3"]
 [tool.poetry.dependencies]
 python = "^3.10"
 case-switcher = "^1.2.1"
-openrpc = "^6.1.5"
+openrpc = "^8.0.1"
+Jinja2 = "^3.1.2"
+httpx = "^0.24.1"
+black = "^23.7.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.1"
@@ -24,3 +27,38 @@ coverage = "^7.1.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.ruff]
+select = [
+    "ARG",
+    "ASYNC",
+    "B",
+    "C4",
+    "D",
+    "E",
+    "EM",
+    "ERA",
+    "F",
+    "FBT",
+    "FA",
+    "FLY",
+    "FIX",
+    "ICN",
+    "INT",
+    "ISC",
+    "N",
+    "PL",
+    "PTH",
+    "PYI",
+    "Q",
+    "RET",
+    "S",
+    "SIM",
+    "T10",
+    "TD",
+    "TRY",
+]
