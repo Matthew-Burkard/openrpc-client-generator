@@ -7,7 +7,7 @@ from pathlib import Path
 import httpx
 from openrpc import OpenRPC
 
-from openrpcclientgenerator.python import generate_client
+from openrpcclientgenerator import python, typescript
 
 parser = argparse.ArgumentParser(description="Open-RPC Client Generator")
 parser.add_argument("--lang", help="The language of the client.")
@@ -30,6 +30,11 @@ if __name__ == "__main__":
     else:
         openrpc = OpenRPC(**json.loads(Path(args.openrpc).read_text()))
     transport = "WS" if args.url.startswith("ws") else "HTTP"
-    generate_client(
-        openrpc, args.url, transport, Path(args.out or Path.cwd().joinpath("out"))
-    )
+    if args.lang == "py":
+        python.generate_client(
+            openrpc, args.url, transport, Path(args.out or Path.cwd().joinpath("out"))
+        )
+    else:
+        typescript.generate_client(
+            openrpc, args.url, transport, Path(args.out or Path.cwd().joinpath("out"))
+        )

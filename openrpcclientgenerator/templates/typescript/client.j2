@@ -1,0 +1,37 @@
+@rpcClient(transport)
+export class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
+
+    {% with class_prefix=cs.to_pascal(group.title) %}
+      {% for group in group.child_groups.values() %}
+    public {{ cs.to_camel(class_prefix + group.title) }}Client: {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client;
+      {% endfor %}
+    {% endwith %}
+
+  {% if group.child_groups %}
+  constructor() {
+    {% with class_prefix=cs.to_pascal(group.title) %}
+      {% for group in group.child_groups.values() %}
+    this.{{ cs.to_camel(class_prefix + group.title) }}Client = new {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client();
+      {% endfor %}
+    {% endwith %}
+  }
+  {% endif %}
+
+  {% for method in group.methods %}
+  // @ts-ignore
+  async {{ cs.to_camel(method.name) or "_" }}(
+  {% for param in method.params %}
+    {{ cs.to_camel(param.name) }}: {{ ts_type(param.schema_) }}
+    {% if not loop.last %}
+        ,
+    {% endif %}
+  {% endfor %}
+  )
+  {% endfor %}
+}
+
+{% with class_prefix=cs.to_pascal(group.title) %}
+    {% for group in group.child_groups.values() %}
+        {% include "typescript/client.j2" %}
+    {% endfor %}
+{% endwith %}

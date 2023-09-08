@@ -34,7 +34,9 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     """Generate a Python client."""
     # Create client directory adn src directory.
     out.mkdir(exist_ok=True)
-    client_dir = out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
+    py_out = out.joinpath("python")
+    py_out.mkdir(exist_ok=True)
+    client_dir = py_out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
     client_dir.mkdir(exist_ok=True)
     src_dir = client_dir.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
     src_dir.mkdir(exist_ok=True)
