@@ -1,10 +1,26 @@
-@rpcClient(transport, "{{ class_prefix + "." if class_prefix else "" }}", [{{ skip_methods }}])
-{{ "" if class_prefix else "export " }}class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
+@rpcClient(
+  transport,
+  "",
+  [
+{% if not class_prefix %}
+  {{ skip_methods }}
+{% endif %}
+  ],
+  {
+  {% for name, method in group.methods.items() %}
+  {% if name != method.name.replace('"', '\\"') %}
+    "{{ name }}": "{{ method.name.replace('"', '\\"') }}"{% if not loop.last %},{% endif %}
+  {% endif %}
+  {% endfor %}
+
+  }
+)
+{{ "" if class_prefix else "export " }}class {{ cs.to_pascal(class_prefix or "") }}{{ cs.to_pascal(group.title) }}Client {
 
 {# Declare child client properties. #}
 {% with class_prefix=cs.to_pascal(group.title) %}
   {% for group in group.child_groups.values() %}
-    public {{ cs.to_camel(class_prefix + group.title) }}Client: {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client;
+    public {{ cs.to_camel(group.name) }}: {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client;
   {% endfor %}
 {% endwith %}
 
@@ -13,27 +29,24 @@
   constructor() {
     {% with class_prefix=cs.to_pascal(group.title) %}
       {% for group in group.child_groups.values() %}
-    this.{{ cs.to_camel(class_prefix + group.title) }}Client = new {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client();
+    this.{{ cs.to_camel(group.name) }} = new {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client();
       {% endfor %}
     {% endwith %}
   }
 {% endif %}
 
 {# Method Declarations #}
-{% for method in group.methods %}
-  public async {{ cs.to_camel(method.name) or "_" }}(
+{% for name, method in group.methods.items() %}
+  public async {{ cs.to_camel(name) }}(
   {% for param in method.params %}
-    {{ cs.to_camel(param.name) }}: {{ ts_type(param.schema_) }}
-    {% if not loop.last %}
-        ,
-    {% endif %}
+    {{ cs.to_camel(param.name) }}: {{ ts_type(param.schema_) }}{% if not loop.last %},{% endif %}
   {% endfor %}
   // @ts-ignore
   ): Promise<{{ ts_type(method.result.schema_) }}> {}
 {% endfor %}
 
 {# WebSocket Client Connect Methods #}
-{% if indent == "" and transport == "WS" %}
+{% if not class_prefix and transport == "WS" %}
   /**
    * Connect to WebSocket server.
    */

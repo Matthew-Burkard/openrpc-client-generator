@@ -1,7 +1,7 @@
 """Shared components."""
 from __future__ import annotations
 
-import copy
+import string
 from pathlib import Path
 from typing import Any
 
@@ -34,16 +34,21 @@ def get_rpc_group(client_name: str, methods: list[Method]) -> RPCGroup:
     :return:
     """
     group = RPCGroup(title=client_name, name=caseswitcher.to_snake(client_name))
+    valid = string.ascii_lowercase + string.ascii_uppercase + string.digits + "_"
     for method in methods:
         children = method.name.split(".")
         current_group = group
         for i, child in enumerate(children):
+            child_name = "".join(c if c in valid else "_" for c in child)
+            if child_name and child_name[0] in string.digits:
+                child_name = f"n{child_name}"
+            child_name = child_name or "method"
             if i + 1 == len(children):
-                current_group.methods[child] = method
+                current_group.methods[child_name] = method
                 continue
-            title = caseswitcher.to_pascal(child)
+            title = caseswitcher.to_pascal(child_name)
             if not current_group.child_groups.get(title):
-                new_group = RPCGroup(name=child, title=title)
+                new_group = RPCGroup(name=child_name, title=title)
                 current_group.child_groups[title] = new_group
             current_group = current_group.child_groups[title]
     return group
