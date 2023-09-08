@@ -83,6 +83,7 @@ def _get_models(schemas: dict[str, SchemaType]) -> str:
         "py_type": py_type,
         "cs": caseswitcher,
         "get_enum_option_name": common.get_enum_option_name,
+        "get_enum_value": common.get_enum_value,
     }
     template = env.get_template("python/models.j2")
     return black.format_str(isort.code(template.render(context)), mode=black_mode)

@@ -58,6 +58,13 @@ def get_enum_option_name(option: Any) -> str:
     return f"NUMBER_{option}"
 
 
+def get_enum_value(value: Any) -> str:
+    """Get the value for an enum option."""
+    if isinstance(value, str):
+        return f'"{value}"'
+    return value
+
+
 def touch_and_write(path: Path, content: str) -> None:
     """Create a file and write text to it."""
     path.touch(exist_ok=True)
