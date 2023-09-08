@@ -5,7 +5,7 @@ from typing import Any
 
 import caseswitcher
 from jinja2 import Environment, FileSystemLoader
-from openrpc import Method, OpenRPC, Schema, SchemaType
+from openrpc import Info, Method, OpenRPC, Schema, SchemaType
 
 from openrpcclientgenerator import common
 
@@ -31,6 +31,10 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     common.touch_and_write(src_dir.joinpath("client.ts"), client)
     models = _get_models(schemas)
     common.touch_and_write(src_dir.joinpath("models.ts"), models)
+    # Create project files.
+    common.touch_and_write(
+        client_dir.joinpath("package.json"), _get_package_json(rpc.info, transport)
+    )
 
 
 def _get_client(
@@ -61,6 +65,16 @@ def _get_models(schemas: dict[str, SchemaType]) -> str:
         "get_enum_value": common.get_enum_value,
     }
     return env.get_template("typescript/models.j2").render(context)
+
+
+def _get_package_json(info: Info, transport: str) -> str:
+    context = {
+        "project_name": caseswitcher.to_kebab(info.title) + "-client",
+        "project_title": caseswitcher.to_title(info.title),
+        "info": info,
+        "transport": transport,
+    }
+    return env.get_template("typescript/package_json.j2").render(context) + "\n"
 
 
 def ts_type(schema: SchemaType | None) -> str:

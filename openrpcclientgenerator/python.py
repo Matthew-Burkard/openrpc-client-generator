@@ -91,7 +91,6 @@ def _get_models(schemas: dict[str, SchemaType]) -> str:
 
 
 def _get_setup(info: Info, transport: str) -> str:
-    template = env.get_template("python/setup.j2")
     context = {
         "project_name": caseswitcher.to_kebab(info.title) + "-client",
         "project_dir": caseswitcher.to_snake(info.title) + "_client",
@@ -99,7 +98,7 @@ def _get_setup(info: Info, transport: str) -> str:
         "info": info,
         "transport": transport,
     }
-    return template.render(context) + "\n"
+    return env.get_template("python/setup.j2").render(context) + "\n"
 
 
 def _get_readme(rpc_title: str, transport: str) -> str:
