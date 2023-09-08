@@ -25,12 +25,16 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     client_dir.mkdir(exist_ok=True)
     src_dir = client_dir.joinpath(caseswitcher.to_snake("src"))
     src_dir.mkdir(exist_ok=True)
+
     # Create TypeScript files.
     schemas = (rpc.components.schemas if rpc.components is not None else {}) or {}
     client = _get_client(rpc.info.title, rpc.methods, schemas, url, transport)
     common.touch_and_write(src_dir.joinpath("client.ts"), client)
-    models = _get_models(schemas)
-    common.touch_and_write(src_dir.joinpath("models.ts"), models)
+    common.touch_and_write(src_dir.joinpath("models.ts"), _get_models(schemas))
+    common.touch_and_write(
+        src_dir.joinpath("index.ts"), _get_index(rpc.info.title, schemas)
+    )
+
     # Create project files.
     common.touch_and_write(
         client_dir.joinpath("package.json"), _get_package_json(rpc.info, transport)
@@ -65,6 +69,18 @@ def _get_models(schemas: dict[str, SchemaType]) -> str:
         "get_enum_value": common.get_enum_value,
     }
     return env.get_template("typescript/models.j2").render(context)
+
+
+def _get_index(title: str, schemas: dict[str, SchemaType]) -> str:
+    models = ", ".join(schemas)
+    client = f"{caseswitcher.to_pascal(title)}Client"
+    context = {
+        "project_dir": caseswitcher.to_snake(title),
+        "model_imports": f"{{{models}}}",
+        "client_import": f"{{{client}}}",
+        "exports": f"{client}, {models}",
+    }
+    return env.get_template("typescript/index.j2").render(context)
 
 
 def _get_package_json(info: Info, transport: str) -> str:
