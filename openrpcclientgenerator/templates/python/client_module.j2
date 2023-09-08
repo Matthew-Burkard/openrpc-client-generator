@@ -3,7 +3,7 @@ import datetime
 from uuid import UUID
 from typing import Any, Literal
 
-from jsonrpc2pyclient.decorator import rpc_client
+from jsonrpc2pyclient.decorator import rpc_method
 from jsonrpc2pyclient.{{ transport.lower() }}client import AsyncRPC{{ transport }}Client
 from pydantic import UUID1, UUID3, UUID4, UUID5
 

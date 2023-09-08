@@ -15,7 +15,7 @@ class RPCGroup(BaseModel):
 
     name: str
     title: str
-    methods: list[Method] = Field(default_factory=list)
+    methods: dict[str, Method] = Field(default_factory=dict)
     child_groups: dict[str, "RPCGroup"] = Field(default_factory=dict)
 
 
@@ -39,9 +39,7 @@ def get_rpc_group(client_name: str, methods: list[Method]) -> RPCGroup:
         current_group = group
         for i, child in enumerate(children):
             if i + 1 == len(children):
-                new_method = copy.copy(method)
-                new_method.name = child
-                current_group.methods.append(new_method)
+                current_group.methods[child] = method
                 continue
             title = caseswitcher.to_pascal(child)
             if not current_group.child_groups.get(title):

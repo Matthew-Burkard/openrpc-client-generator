@@ -234,7 +234,7 @@ pydantic = ">=2.0,<3.0"
 
 [[package]]
 name = "jsonrpc2-pyclient"
-version = "4.1.0"
+version = "4.3.0"
 description = "Python JSON-RPC 2.0 client library."
 category = "dev"
 optional = false
@@ -455,7 +455,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "56f9a977b37c3c26c411d40d8d9cf597709964eb4eaa96354d6d6e4949a6d817"
+content-hash = "0b252fd155b3b147e5ef3431edaa1c5abd850e0ced0a03fb0952a1c693c4bf81"
 
 [metadata.files]
 annotated-types = []

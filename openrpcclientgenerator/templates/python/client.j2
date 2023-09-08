@@ -1,12 +1,12 @@
 
-{{ indent }}@rpc_client(transport=transport, method_prefix="{{ prefix }}")
 {{ indent }}class {{ cs.to_pascal(group.title) }}Client:
 {% if indent == "" %}
     def __init__(self, headers: dict[str, Any]) -> None:
         transport.headers = headers
 {% endif %}
-{% for method in group.methods %}
-{{ indent }}    async def {{ cs.to_snake(method.name) or "_" }}(
+{% for name, method in group.methods.items() %}
+{{ indent }}    @rpc_method(transport=transport, method_name="{{ method.name.replace('"', '\\"') }}")
+{{ indent }}    async def {{ cs.to_snake(name) or "_" }}(
 {{ indent }}        self,
                     {% for param in method.params %}
 {{ indent }}        {{ cs.to_snake(param.name) }}: {{ py_type(param.schema_) }}
