@@ -18,7 +18,6 @@ export class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
   {% endif %}
 
   {% for method in group.methods %}
-  // @ts-ignore
   async {{ cs.to_camel(method.name) or "_" }}(
   {% for param in method.params %}
     {{ cs.to_camel(param.name) }}: {{ ts_type(param.schema_) }}
@@ -26,7 +25,8 @@ export class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
         ,
     {% endif %}
   {% endfor %}
-  )
+  // @ts-ignore
+  ): Promise<{{ ts_type(method.result.schema_) }}> {}
   {% endfor %}
 }
 

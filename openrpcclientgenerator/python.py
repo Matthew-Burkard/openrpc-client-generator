@@ -68,7 +68,7 @@ def _get_client(
     group = common.get_rpc_group(caseswitcher.to_pascal(title), methods)
     template = env.get_template("python/client_module.j2")
     context = {
-        "imports": ",".join(schemas),
+        "imports": ", ".join(schemas),
         "transport": transport,
         "group": group,
         "indent": "",

@@ -39,15 +39,26 @@ def _get_client(
     transport: str,
 ) -> str:
     group = common.get_rpc_group(caseswitcher.to_pascal(title), methods)
-    template = env.get_template("typescript/client_module.j2")
     context = {
+        "imports": "{%s}" % ", ".join(schemas),
         "transport": transport,
         "group": group,
         "ts_type": ts_type,
         "cs": caseswitcher,
         "url": url,
     }
-    return template.render(context)
+    return env.get_template("typescript/client_module.j2").render(context)
+
+
+def _get_models(schemas: dict[str, SchemaType]) -> str:
+    context = {
+        "schemas": schemas,
+        "ts_type": ts_type,
+        "cs": caseswitcher,
+        "get_enum_option_name": common.get_enum_option_name,
+        "get_enum_value": common.get_enum_value,
+    }
+    return env.get_template("typescript/models.j2").render(context)
 
 
 def ts_type(schema: SchemaType | None) -> str:
@@ -65,6 +76,7 @@ def ts_type(schema: SchemaType | None) -> str:
 
     return "any"
 
+
 def _get_const_type(const_value: Any) -> str:
     if isinstance(const_value, str):
         return "string"
@@ -77,6 +89,7 @@ def _get_const_type(const_value: Any) -> str:
         return "null"
     return "any"
 
+
 def _get_schema_from_type(schema: Schema) -> str:
     if schema.type == "array":
         return _get_array_type(schema)
@@ -85,6 +98,7 @@ def _get_schema_from_type(schema: Schema) -> str:
     if isinstance(schema.type, list):
         return " | ".join(it if it != "integer" else "number" for it in schema.type)
     return schema.type if schema.type != "integer" else "number"
+
 
 def _get_array_type(schema: Schema) -> str:
     if "prefix_items" in schema.model_fields_set:
