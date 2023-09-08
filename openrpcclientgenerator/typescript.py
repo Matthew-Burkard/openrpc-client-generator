@@ -14,6 +14,23 @@ templates = root.joinpath("templates")
 env = Environment(  # noqa: S701
     loader=FileSystemLoader(templates), lstrip_blocks=True, trim_blocks=True
 )
+ts_config = """
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "target": "es2020",
+    "module": "es2020",
+    "rootDir": "src",
+    "moduleResolution": "Node",
+    "declaration": true,
+    "removeComments": true,
+    "experimentalDecorators": true,
+    "noUnusedParameters": false,
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib"]
+}
+"""
 
 
 def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
@@ -39,6 +56,7 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     common.touch_and_write(
         client_dir.joinpath("package.json"), _get_package_json(rpc.info, transport)
     )
+    common.touch_and_write(client_dir.joinpath("tsconfig.json"), ts_config)
 
 
 def _get_client(
@@ -56,6 +74,7 @@ def _get_client(
         "ts_type": ts_type,
         "cs": caseswitcher,
         "url": url,
+        "skip_methods": '"connect", "close"' if transport == "WS" else "",
     }
     return env.get_template("typescript/client_module.j2").render(context)
 

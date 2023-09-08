@@ -1,13 +1,15 @@
-@rpcClient(transport)
-export class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
+@rpcClient(transport, "{{ class_prefix + "." if class_prefix else "" }}", [{{ skip_methods }}])
+{{ "" if class_prefix else "export " }}class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
 
-    {% with class_prefix=cs.to_pascal(group.title) %}
-      {% for group in group.child_groups.values() %}
+{# Declare child client properties. #}
+{% with class_prefix=cs.to_pascal(group.title) %}
+  {% for group in group.child_groups.values() %}
     public {{ cs.to_camel(class_prefix + group.title) }}Client: {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client;
-      {% endfor %}
-    {% endwith %}
+  {% endfor %}
+{% endwith %}
 
-  {% if group.child_groups %}
+{# Populate child client properties in constructor. #}
+{% if group.child_groups %}
   constructor() {
     {% with class_prefix=cs.to_pascal(group.title) %}
       {% for group in group.child_groups.values() %}
@@ -15,10 +17,11 @@ export class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
       {% endfor %}
     {% endwith %}
   }
-  {% endif %}
+{% endif %}
 
-  {% for method in group.methods %}
-  async {{ cs.to_camel(method.name) or "_" }}(
+{# Method Declarations #}
+{% for method in group.methods %}
+  public async {{ cs.to_camel(method.name) or "_" }}(
   {% for param in method.params %}
     {{ cs.to_camel(param.name) }}: {{ ts_type(param.schema_) }}
     {% if not loop.last %}
@@ -27,10 +30,28 @@ export class {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client {
   {% endfor %}
   // @ts-ignore
   ): Promise<{{ ts_type(method.result.schema_) }}> {}
-  {% endfor %}
+{% endfor %}
+
+{# WebSocket Client Connect Methods #}
+{% if indent == "" and transport == "WS" %}
+  /**
+   * Connect to WebSocket server.
+   */
+  public connect() {
+    transport.connect();
+  }
+
+  /**
+   * Close connection to WebSocket server.
+   */
+  public close() {
+    transport.close();
+  }
+{% endif %}
 }
 
-{% with class_prefix=cs.to_pascal(group.title) %}
+{# Child Clients #}
+{% with class_prefix=group.name %}
     {% for group in group.child_groups.values() %}
         {% include "typescript/client.j2" %}
     {% endfor %}
