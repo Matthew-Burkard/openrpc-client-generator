@@ -29,6 +29,8 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     schemas = (rpc.components.schemas if rpc.components is not None else {}) or {}
     client = _get_client(rpc.info.title, rpc.methods, schemas, url, transport)
     common.touch_and_write(src_dir.joinpath("client.ts"), client)
+    models = _get_models(schemas)
+    common.touch_and_write(src_dir.joinpath("models.ts"), models)
 
 
 def _get_client(
