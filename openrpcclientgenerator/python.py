@@ -9,7 +9,7 @@ import black
 import caseswitcher
 import isort
 from jinja2 import Environment, FileSystemLoader
-from openrpc import Method, OpenRPC, Schema, SchemaType
+from openrpc import Info, Method, OpenRPC, Schema, SchemaType
 
 from openrpcclientgenerator import common
 
@@ -49,8 +49,7 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     src_dir.joinpath("__init__.py").touch(exist_ok=True)
     # Create setup and README files.
     common.touch_and_write(
-        client_dir.joinpath("setup.py"),
-        _get_setup(rpc.info.title, rpc.info.version, transport),
+        client_dir.joinpath("setup.py"), _get_setup(rpc.info, transport)
     )
     common.touch_and_write(
         client_dir.joinpath("README.md"),
@@ -91,13 +90,13 @@ def _get_models(schemas: dict[str, SchemaType]) -> str:
     return black.format_str(isort.code(template.render(context)), mode=black_mode)
 
 
-def _get_setup(rpc_title: str, version: str, transport: str) -> str:
+def _get_setup(info: Info, transport: str) -> str:
     template = env.get_template("python/setup.j2")
     context = {
-        "project_name": caseswitcher.to_kebab(rpc_title) + "-client",
-        "project_dir": caseswitcher.to_snake(rpc_title) + "_client",
-        "project_title": caseswitcher.to_title(rpc_title),
-        "version": version,
+        "project_name": caseswitcher.to_kebab(info.title) + "-client",
+        "project_dir": caseswitcher.to_snake(info.title) + "_client",
+        "project_title": caseswitcher.to_title(info.title),
+        "info": info,
         "transport": transport,
     }
     return template.render(context) + "\n"
