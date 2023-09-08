@@ -76,7 +76,7 @@ def test_collections_model() -> None:
     assert (
             _tstype(schema, "list_model_or_model") == "Array<VanillaModel | RecursiveModel>"
     )
-    assert _tstype(schema, "list_union") == "Array<str | int>"
+    assert _tstype(schema, "list_union") == "Array<string | number>"
     assert _tstype(schema, "list_dict") == "object[]"
     assert _tstype(schema, "list_dict_str") == "Record<string, string>[]"
     assert _tstype(schema, "list_dict_int_keys") == "Record<string, string>[]"
@@ -85,8 +85,8 @@ def test_collections_model() -> None:
     assert _tstype(schema, "tuple_tuple") == "[any[]]"
     assert _tstype(schema, "tuple_tuple_int") == "[[number]]"
     assert _tstype(schema, "tuple_model") == "[VanillaModel]"
-    assert _tstype(schema, "tuple_union") == "[str | int]"
-    assert _tstype(schema, "tuple_int_str_none") == "[int, string, null]"
+    assert _tstype(schema, "tuple_union") == "[string | number]"
+    assert _tstype(schema, "tuple_int_str_none") == "[number, string, null]"
     assert _tstype(schema, "set_str") == "Set<string>"
     assert _tstype(schema, "set_union") == "Set<string | number>"
     assert _tstype(schema, "dict_field") == "object"

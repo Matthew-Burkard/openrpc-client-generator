@@ -134,7 +134,7 @@ def _get_schema_from_type(schema: Schema) -> str:
     if schema.type == "array":
         return _get_array_type(schema)
     if schema.type == "object":
-        return _get_object_type(schema)
+        return f"dict[str, {py_type(schema.additional_properties)}]"
     if isinstance(schema.type, list):
         return " | ".join(type_map[it] for it in schema.type)
     if schema.type == "string" and schema.format:
@@ -160,13 +160,6 @@ def _get_str_type(str_format: str) -> str:
 def _get_const_type(const_value: Any) -> str:
     const = f'"{const_value}"' if isinstance(const_value, str) else const_value
     return f"Literal[{const}]"
-
-
-def _get_object_type(schema: Schema) -> str:
-    v_type = (
-        py_type(schema.additional_properties) if schema.additional_properties else "Any"
-    )
-    return f"dict[str, {v_type}]"
 
 
 def _get_array_type(schema: Schema) -> str:
