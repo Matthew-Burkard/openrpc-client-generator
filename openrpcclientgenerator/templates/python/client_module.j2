@@ -7,7 +7,7 @@ from jsonrpc2pyclient.decorator import rpc_method
 from jsonrpc2pyclient.{{ transport.lower() }}client import AsyncRPC{{ transport }}Client
 from pydantic import UUID1, UUID3, UUID4, UUID5
 
-from {{ cs.to_snake(group.title) }}_client.models import {{ imports }}
+from {{ cs.to_snake(group.name) }}_client.models import {{ imports }}
 
 transport = AsyncRPC{{ transport }}Client("{{ url }}")
 

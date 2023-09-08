@@ -1,12 +1,12 @@
 
-{{ indent }}class {{ ("_" if indent else "") + cs.to_pascal(group.title) }}Client:
+{{ indent }}class {{ ("_" if indent else "") + cs.to_pascal(group.name) }}Client:
 {% if indent == "" %}
     def __init__(self, headers: dict[str, Any]) -> None:
         transport.headers = headers
 {% endif %}
 {% for name, method in group.methods.items() %}
 {{ indent }}    @rpc_method(transport=transport, method_name="{{ method.name.replace('"', '\\"') }}")
-{{ indent }}    async def {{ cs.to_snake(name) }}(
+{{ indent }}    async def {{ cs.to_snake(name) or "method" }}(
 {{ indent }}        self,
                     {% for param in method.params %}
 {{ indent }}        {{ cs.to_snake(param.name) }}: {{ py_type(param.schema_) }}
@@ -20,7 +20,7 @@
     {% with indent=indent + " " * 4, prefix=cs.to_snake(group.name) + "." %}
         {% include "python/client.j2" %}
     {% endwith %}
-{{ indent }}    {{ cs.to_snake(group.name) }} = _{{ cs.to_pascal(group.title) }}Client()
+{{ indent }}    {{ cs.to_snake(group.name) }} = _{{ cs.to_pascal(group.name) }}Client()
 {% endfor %}
 {# Check to see if this is root level group. #}
 {% if indent == "" and transport == "WS" %}

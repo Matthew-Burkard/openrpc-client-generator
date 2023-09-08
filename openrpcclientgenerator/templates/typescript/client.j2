@@ -9,27 +9,27 @@
   {
   {% for name, method in group.methods.items() %}
   {% if name != method.name.replace('"', '\\"') %}
-    "{{ name }}": "{{ method.name.replace('"', '\\"') }}"{% if not loop.last %},{% endif %}
+    "{{ cs.to_camel(name) or "method" }}": "{{ method.name.replace('"', '\\"') }}"{% if not loop.last %},{% endif %}
   {% endif %}
   {% endfor %}
 
   }
 )
-{{ "" if class_prefix else "export " }}class {{ cs.to_pascal(class_prefix or "") }}{{ cs.to_pascal(group.title) }}Client {
+{{ "" if class_prefix else "export " }}class {{ cs.to_pascal(class_prefix or "") }}{{ cs.to_pascal(group.name) }}Client {
 
 {# Declare child client properties. #}
-{% with class_prefix=cs.to_pascal(group.title) %}
+{% with class_prefix=cs.to_pascal(group.name) %}
   {% for group in group.child_groups.values() %}
-    public {{ cs.to_camel(group.name) }}: {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client;
+    public {{ cs.to_camel(group.name) }}: {{ class_prefix }}{{ cs.to_pascal(group.name) }}Client;
   {% endfor %}
 {% endwith %}
 
 {# Populate child client properties in constructor. #}
 {% if group.child_groups %}
   constructor() {
-    {% with class_prefix=cs.to_pascal(group.title) %}
+    {% with class_prefix=cs.to_pascal(group.name) %}
       {% for group in group.child_groups.values() %}
-    this.{{ cs.to_camel(group.name) }} = new {{ class_prefix }}{{ cs.to_pascal(group.title) }}Client();
+    this.{{ cs.to_camel(group.name) }} = new {{ class_prefix }}{{ cs.to_pascal(group.name) }}Client();
       {% endfor %}
     {% endwith %}
   }
@@ -37,7 +37,7 @@
 
 {# Method Declarations #}
 {% for name, method in group.methods.items() %}
-  public async {{ cs.to_camel(name) }}(
+  public async {{ cs.to_camel(name) or "method" }}(
   {% for param in method.params %}
     {{ cs.to_camel(param.name) }}: {{ ts_type(param.schema_) }}{% if not loop.last %},{% endif %}
   {% endfor %}

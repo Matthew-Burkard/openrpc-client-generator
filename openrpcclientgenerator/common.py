@@ -14,7 +14,6 @@ class RPCGroup(BaseModel):
     """Group RPC methods by `.` separator."""
 
     name: str
-    title: str
     methods: dict[str, Method] = Field(default_factory=dict)
     child_groups: dict[str, "RPCGroup"] = Field(default_factory=dict)
 
@@ -33,7 +32,7 @@ def get_rpc_group(client_name: str, methods: list[Method]) -> RPCGroup:
     :param methods: Methods of the RPC server.
     :return:
     """
-    group = RPCGroup(title=client_name, name=caseswitcher.to_snake(client_name))
+    group = RPCGroup(name=client_name)
     valid = string.ascii_lowercase + string.ascii_uppercase + string.digits + "_"
     for method in methods:
         children = method.name.split(".")
@@ -46,11 +45,10 @@ def get_rpc_group(client_name: str, methods: list[Method]) -> RPCGroup:
             if i + 1 == len(children):
                 current_group.methods[child_name] = method
                 continue
-            title = caseswitcher.to_pascal(child_name)
-            if not current_group.child_groups.get(title):
-                new_group = RPCGroup(name=child_name, title=title)
-                current_group.child_groups[title] = new_group
-            current_group = current_group.child_groups[title]
+            if not current_group.child_groups.get(child_name):
+                new_group = RPCGroup(name=child_name)
+                current_group.child_groups[child_name] = new_group
+            current_group = current_group.child_groups[child_name]
     return group
 
 
