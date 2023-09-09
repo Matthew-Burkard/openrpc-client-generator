@@ -7,7 +7,7 @@ import caseswitcher
 from jinja2 import Environment, FileSystemLoader
 from openrpc import Info, Method, OpenRPC, Schema, SchemaType
 
-from openrpcclientgenerator import common
+from openrpcclientgenerator import _common as common
 
 root = Path(__file__).parent
 templates = root.joinpath("templates")

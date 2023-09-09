@@ -1,7 +1,8 @@
 """Test JSON schema to TypeScript type."""
 from openrpc import Schema
 
-from openrpcclientgenerator import typescript
+# noinspection PyProtectedMember
+from openrpcclientgenerator import _typescript
 from test_models import (
     CollectionsModel,
     Constantly,
@@ -59,9 +60,9 @@ def test_constantly() -> None:
 
 def test_recursive_model() -> None:
     schema = Schema(**RecursiveModel.model_json_schema())
-    assert typescript.ts_type(schema) == "RecursiveModel"
+    assert _typescript.ts_type(schema) == "RecursiveModel"
     assert (
-        typescript.ts_type(schema.defs["RecursiveModel"].properties["child"])
+        _typescript.ts_type(schema.defs["RecursiveModel"].properties["child"])
         == "RecursiveModel | null"
     )
 
@@ -74,7 +75,7 @@ def test_collections_model() -> None:
     assert _tstype(schema, "list_list_int") == "number[][]"
     assert _tstype(schema, "list_model") == "VanillaModel[]"
     assert (
-            _tstype(schema, "list_model_or_model") == "Array<VanillaModel | RecursiveModel>"
+        _tstype(schema, "list_model_or_model") == "Array<VanillaModel | RecursiveModel>"
     )
     assert _tstype(schema, "list_union") == "Array<string | number>"
     assert _tstype(schema, "list_dict") == "object[]"
@@ -95,8 +96,8 @@ def test_collections_model() -> None:
     assert _tstype(schema, "dict_int_keys") == "Record<string, string>"
     assert _tstype(schema, "dict_model") == "Record<string, VanillaModel>"
     assert (
-            _tstype(schema, "dict_model_or_model")
-            == "Record<string, VanillaModel | RecursiveModel>"
+        _tstype(schema, "dict_model_or_model")
+        == "Record<string, VanillaModel | RecursiveModel>"
     )
     assert _tstype(schema, "dict_union") == "Record<string, string | number>"
     assert _tstype(schema, "dict_list") == "Record<string, number[]>"
@@ -175,10 +176,10 @@ def test_pydantic_extra() -> None:
 
 
 def test_remaining() -> None:
-    assert typescript.ts_type(None) == "any"
-    assert typescript.ts_type(True) == "any"
-    assert typescript.ts_type(Schema(type=["string", "integer"])) == "string | number"
+    assert _typescript.ts_type(None) == "any"
+    assert _typescript.ts_type(True) == "any"
+    assert _typescript.ts_type(Schema(type=["string", "integer"])) == "string | number"
 
 
 def _tstype(schema: Schema, prop: str) -> str:
-    return typescript.ts_type(schema.properties[prop])
+    return _typescript.ts_type(schema.properties[prop])

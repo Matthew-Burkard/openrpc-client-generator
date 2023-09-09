@@ -1,6 +1,8 @@
 """Test JSON schema to Python type."""
 from openrpc import Schema
 
+# noinspection PyProtectedMember
+from openrpcclientgenerator import _python
 from test_models import (
     CollectionsModel,
     Constantly,
@@ -13,7 +15,6 @@ from test_models import (
     PythonTypes,
     RecursiveModel,
 )
-from openrpcclientgenerator import python
 
 
 def test_primitives() -> None:
@@ -59,9 +60,9 @@ def test_constantly() -> None:
 
 def test_recursive_model() -> None:
     schema = Schema(**RecursiveModel.model_json_schema())
-    assert python.py_type(schema) == "RecursiveModel"
+    assert _python.py_type(schema) == "RecursiveModel"
     assert (
-        python.py_type(schema.defs["RecursiveModel"].properties["child"])
+        _python.py_type(schema.defs["RecursiveModel"].properties["child"])
         == "RecursiveModel | None"
     )
 
@@ -175,10 +176,10 @@ def test_pydantic_extra() -> None:
 
 
 def test_remaining() -> None:
-    assert python.py_type(None) == "Any"
-    assert python.py_type(True) == "Any"
-    assert python.py_type(Schema(type=["string", "integer"])) == "str | int"
+    assert _python.py_type(None) == "Any"
+    assert _python.py_type(True) == "Any"
+    assert _python.py_type(Schema(type=["string", "integer"])) == "str | int"
 
 
 def _pytype(schema: Schema, prop: str) -> str:
-    return python.py_type(schema.properties[prop])
+    return _python.py_type(schema.properties[prop])

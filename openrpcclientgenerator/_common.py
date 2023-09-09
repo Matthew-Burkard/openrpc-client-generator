@@ -2,12 +2,27 @@
 from __future__ import annotations
 
 import string
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
 import caseswitcher
 from openrpc import Method
 from pydantic import BaseModel, Field
+
+
+class Transport(Enum):
+    """Client transport options."""
+
+    WEBSOCKET = "WS"
+    HTTP = "HTTP"
+
+
+class Language(Enum):
+    """Client language options."""
+
+    PYTHON = "py"
+    TYPESCRIPT = "ts"
 
 
 class RPCGroup(BaseModel):
