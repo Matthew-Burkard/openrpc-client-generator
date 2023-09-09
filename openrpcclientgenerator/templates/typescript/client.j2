@@ -2,9 +2,9 @@
   transport,
   "",
   [
-{% if not class_prefix %}
+  {% if not class_prefix %}
   {{ skip_methods }}
-{% endif %}
+  {% endif %}
   ],
   {
   {% for name, method in group.methods.items() %}
@@ -18,35 +18,36 @@
 {{ "" if class_prefix else "export " }}class {{ cs.to_pascal(class_prefix or "") }}{{ cs.to_pascal(group.name) }}Client {
 
 {# Declare child client properties. #}
-{% with class_prefix=cs.to_pascal(group.name) %}
+  {% with class_prefix=cs.to_pascal(group.name) %}
   {% for group in group.child_groups.values() %}
-    public {{ cs.to_camel(group.name) }}: {{ class_prefix }}{{ cs.to_pascal(group.name) }}Client;
+  public {{ cs.to_camel(group.name) }}: {{ class_prefix }}{{ cs.to_pascal(group.name) }}Client;
   {% endfor %}
-{% endwith %}
+  {% endwith %}
 
 {# Populate child client properties in constructor. #}
-{% if group.child_groups %}
-  constructor() {
+  {% if group.child_groups %}
+  constructor(headers: object = {}) {
+    transport.headers = headers;
     {% with class_prefix=cs.to_pascal(group.name) %}
-      {% for group in group.child_groups.values() %}
+    {% for group in group.child_groups.values() %}
     this.{{ cs.to_camel(group.name) }} = new {{ class_prefix }}{{ cs.to_pascal(group.name) }}Client();
-      {% endfor %}
+    {% endfor %}
     {% endwith %}
   }
-{% endif %}
+  {% endif %}
 
 {# Method Declarations #}
-{% for name, method in group.methods.items() %}
+  {% for name, method in group.methods.items() %}
   public async {{ cs.to_camel(name) or "method" }}(
-  {% for param in method.params %}
+    {% for param in method.params %}
     {{ cs.to_camel(param.name) }}: {{ ts_type(param.schema_) }}{% if not loop.last %},{% endif %}
-  {% endfor %}
+    {% endfor %}
   // @ts-ignore
   ): Promise<{{ ts_type(method.result.schema_) }}> {}
-{% endfor %}
+  {% endfor %}
 
 {# WebSocket Client Connect Methods #}
-{% if not class_prefix and transport == "WS" %}
+  {% if not class_prefix and transport == "WS" %}
   /**
    * Connect to WebSocket server.
    */
@@ -60,7 +61,7 @@
   public close() {
     transport.close();
   }
-{% endif %}
+  {% endif %}
 }
 
 {# Child Clients #}
