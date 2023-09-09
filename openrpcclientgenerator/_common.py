@@ -11,13 +11,6 @@ from openrpc import Method
 from pydantic import BaseModel, Field
 
 
-class Transport(Enum):
-    """Client transport options."""
-
-    WEBSOCKET = "WS"
-    HTTP = "HTTP"
-
-
 class Language(Enum):
     """Client language options."""
 

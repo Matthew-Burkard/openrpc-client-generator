@@ -1,10 +1,11 @@
-"""Provides everything needed to generate RPC clients.
+"""Generate Open-RPC clients.
 
 Current supported languages:
- - C#
- - Kotlin
  - Python
  - TypeScript
-
-A client for each can be generated using the ClientFactory.
 """
+
+__all__ = ("generate", "Language")
+
+from openrpcclientgenerator._common import Language
+from openrpcclientgenerator._generator import generate

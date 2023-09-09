@@ -7,8 +7,8 @@ from pathlib import Path
 import httpx
 from openrpc import OpenRPC
 
-from openrpcclientgenerator._common import Language, Transport
-from openrpcclientgenerator.generator import generate
+from openrpcclientgenerator._common import Language
+from openrpcclientgenerator._generator import generate
 
 parser = argparse.ArgumentParser(description="Open-RPC Client Generator")
 parser.add_argument("--lang", help="The language of the client.")
@@ -30,12 +30,10 @@ if __name__ == "__main__":
         openrpc = OpenRPC(**resp.json())
     else:
         openrpc = OpenRPC(**json.loads(Path(args.openrpc).read_text()))
-    transport = "WS" if args.url.startswith("ws") else "HTTP"
     language = Language(args.lang)
     generate(
         openrpc,
         language,
-        Transport(transport),
         args.url,
         Path(args.out or Path.cwd().joinpath("out")),
     )
