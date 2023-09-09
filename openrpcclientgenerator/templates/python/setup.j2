@@ -1,0 +1,15 @@
+from setuptools import setup
+
+setup(
+    name="{{ project_name }}",
+    version="{{ info.version }}",
+{% if info.contact and info.contact.name %}
+    author="{{ info.contact.name }}",
+{% endif %}
+{% if info.contact and info.contact.email %}
+    author_email="{{ info.contact.email }}",
+{% endif %}
+    description="{{ project_title }} Python {{ transport }} client.",
+    packages=["{{ project_dir }}"],
+    install_requires=["jsonrpc2-pyclient==4.3.0", "pydantic==2.3.0"],
+)

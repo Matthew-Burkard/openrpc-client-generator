@@ -1,0 +1,14 @@
+"""Python client template."""
+import datetime
+from uuid import UUID
+from typing import Any, Literal
+
+from jsonrpc2pyclient.decorator import rpc_method
+from jsonrpc2pyclient.{{ transport.lower() }}client import AsyncRPC{{ transport }}Client
+from pydantic import UUID1, UUID3, UUID4, UUID5
+
+from {{ cs.to_snake(group.name) }}_client.models import {{ imports }}
+
+transport = AsyncRPC{{ transport }}Client("{{ url }}")
+
+{% include "python/client.j2" %}

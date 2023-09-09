@@ -1,0 +1,7 @@
+import {rpcClient, RPC{{ "WebSocket" if transport == "WS" else transport }}Client} from "jsonrpc2-tsclient";
+
+import {{ imports }} from "./models.js";
+
+const transport = new RPC{{ "WebSocket" if transport == "WS" else transport }}Client("{{ url }}");
+
+{% include "typescript/client.j2" %}

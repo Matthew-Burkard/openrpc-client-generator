@@ -1,0 +1,31 @@
+from __future__ import annotations
+
+from uuid import UUID
+import datetime
+from enum import Enum
+from typing import Any, Literal
+
+from pydantic import BaseModel, UUID1, UUID3, UUID4, UUID5
+
+
+{% for schema_name, schema in schemas.items() %}
+    {% if schema.enum %}
+
+class {{ cs.to_pascal(schema_name) }}(Enum):
+{% for value in schema.enum %}
+    {{ get_enum_option_name(value) }} = {{ get_enum_value(value) }}
+{% endfor %}
+
+    {% endif %}
+{% endfor %}
+
+{% for schema_name, schema in schemas.items() %}
+    {% if schema.properties %}
+
+class {{ cs.to_pascal(schema_name) }}(BaseModel):
+{% for name, schema in schema.properties.items() %}
+    {{ cs.to_snake(name) }}: {{ py_type(schema) }}
+{% endfor %}
+
+    {% endif %}
+{% endfor %}

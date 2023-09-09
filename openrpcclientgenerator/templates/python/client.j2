@@ -1,0 +1,36 @@
+
+{{ indent }}class {{ ("_" if indent else "") + cs.to_pascal(group.name) }}Client:
+{% if indent == "" %}
+    def __init__(self, headers: dict[str, Any]) -> None:
+        transport.headers = headers
+{% endif %}
+{% for name, method in group.methods.items() %}
+{{ indent }}    @rpc_method(transport=transport, method_name="{{ method.name.replace('"', '\\"') }}")
+{{ indent }}    async def {{ cs.to_snake(name) or "method" }}(
+{{ indent }}        self,
+                    {% for param in method.params %}
+{{ indent }}        {{ cs.to_snake(param.name) }}: {{ py_type(param.schema_) }}
+                        {% if not loop.last %}
+                            ,
+                        {% endif %}
+                    {% endfor %}
+{{ indent }}    ) -> {{ py_type(method.result.schema_) }}: ...
+{% endfor %}
+{% for group in group.child_groups.values() %}
+    {% with indent=indent + " " * 4, prefix=cs.to_snake(group.name) + "." %}
+        {% include "python/client.j2" %}
+    {% endwith %}
+{{ indent }}    {{ cs.to_snake(group.name) }} = _{{ cs.to_pascal(group.name) }}Client()
+{% endfor %}
+{# Check to see if this is root level group. #}
+{% if indent == "" and transport == "WS" %}
+    @staticmethod
+    async def connect() -> None:
+        """Connect to WebSocket server."""
+        await transport.connect()
+
+    @staticmethod
+    async def close() -> None:
+        """Close connection to WebSocket server."""
+        await transport.close()
+{% endif %}

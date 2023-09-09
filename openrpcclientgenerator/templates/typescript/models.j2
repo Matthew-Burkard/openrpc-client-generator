@@ -1,0 +1,22 @@
+
+{% for schema_name, schema in schemas.items() %}
+{% if schema.enum %}
+
+export enum {{ cs.to_pascal(schema_name) }} {
+{% for value in schema.enum %}
+    {{ get_enum_option_name(value) }} = {{ get_enum_value(value) }},
+{% endfor %}
+}
+{% endif %}
+{% endfor %}
+
+{% for schema_name, schema in schemas.items() %}
+{% if schema.properties %}
+
+export interface {{ cs.to_pascal(schema_name) }} {
+{% for name, schema in schema.properties.items() %}
+    {{ cs.to_camel(name) }}: {{ ts_type(schema) }}
+{% endfor %}
+}
+{% endif %}
+{% endfor %}
