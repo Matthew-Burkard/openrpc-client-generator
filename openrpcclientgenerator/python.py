@@ -52,8 +52,7 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
         client_dir.joinpath("setup.py"), _get_setup(rpc.info, transport)
     )
     common.touch_and_write(
-        client_dir.joinpath("README.md"),
-        _get_readme(rpc.info.title, transport),
+        client_dir.joinpath("README.md"), _get_readme(rpc.info.title, transport)
     )
 
 

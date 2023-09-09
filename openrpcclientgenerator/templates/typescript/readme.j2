@@ -1,0 +1,33 @@
+# {{ project_title }} {{ "WebSocket" if transport == "WS" else transport }} Client
+
+{{ project_title }} TypeScript {{ "WebSocket" if transport == "WS" else transport }} client.
+
+## Example Usage
+
+```typescript
+import {{ client_import}} from "{{ package_name }}"
+
+{% if transport == "WS" %}
+client.connect();
+{% endif %}
+
+async function main() {
+  // Get an instance of the client.
+  const client = new {{ client_name }}(headers={});
+  // Use client method calls...
+}
+
+{% if transport == "WS" %}
+main().then(() => client.close());
+{% else %}
+main().then(() => {});
+{% endif %}
+```
+
+## Build Installable Tarball Locally
+
+```shell
+npm i
+npm run build
+npm pack
+```

@@ -58,6 +58,10 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     )
     common.touch_and_write(client_dir.joinpath("tsconfig.json"), ts_config)
 
+    common.touch_and_write(
+        client_dir.joinpath("README.md"), _get_readme(rpc.info.title, transport)
+    )
+
 
 def _get_client(
     title: str,
@@ -110,6 +114,18 @@ def _get_package_json(info: Info, transport: str) -> str:
         "transport": transport,
     }
     return env.get_template("typescript/package_json.j2").render(context) + "\n"
+
+
+def _get_readme(rpc_title: str, transport: str) -> str:
+    template = env.get_template("python/readme.j2")
+    context = {
+        "project_title": caseswitcher.to_title(rpc_title),
+        "client_import": "{%sClient}" % caseswitcher.to_pascal(rpc_title),
+        "package_name": caseswitcher.to_snake(rpc_title) + "_client",
+        "client_name": caseswitcher.to_pascal(rpc_title) + "Client",
+        "transport": transport,
+    }
+    return template.render(context) + "\n"
 
 
 def ts_type(schema: SchemaType | None) -> str:
