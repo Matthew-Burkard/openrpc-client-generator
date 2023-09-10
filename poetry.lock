@@ -26,7 +26,7 @@ trio = ["trio (>=0.22)"]
 
 [[package]]
 name = "black"
-version = "23.7.0"
+version = "23.9.0"
 description = "The uncompromising code formatter."
 category = "main"
 optional = false
@@ -39,6 +39,7 @@ packaging = ">=22.0"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
+typing-extensions = {version = ">=4.0.1", markers = "python_version < \"3.11\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -96,7 +97,7 @@ toml = ["tomli"]
 name = "dnspython"
 version = "2.4.2"
 description = "DNS toolkit"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8,<4.0"
 
@@ -112,7 +113,7 @@ wmi = ["wmi (>=1.5.1,<2.0.0)"]
 name = "email-validator"
 version = "2.0.0.post2"
 description = "A robust email address syntax and deliverability validation library."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -323,7 +324,7 @@ python-versions = ">=3.7"
 name = "phonenumbers"
 version = "8.13.20"
 description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -383,7 +384,7 @@ typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 name = "pydantic-extra-types"
 version = "2.1.0"
 description = "Extra Pydantic types."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -455,7 +456,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "0b252fd155b3b147e5ef3431edaa1c5abd850e0ced0a03fb0952a1c693c4bf81"
+content-hash = "6590a306686fdf3da8ed804384b18030542d1b3828c2e66f45651d13aa858285"
 
 [metadata.files]
 annotated-types = []
