@@ -37,9 +37,9 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> str:
     py_out = out.joinpath("python")
     py_out.mkdir(exist_ok=True)
     client_name = caseswitcher.to_kebab(f"{rpc.info.title}-{transport.lower()}-client")
-    client_dir = py_out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
+    client_dir = py_out.joinpath(client_name)
     client_dir.mkdir(exist_ok=True)
-    src_dir = client_dir.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
+    src_dir = client_dir.joinpath(client_name.replace("-", "_"))
     src_dir.mkdir(exist_ok=True)
     # Create Python files.
     schemas = (rpc.components.schemas if rpc.components is not None else {}) or {}
