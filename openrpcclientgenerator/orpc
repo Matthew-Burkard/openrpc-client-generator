@@ -21,7 +21,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    if not args.openrpc:
+    if not args.openrpc and args.url.startswith("http"):
         discover = {"id": 1, "method": "rpc.discover", "jsonrpc": "2.0"}
         resp = httpx.post(args.url, json=discover)
         openrpc = OpenRPC(**resp.json()["result"])
