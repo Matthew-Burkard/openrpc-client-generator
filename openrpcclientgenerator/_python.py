@@ -7,7 +7,6 @@ from typing import Any
 
 import black
 import caseswitcher
-import isort
 from jinja2 import Environment, FileSystemLoader
 from openrpc import Info, Method, OpenRPC, Schema, SchemaType
 
@@ -76,7 +75,7 @@ def _get_client(
         "cs": caseswitcher,
         "url": url,
     }
-    return black.format_str(isort.code(template.render(context)), mode=black_mode)
+    return black.format_str(template.render(context), mode=black_mode)
 
 
 def _get_models(schemas: dict[str, SchemaType]) -> str:
@@ -88,7 +87,7 @@ def _get_models(schemas: dict[str, SchemaType]) -> str:
         "get_enum_value": common.get_enum_value,
     }
     template = env.get_template("python/models.j2")
-    return black.format_str(isort.code(template.render(context)), mode=black_mode)
+    return black.format_str(template.render(context), mode=black_mode)
 
 
 def _get_setup(info: Info, transport: str) -> str:
