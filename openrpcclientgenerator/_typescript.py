@@ -1,4 +1,6 @@
 """Generate TypeScript client."""
+from __future__ import annotations
+
 import re
 from pathlib import Path
 from typing import Any
@@ -33,12 +35,13 @@ ts_config = """
 """
 
 
-def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
-    """Generate a TypeScript client"""
+def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> str:
+    """Generate a TypeScript client."""
     out.mkdir(exist_ok=True)
     ts_out = out.joinpath("typescript")
     ts_out.mkdir(exist_ok=True)
-    client_dir = ts_out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
+    client_name = caseswitcher.to_kebab(f"{rpc.info.title}-{transport.lower()}-client")
+    client_dir = ts_out.joinpath(client_name)
     client_dir.mkdir(exist_ok=True)
     src_dir = client_dir.joinpath(caseswitcher.to_snake("src"))
     src_dir.mkdir(exist_ok=True)
@@ -61,6 +64,7 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     common.touch_and_write(
         client_dir.joinpath("README.md"), _get_readme(rpc.info.title, transport)
     )
+    return client_name
 
 
 def _get_client(
@@ -150,7 +154,7 @@ def _get_const_type(const_value: Any) -> str:
     # isinstance(const_value, bool) causes issues with values 1 and 0.
     if const_value is True or const_value is False:
         return "boolean"
-    if isinstance(const_value, int) or isinstance(const_value, float):
+    if isinstance(const_value, (float, int)):
         return "number"
     if const_value is None:
         return "null"
@@ -164,7 +168,7 @@ def _get_schema_from_type(schema: Schema) -> str:
         return _get_object_type(schema)
     if isinstance(schema.type, list):
         return " | ".join(it if it != "integer" else "number" for it in schema.type)
-    return schema.type if schema.type != "integer" else "number"
+    return schema.type or "any" if schema.type != "integer" else "number"
 
 
 def _get_array_type(schema: Schema) -> str:

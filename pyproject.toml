@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openrpcclientgenerator"
-version = "0.42.4"
+version = "0.43.0"
 description = "Generate clients from an Open-RPC document."
 readme = "README.md"
 repository = "https://gitlab.com/mburkard/openrpc-client-generator"
@@ -12,10 +12,10 @@ classifiers = ["Programming Language :: Python :: 3"]
 [tool.poetry.dependencies]
 python = "^3.10"
 case-switcher = "^1.2.1"
-openrpc = "^8.0.1"
+openrpc = "^8.1.0"
 Jinja2 = "^3.1.2"
 httpx = "^0.24.1"
-black = "^23.9.0"
+black = "^23.9.1"
 isort = "^5.12.0"
 pydantic = "^2.3.0"
 
@@ -23,7 +23,7 @@ pydantic = "^2.3.0"
 pytest = "^7.4.2"
 mypy = "^1.1.1"
 coverage = "^7.1.0"
-ruff = "^0.0.287"
+ruff = "^0.0.288"
 jsonrpc2-pyclient = "^4.3.0"
 pydantic-extra-types = "^2.1.0"
 pydantic = {extras = ["email"], version = "^2.3.0"}

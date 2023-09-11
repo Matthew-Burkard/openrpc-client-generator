@@ -26,7 +26,7 @@ trio = ["trio (>=0.22)"]
 
 [[package]]
 name = "black"
-version = "23.9.0"
+version = "23.9.1"
 description = "The uncompromising code formatter."
 category = "main"
 optional = false
@@ -293,7 +293,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "openrpc"
-version = "8.0.1"
+version = "8.1.0"
 description = "Transport agnostic framework for developing OpenRPC servers."
 category = "main"
 optional = false
@@ -415,7 +415,7 @@ testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "no
 
 [[package]]
 name = "ruff"
-version = "0.0.287"
+version = "0.0.288"
 description = "An extremely fast Python linter, written in Rust."
 category = "dev"
 optional = false
@@ -456,7 +456,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "6590a306686fdf3da8ed804384b18030542d1b3828c2e66f45651d13aa858285"
+content-hash = "c892c33d951db39d89ee06df770943e4af006a70a14e8788889bcb6ecc70731d"
 
 [metadata.files]
 annotated-types = []

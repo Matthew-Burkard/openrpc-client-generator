@@ -30,12 +30,13 @@ type_map = {
 }
 
 
-def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
+def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> str:
     """Generate a Python client."""
     # Create client directory adn src directory.
     out.mkdir(exist_ok=True)
     py_out = out.joinpath("python")
     py_out.mkdir(exist_ok=True)
+    client_name = caseswitcher.to_kebab(f"{rpc.info.title}-{transport.lower()}-client")
     client_dir = py_out.joinpath(caseswitcher.to_kebab(f"{rpc.info.title}-client"))
     client_dir.mkdir(exist_ok=True)
     src_dir = client_dir.joinpath(caseswitcher.to_snake(f"{rpc.info.title}_client"))
@@ -54,6 +55,7 @@ def generate_client(rpc: OpenRPC, url: str, transport: str, out: Path) -> None:
     common.touch_and_write(
         client_dir.joinpath("README.md"), _get_readme(rpc.info.title, transport)
     )
+    return client_name
 
 
 def _get_client(
